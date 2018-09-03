@@ -185,6 +185,54 @@ namespace Writership
         }
     }
 
+    public class ElP<T> : IHaveCells
+        where T : struct
+    {
+        private readonly Engine engine;
+        private readonly T[] cells;
+
+#if DEBUG
+        private readonly Writership writership = new Writership();
+#endif
+
+        public ElP(Engine engine, T value)
+        {
+            this.engine = engine;
+
+            cells = new T[engine.Cells];
+            for (int i = 0, n = cells.Length; i < n; ++i)
+            {
+                cells[i] = value;
+            }
+        }
+
+        public T Read()
+        {
+            return cells[engine.CurrentCellIndex];
+        }
+
+        public void Write(T value)
+        {
+#if DEBUG
+            writership.Mark();
+#endif
+            MarkSelfDirty();
+            cells[engine.WriteCellIndex] = value;
+        }
+
+        public void CopyCells(int from, int to)
+        {
+            cells[to] = cells[from];
+        }
+
+        public void ClearCell(int at) { }
+
+        private void MarkSelfDirty()
+        {
+            engine.MarkDirty(this);
+        }
+    }
+
     public class ElC<T> : IHaveCells
         where T : ICloneable
     {
@@ -233,54 +281,6 @@ namespace Writership
         public void CopyCells(int from, int to)
         {
             cells[to] = (T)cells[from].Clone();
-        }
-
-        public void ClearCell(int at) { }
-
-        private void MarkSelfDirty()
-        {
-            engine.MarkDirty(this);
-        }
-    }
-
-    public class ElP<T> : IHaveCells
-        where T : struct
-    {
-        private readonly Engine engine;
-        private readonly T[] cells;
-
-#if DEBUG
-        private readonly Writership writership = new Writership();
-#endif
-
-        public ElP(Engine engine, T value)
-        {
-            this.engine = engine;
-
-            cells = new T[engine.Cells];
-            for (int i = 0, n = cells.Length; i < n; ++i)
-            {
-                cells[i] = value;
-            }
-        }
-
-        public T Read()
-        {
-            return cells[engine.CurrentCellIndex];
-        }
-
-        public void Write(T value)
-        {
-#if DEBUG
-            writership.Mark();
-#endif
-            MarkSelfDirty();
-            cells[engine.WriteCellIndex] = value;
-        }
-
-        public void CopyCells(int from, int to)
-        {
-            cells[to] = cells[from];
         }
 
         public void ClearCell(int at) { }
