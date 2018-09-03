@@ -412,8 +412,6 @@ namespace Writership
                 UnityEngine.Debug.Log("Age: " + age.Read());
             });
 
-            name.Write("some name");
-            name.Write("some name");
             changeName.Fire(default(Void));
 
             e.Run(0);
