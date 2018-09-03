@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Writership
 {
@@ -58,6 +59,10 @@ namespace Writership
                 };
                 dirties.Add(dirty);
             }
+            else if (dirty.Phase == 1)
+            {
+                throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
+            }
 
             dirty.Phase = 1;
         }
@@ -83,9 +88,11 @@ namespace Writership
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
             var calledJobs = new List<Action>();
+            int ran = 0;
 
             do
             {
+                ++ran;
                 calledJobs.Clear();
 
                 for (int i = 0, n = dirties.Count; i < n; ++i)
@@ -128,6 +135,7 @@ namespace Writership
             while (calledJobs.Count > 0);
 
             dirties.Clear();
+            UnityEngine.Debug.Log("Engine ran: " + ran);
         }
 
         public ElP<T> ElP<T>(T value) where T : struct
@@ -152,11 +160,40 @@ namespace Writership
         void ClearCell(int at);
     }
 
+    public class Writership
+    {
+        private string fileName;
+        private int lineNumber;
+
+        public void Mark()
+        {
+            var frame = new StackFrame(2, true);
+            string nowFileName = frame.GetFileName();
+            int nowLineNumber = frame.GetFileLineNumber();
+
+            if (fileName == null)
+            {
+                fileName = nowFileName;
+                lineNumber = nowLineNumber;
+            }
+            else if (fileName != nowFileName || lineNumber != nowLineNumber)
+            {
+                UnityEngine.Debug.Log("Now write: " + nowFileName + ":" + nowLineNumber);
+                UnityEngine.Debug.Log("Org write: " + fileName + ":" + lineNumber);
+                throw new InvalidOperationException("Cannot write to same at different places");
+            }
+        }
+    }
+
     public class ElC<T> : IHaveCells
         where T : ICloneable
     {
         private readonly Engine engine;
         private readonly T[] cells;
+
+#if DEBUG
+        private readonly Writership writership = new Writership();
+#endif
 
         public ElC(Engine engine, T value)
         {
@@ -177,12 +214,18 @@ namespace Writership
 
         public void Write(T value)
         {
+#if DEBUG
+            writership.Mark();
+#endif
             MarkSelfDirty();
             cells[engine.WriteCellIndex] = value;
         }
 
         public T AsWrite()
         {
+#if DEBUG
+            writership.Mark();
+#endif
             MarkSelfDirty();
             return cells[engine.WriteCellIndex];
         }
@@ -206,6 +249,10 @@ namespace Writership
         private readonly Engine engine;
         private readonly T[] cells;
 
+#if DEBUG
+        private readonly Writership writership = new Writership();
+#endif
+
         public ElP(Engine engine, T value)
         {
             this.engine = engine;
@@ -224,14 +271,11 @@ namespace Writership
 
         public void Write(T value)
         {
+#if DEBUG
+            writership.Mark();
+#endif
             MarkSelfDirty();
             cells[engine.WriteCellIndex] = value;
-        }
-
-        public T AsWrite()
-        {
-            MarkSelfDirty();
-            return cells[engine.WriteCellIndex];
         }
 
         public void CopyCells(int from, int to)
@@ -253,6 +297,10 @@ namespace Writership
         private readonly Engine engine;
         private readonly List<T>[] cells;
 
+#if DEBUG
+        private readonly Writership writership = new Writership();
+#endif
+
         public LiP(Engine engine, IList<T> list)
         {
             this.engine = engine;
@@ -273,6 +321,9 @@ namespace Writership
 
         public List<T> AsWrite()
         {
+#if DEBUG
+            writership.Mark();
+#endif
             MarkSelfDirty();
             return cells[engine.WriteCellIndex];
         }
@@ -361,6 +412,8 @@ namespace Writership
                 UnityEngine.Debug.Log("Age: " + age.Read());
             });
 
+            name.Write("some name");
+            name.Write("some name");
             changeName.Fire(default(Void));
 
             e.Run(0);
