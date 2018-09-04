@@ -138,17 +138,17 @@ namespace Writership
             UnityEngine.Debug.Log("Engine ran: " + ran);
         }
 
-        public ElP<T> ElP<T>(T value) where T : struct
+        public El<T> El<T>(T value)
         {
-            return new ElP<T>(this, value);
+            return new El<T>(this, value);
         }
 
-        public ElC<T> ElC<T>(T value) where T : ICloneable
+        public Li<T> Li<T>(IList<T> list)
         {
-            return new ElC<T>(this, value);
+            return new Li<T>(this, list);
         }
 
-        public Op<T> Op<T>() where T : struct
+        public Op<T> Op<T>()
         {
             return new Op<T>(this);
         }
@@ -185,8 +185,7 @@ namespace Writership
         }
     }
 
-    public class ElP<T> : IHaveCells
-        where T : struct
+    public class El<T> : IHaveCells
     {
         private readonly Engine engine;
         private readonly T[] cells;
@@ -195,7 +194,7 @@ namespace Writership
         private readonly Writership writership = new Writership();
 #endif
 
-        public ElP(Engine engine, T value)
+        public El(Engine engine, T value)
         {
             this.engine = engine;
 
@@ -233,66 +232,7 @@ namespace Writership
         }
     }
 
-    public class ElC<T> : IHaveCells
-        where T : ICloneable
-    {
-        private readonly Engine engine;
-        private readonly T[] cells;
-
-#if DEBUG
-        private readonly Writership writership = new Writership();
-#endif
-
-        public ElC(Engine engine, T value)
-        {
-            this.engine = engine;
-
-            cells = new T[engine.Cells];
-            for (int i = 0, n = cells.Length; i < n; ++i)
-            {
-                cells[i] = i == 0 ? value : (T)value.Clone();
-            }
-        }
-
-        public T Read()
-        {
-            // TODO Return directly in release, to improve performance
-            return (T)cells[engine.CurrentCellIndex].Clone();
-        }
-
-        public void Write(T value)
-        {
-#if DEBUG
-            writership.Mark();
-#endif
-            MarkSelfDirty();
-            cells[engine.WriteCellIndex] = value;
-        }
-
-        public T AsWrite()
-        {
-#if DEBUG
-            writership.Mark();
-#endif
-            MarkSelfDirty();
-            return cells[engine.WriteCellIndex];
-        }
-
-        public void CopyCells(int from, int to)
-        {
-            cells[to] = (T)cells[from].Clone();
-        }
-
-        public void ClearCell(int at) { }
-
-        private void MarkSelfDirty()
-        {
-            engine.MarkDirty(this);
-        }
-    }
-
-    public class LiP<T> : IHaveCells
-        where T : struct
+    public class Li<T> : IHaveCells
     {
         private readonly Engine engine;
         private readonly List<T>[] cells;
@@ -301,7 +241,7 @@ namespace Writership
         private readonly Writership writership = new Writership();
 #endif
 
-        public LiP(Engine engine, IList<T> list)
+        public Li(Engine engine, IList<T> list)
         {
             this.engine = engine;
 
@@ -343,7 +283,6 @@ namespace Writership
     }
 
     public class Op<T> : IHaveCells
-        where T : struct
     {
         private readonly Engine engine;
         private readonly List<T>[] cells;
@@ -395,8 +334,8 @@ namespace Writership
         public static void Run()
         {
             var e = new Engine();
-            var name = e.ElC("jan");
-            var age = e.ElP(1);
+            var name = e.El("jan");
+            var age = e.El(1);
             var changeName = e.Op<Void>();
 
             e.RegisterListener(new object[] { name }, () =>
