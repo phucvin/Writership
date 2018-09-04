@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Writership
 {
-    public class Engine
+    public class Engine: IDisposable
     {
         private class Dirty
         {
@@ -15,34 +16,61 @@ namespace Writership
         private readonly List<Dirty>[] dirties;
         private readonly Dictionary<object, List<Action>>[] listeners;
 
+#if !WRITERSHIP_NO_COMPUTE_THREAD
+        private readonly int mainThreadId;
+        private Thread computeThread;
+#endif
+
         public Engine()
         {
-            Cells = 2;
-            dirties = new List<Dirty>[Cells];
-            listeners = new Dictionary<object, List<Action>>[Cells];
+            TotalCells = 2;
 
-            for (int i = 0, n = Cells; i < n; ++i)
+            dirties = new List<Dirty>[TotalCells];
+            listeners = new Dictionary<object, List<Action>>[TotalCells];
+
+#if !WRITERSHIP_NO_COMPUTE_THREAD
+            mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            if (TotalCells == 3)
+            {
+                computeThread = new Thread(Compute);
+            }
+            else
+            {
+                computeThread = null;
+            }
+#endif
+
+            for (int i = 0, n = TotalCells; i < n; ++i)
             {
                 dirties[i] = new List<Dirty>();
                 listeners[i] = new Dictionary<object, List<Action>>();
             }
         }
 
-        public int Cells { get; private set; }
+        public void Dispose()
+        {
+#if !WRITERSHIP_NO_COMPUTE_THREAD
+            if (computeThread != null)
+            {
+                computeThread.Abort();
+                computeThread = null;
+            }
+#endif
+        }
+
+        public int TotalCells { get; private set; }
+        public int WriteCellIndex { get { return TotalCells - 1; } }
 
         public int CurrentCellIndex
         {
             get
             {
+#if !WRITERSHIP_NO_COMPUTE_THREAD
+                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return 1;
+                else return 0;
+#else
                 return 0;
-            }
-        }
-
-        public int WriteCellIndex
-        {
-            get
-            {
-                return 1;
+#endif
             }
         }
 
@@ -138,19 +166,29 @@ namespace Writership
             UnityEngine.Debug.Log("Engine ran: " + ran);
         }
 
-        public El<T> El<T>(T value)
+#if !WRITERSHIP_NO_COMPUTE_THREAD
+        private void Compute()
         {
-            return new El<T>(this, value);
+            
+        }
+#endif
+    }
+
+    public static class CreateExtensions
+    {
+        public static El<T> El<T>(this Engine engine,T value)
+        {
+            return new El<T>(engine, value);
         }
 
-        public Li<T> Li<T>(IList<T> list)
+        public static Li<T> Li<T>(this Engine engine, IList<T> list)
         {
-            return new Li<T>(this, list);
+            return new Li<T>(engine, list);
         }
 
-        public Op<T> Op<T>()
+        public static Op<T> Op<T>(this Engine engine)
         {
-            return new Op<T>(this);
+            return new Op<T>(engine);
         }
     }
 
@@ -198,7 +236,7 @@ namespace Writership
         {
             this.engine = engine;
 
-            cells = new T[engine.Cells];
+            cells = new T[engine.TotalCells];
             for (int i = 0, n = cells.Length; i < n; ++i)
             {
                 cells[i] = value;
@@ -245,7 +283,7 @@ namespace Writership
         {
             this.engine = engine;
 
-            cells = new List<T>[engine.Cells];
+            cells = new List<T>[engine.TotalCells];
             for (int i = 0, n = cells.Length; i < n; ++i)
             {
                 var l = new List<T>();
@@ -291,7 +329,7 @@ namespace Writership
         {
             this.engine = engine;
 
-            cells = new List<T>[engine.Cells];
+            cells = new List<T>[engine.TotalCells];
             for (int i = 0, n = cells.Length; i < n; ++i)
             {
                 var l = new List<T>();
