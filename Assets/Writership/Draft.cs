@@ -415,6 +415,7 @@ namespace Writership
             changeName.Fire(default(Void));
 
             e.Run(0);
+            e.Run(0);
         }
     }
 }
