@@ -17,6 +17,7 @@ namespace Writership
 
 #if !WRITERSHIP_NO_COMPUTE_THREAD
         private readonly int mainThreadId;
+        private bool isComputeDone;
         private Thread computeThread;
         private AutoResetEvent computeSignal;
 #endif
@@ -33,6 +34,7 @@ namespace Writership
 
 #if !WRITERSHIP_NO_COMPUTE_THREAD
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            isComputeDone = false;
             if (TotalCells == 3)
             {
                 computeThread = new Thread(Compute);
@@ -131,7 +133,7 @@ namespace Writership
         public void Update()
         {
 #if !WRITERSHIP_NO_COMPUTE_THREAD
-            while (computeThread.ThreadState != ThreadState.WaitSleepJoin)
+            while (!isComputeDone)
             {
                 Thread.Sleep(1);
             }
@@ -142,6 +144,7 @@ namespace Writership
             CopyDirties(0, 1);
             dirties[0].Clear();
 
+            isComputeDone = false;
             computeSignal.Set();
 #else
             Process(0);
@@ -173,8 +176,9 @@ namespace Writership
                 for (int i = 0, n = dirties.Count; i < n; ++i)
                 {
                     var dirty = dirties[i];
-                    if (dirty.Phase != 2) continue;
-                    dirty.Phase = 3;
+                    if (dirty.Phase == 2) dirty.Phase = 3;
+                    else if (dirty.Phase == 11) dirty.Phase = 12;
+                    else continue;
 
                     List<Action> jobs;
                     if (listeners.TryGetValue(dirty.Inner, out jobs))
@@ -192,8 +196,9 @@ namespace Writership
                 for (int i = 0, n = dirties.Count; i < n; ++i)
                 {
                     var dirty = dirties[i];
-                    if (dirty.Phase != 3) continue;
-                    dirty.Phase = 4;
+                    if (dirty.Phase == 3) dirty.Phase = 4;
+                    else if (dirty.Phase == 12) dirty.Phase = 13;
+                    else continue;
 
                     dirty.Inner.ClearCell(CurrentCellIndex);
                 }
@@ -208,6 +213,7 @@ namespace Writership
                 while (true)
                 {
                     Process(1);
+                    isComputeDone = true;
                     computeSignal.WaitOne();
                 }
             }
@@ -222,7 +228,7 @@ namespace Writership
             {
                 var dirty = fromDirties[i];
                 if (dirty.Phase < 4) throw new NotImplementedException();
-                else if (dirty.Phase > 4) continue;
+                else if (dirty.Phase > 10) continue;
 
                 dirty.Inner.CopyCells(from, to);
 
@@ -231,7 +237,7 @@ namespace Writership
                 {
                     existing = new Dirty
                     {
-                        Phase = 5,
+                        Phase = 11,
                         Inner = dirty.Inner,
                     };
                     toDirties.Add(existing);
