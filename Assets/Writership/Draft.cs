@@ -152,12 +152,58 @@ namespace Writership
             CopyDirties(1, 0);
             dirties[1].Clear();
 
-            Process(0);
-            CopyDirties(0, 1);
-            dirties[0].Clear();
+            { // TODO Refactor
+                var dirties = this.dirties[0];
 
+                for (int i = 0, n = dirties.Count; i < n; ++i)
+                {
+                    var dirty = dirties[i];
+                    if (dirty.Phase != 1) continue;
+                    dirty.Phase = 2;
+
+                    dirty.Inner.CopyCells(WriteCellIndex, 0);
+                }
+            }
+            CopyDirties(0, 1);
             isComputeDone = false;
             computeSignal.Set();
+
+            { // TODO Refactor
+                var dirties = this.dirties[0];
+                var listeners = this.listeners[0];
+                var calledJobs = new List<Action>();
+
+                for (int i = 0, n = dirties.Count; i < n; ++i)
+                {
+                    var dirty = dirties[i];
+                    if (dirty.Phase == 2) dirty.Phase = 3;
+                    else if (dirty.Phase == 11) dirty.Phase = 12;
+                    else continue;
+
+                    List<Action> jobs;
+                    if (listeners.TryGetValue(dirty.Inner, out jobs))
+                    {
+                        for (int j = 0, m = jobs.Count; j < m; ++j)
+                        {
+                            var job = jobs[j];
+                            if (calledJobs.Contains(job)) continue;
+                            calledJobs.Add(job);
+                            jobs[j]();
+                        }
+                    }
+                }
+
+                for (int i = 0, n = dirties.Count; i < n; ++i)
+                {
+                    var dirty = dirties[i];
+                    if (dirty.Phase == 3) dirty.Phase = 4;
+                    else if (dirty.Phase == 12) dirty.Phase = 13;
+                    else continue;
+
+                    dirty.Inner.ClearCell(CurrentCellIndex);
+                }
+            }
+            dirties[0].Clear();
 #else
             Process(0);
             dirties[0].Clear();
@@ -223,15 +269,12 @@ namespace Writership
 #if !WRITERSHIP_NO_COMPUTE_THREAD
         private void Compute()
         {
-            try {
-                while (true)
-                {
-                    Process(1);
-                    isComputeDone = true;
-                    computeSignal.WaitOne();
-                }
+            while (true)
+            {
+                Process(1);
+                isComputeDone = true;
+                computeSignal.WaitOne();
             }
-            catch (Exception e) { UnityEngine.Debug.LogError(e); }
         }
 
         private void CopyDirties(int from, int to)
@@ -241,7 +284,7 @@ namespace Writership
             for (int i = 0, n = fromDirties.Count; i < n; ++i)
             {
                 var dirty = fromDirties[i];
-                if (dirty.Phase < 4) throw new NotImplementedException();
+                if (dirty.Phase < 2) throw new NotImplementedException();
                 else if (dirty.Phase > 10) continue;
 
                 dirty.Inner.CopyCells(from, to);
@@ -448,6 +491,7 @@ namespace Writership
         public void ClearCell(int at)
         {
             cells[at].Clear();
+            cells[engine.WriteCellIndex].Clear();
         }
 
         private void MarkSelfDirty()
