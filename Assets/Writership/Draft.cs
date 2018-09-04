@@ -4,6 +4,9 @@ using System.Threading;
 
 namespace Writership
 {
+    // TODO Create interface IEngine
+    // And implement Engine and DualEngine separately
+    // (no need preprocessor WRITERSHIP_NO_COMPUTE_THREAD)
     public class Engine : IDisposable
     {
         private class Dirty
@@ -102,20 +105,28 @@ namespace Writership
             dirty.Phase = 1;
         }
 
-        public void RegisterListener(IHaveCells target, Action job)
+        public void RegisterListener(object[] targets, Action job)
         {
+            // TODO Lock to avoid multiple threads register at same time
             var listeners = this.listeners[0];
-            List<Action> jobs;
-            if (!listeners.TryGetValue(target, out jobs))
+            for (int i = 0, n = targets.Length; i < n; ++i)
             {
-                jobs = new List<Action>();
-                listeners.Add(target, jobs);
+                var target = targets[i];
+                List<Action> jobs;
+                if (!listeners.TryGetValue(target, out jobs))
+                {
+                    jobs = new List<Action>();
+                    listeners.Add(target, jobs);
+                }
+                jobs.Add(job);
             }
-            jobs.Add(job);
+            // TODO Return disposable to unregister
         }
 
         public void RegisterComputer(object[] targets, Action job)
         {
+            // TODO Reduce duplication with RegisterListener
+            // TODO Lock to avoid multiple threads register at same time
             var listeners = this.listeners[WriteCellIndex - 1];
             for (int i = 0, n = targets.Length; i < n; ++i)
             {
@@ -128,6 +139,7 @@ namespace Writership
                 }
                 jobs.Add(job);
             }
+            // TODO Return disposable to unregister
         }
 
         public void Update()
@@ -193,6 +205,8 @@ namespace Writership
                     }
                 }
 
+                // FIXME Clear too soon, or copy to compute too late
+                // TODO Clear from write cell too
                 for (int i = 0, n = dirties.Count; i < n; ++i)
                 {
                     var dirty = dirties[i];
@@ -449,34 +463,30 @@ namespace Writership
         public static void Run()
         {
             var e = new Engine();
-            try
+            var name = e.El("jan");
+            var age = e.El(1);
+            var changeName = e.Op<Void>();
+
+            e.RegisterComputer(new object[] { name }, () =>
             {
-                var name = e.El("jan");
-                var age = e.El(1);
-                var changeName = e.Op<Void>();
-
-                e.RegisterComputer(new object[] { name }, () =>
-                {
-                    age.Write(age.Read() + 1);
-                });
-                e.RegisterComputer(new object[] { changeName }, () =>
-                {
-                    name.Write("new name");
-                });
-                e.RegisterListener(age, () =>
-                {
-                    UnityEngine.Debug.Log("Age: " + age.Read());
-                });
-
-                changeName.Fire(default(Void));
-
-                e.Update();
-                e.Update();
-            }
-            finally
+                age.Write(age.Read() + 1);
+            });
+            e.RegisterComputer(new object[] { changeName }, () =>
             {
-                e.Dispose();
-            }
+                UnityEngine.Debug.Log("changeName count" + changeName.Read().Count);
+                name.Write("new name");
+            });
+            e.RegisterListener(new object[] { age }, () =>
+            {
+                UnityEngine.Debug.Log("Age: " + age.Read());
+            });
+
+            changeName.Fire(default(Void));
+
+            e.Update();
+            e.Update();
+
+            e.Dispose();
         }
     }
 }
