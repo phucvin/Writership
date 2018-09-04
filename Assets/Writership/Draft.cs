@@ -84,7 +84,7 @@ namespace Writership
             }
         }
 
-        public void MarkDirty(IHaveCells target)
+        public void MarkDirty(IHaveCells target, bool allowMultiple = false)
         {
             var dirties = this.dirties[CurrentCellIndex];
             var dirty = dirties.Find(it => ReferenceEquals(it.Inner, target));
@@ -97,7 +97,7 @@ namespace Writership
                 };
                 dirties.Add(dirty);
             }
-            else if (dirty.Phase == 1)
+            else if (dirty.Phase == 1 && !allowMultiple)
             {
                 throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
             }
@@ -496,7 +496,7 @@ namespace Writership
 
         private void MarkSelfDirty()
         {
-            engine.MarkDirty(this);
+            engine.MarkDirty(this, allowMultiple: true);
         }
     }
 
@@ -525,6 +525,7 @@ namespace Writership
                 UnityEngine.Debug.Log("Age: " + age.Read());
             });
 
+            changeName.Fire(default(Void));
             changeName.Fire(default(Void));
 
             e.Update();
