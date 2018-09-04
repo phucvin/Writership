@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Writership
 {
-    public class Engine: IDisposable
+    public class Engine : IDisposable
     {
         private class Dirty
         {
@@ -19,12 +18,16 @@ namespace Writership
 #if !WRITERSHIP_NO_COMPUTE_THREAD
         private readonly int mainThreadId;
         private Thread computeThread;
+        private AutoResetEvent computeSignal;
 #endif
 
         public Engine()
         {
+#if !WRITERSHIP_NO_COMPUTE_THREAD
+            TotalCells = 3;
+#else
             TotalCells = 2;
-
+#endif
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
 
@@ -33,11 +36,13 @@ namespace Writership
             if (TotalCells == 3)
             {
                 computeThread = new Thread(Compute);
+                computeThread.Start();
             }
             else
             {
                 computeThread = null;
             }
+            computeSignal = new AutoResetEvent(false);
 #endif
 
             for (int i = 0, n = TotalCells; i < n; ++i)
@@ -66,8 +71,8 @@ namespace Writership
             get
             {
 #if !WRITERSHIP_NO_COMPUTE_THREAD
-                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return 1;
-                else return 0;
+                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return 0;
+                else return 1;
 #else
                 return 0;
 #endif
@@ -95,9 +100,21 @@ namespace Writership
             dirty.Phase = 1;
         }
 
-        public void RegisterListener(object[] targets, Action job)
+        public void RegisterListener(IHaveCells target, Action job)
         {
-            var listeners = this.listeners[CurrentCellIndex];
+            var listeners = this.listeners[0];
+            List<Action> jobs;
+            if (!listeners.TryGetValue(target, out jobs))
+            {
+                jobs = new List<Action>();
+                listeners.Add(target, jobs);
+            }
+            jobs.Add(job);
+        }
+
+        public void RegisterComputer(object[] targets, Action job)
+        {
+            var listeners = this.listeners[WriteCellIndex - 1];
             for (int i = 0, n = targets.Length; i < n; ++i)
             {
                 var target = targets[i];
@@ -111,7 +128,28 @@ namespace Writership
             }
         }
 
-        public void Run(int at)
+        public void Update()
+        {
+#if !WRITERSHIP_NO_COMPUTE_THREAD
+            while (computeThread.ThreadState != ThreadState.WaitSleepJoin)
+            {
+                Thread.Sleep(1);
+            }
+            CopyDirties(1, 0);
+            dirties[1].Clear();
+
+            Process(0);
+            CopyDirties(0, 1);
+            dirties[0].Clear();
+
+            computeSignal.Set();
+#else
+            Process(0);
+            dirties[0].Clear();
+#endif
+        }
+
+        private void Process(int at)
         {
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
@@ -161,22 +199,55 @@ namespace Writership
                 }
             }
             while (calledJobs.Count > 0);
-
-            dirties.Clear();
-            UnityEngine.Debug.Log("Engine ran: " + ran);
         }
 
 #if !WRITERSHIP_NO_COMPUTE_THREAD
         private void Compute()
         {
-            
+            try {
+                while (true)
+                {
+                    Process(1);
+                    computeSignal.WaitOne();
+                }
+            }
+            catch (Exception e) { UnityEngine.Debug.LogError(e); }
+        }
+
+        private void CopyDirties(int from, int to)
+        {
+            var fromDirties = dirties[from];
+            var toDirties = dirties[to];
+            for (int i = 0, n = fromDirties.Count; i < n; ++i)
+            {
+                var dirty = fromDirties[i];
+                if (dirty.Phase < 4) throw new NotImplementedException();
+                else if (dirty.Phase > 4) continue;
+
+                dirty.Inner.CopyCells(from, to);
+
+                var existing = toDirties.Find(it => ReferenceEquals(it.Inner, dirty.Inner));
+                if (existing == null)
+                {
+                    existing = new Dirty
+                    {
+                        Phase = 5,
+                        Inner = dirty.Inner,
+                    };
+                    toDirties.Add(existing);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 #endif
     }
 
     public static class CreateExtensions
     {
-        public static El<T> El<T>(this Engine engine,T value)
+        public static El<T> El<T>(this Engine engine, T value)
         {
             return new El<T>(engine, value);
         }
@@ -205,7 +276,7 @@ namespace Writership
 
         public void Mark()
         {
-            var frame = new StackFrame(2, true);
+            var frame = new System.Diagnostics.StackFrame(2, true);
             string nowFileName = frame.GetFileName();
             int nowLineNumber = frame.GetFileLineNumber();
 
@@ -372,27 +443,34 @@ namespace Writership
         public static void Run()
         {
             var e = new Engine();
-            var name = e.El("jan");
-            var age = e.El(1);
-            var changeName = e.Op<Void>();
-
-            e.RegisterListener(new object[] { name }, () =>
+            try
             {
-                age.Write(age.Read() + 1);
-            });
-            e.RegisterListener(new object[] { changeName }, () =>
-            {
-                name.Write("new name");
-            });
-            e.RegisterListener(new object[] { age }, () =>
-            {
-                UnityEngine.Debug.Log("Age: " + age.Read());
-            });
+                var name = e.El("jan");
+                var age = e.El(1);
+                var changeName = e.Op<Void>();
 
-            changeName.Fire(default(Void));
+                e.RegisterComputer(new object[] { name }, () =>
+                {
+                    age.Write(age.Read() + 1);
+                });
+                e.RegisterComputer(new object[] { changeName }, () =>
+                {
+                    name.Write("new name");
+                });
+                e.RegisterListener(age, () =>
+                {
+                    UnityEngine.Debug.Log("Age: " + age.Read());
+                });
 
-            e.Run(0);
-            e.Run(0);
+                changeName.Fire(default(Void));
+
+                e.Update();
+                e.Update();
+            }
+            finally
+            {
+                e.Dispose();
+            }
         }
     }
 }
