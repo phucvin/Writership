@@ -517,7 +517,7 @@ namespace Writership
             });
             e.RegisterComputer(new object[] { changeName }, () =>
             {
-                UnityEngine.Debug.Log("changeName count" + changeName.Read().Count);
+                UnityEngine.Debug.Log("changeName count: " + changeName.Read().Count);
                 name.Write("new name");
             });
             e.RegisterListener(new object[] { age }, () =>
