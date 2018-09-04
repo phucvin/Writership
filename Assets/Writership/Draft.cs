@@ -161,7 +161,7 @@ namespace Writership
                     if (dirty.Phase != 1) continue;
                     dirty.Phase = 2;
 
-                    dirty.Inner.CopyCells(WriteCellIndex, 0);
+                    dirty.Inner.CopyCell(WriteCellIndex, 0);
                 }
             }
             CopyDirties(0, 1);
@@ -228,7 +228,7 @@ namespace Writership
                     if (dirty.Phase != 1) continue;
                     dirty.Phase = 2;
 
-                    dirty.Inner.CopyCells(WriteCellIndex, at);
+                    dirty.Inner.CopyCell(WriteCellIndex, at);
                 }
 
                 for (int i = 0, n = dirties.Count; i < n; ++i)
@@ -287,7 +287,7 @@ namespace Writership
                 if (dirty.Phase < 2) throw new NotImplementedException();
                 else if (dirty.Phase > 10) continue;
 
-                dirty.Inner.CopyCells(from, to);
+                dirty.Inner.CopyCell(from, to);
 
                 var existing = toDirties.Find(it => ReferenceEquals(it.Inner, dirty.Inner));
                 if (existing == null)
@@ -328,7 +328,7 @@ namespace Writership
 
     public interface IHaveCells
     {
-        void CopyCells(int from, int to);
+        void CopyCell(int from, int to);
         void ClearCell(int at);
     }
 
@@ -391,7 +391,7 @@ namespace Writership
             cells[engine.WriteCellIndex] = value;
         }
 
-        public void CopyCells(int from, int to)
+        public void CopyCell(int from, int to)
         {
             cells[to] = cells[from];
         }
@@ -440,7 +440,7 @@ namespace Writership
             return cells[engine.WriteCellIndex];
         }
 
-        public void CopyCells(int from, int to)
+        public void CopyCell(int from, int to)
         {
             cells[to].Clear();
             cells[to].AddRange(cells[from]);
@@ -482,7 +482,7 @@ namespace Writership
             cells[engine.WriteCellIndex].Add(value);
         }
 
-        public void CopyCells(int from, int to)
+        public void CopyCell(int from, int to)
         {
             cells[to].Clear();
             cells[to].AddRange(cells[from]);
