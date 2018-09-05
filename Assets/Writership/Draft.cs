@@ -269,6 +269,8 @@ namespace Writership
                 }
                 jobs.Add(job);
             }
+            
+            // TODO Call at correct thread
 
             // TODO Return disposable to unregister
             return null;
