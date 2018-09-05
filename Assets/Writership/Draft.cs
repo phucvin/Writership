@@ -4,9 +4,19 @@ using System.Threading;
 
 namespace Writership
 {
-    // TODO Create interface IEngine
-    // And implement Engine and DualEngine separately
+    // TODO Iimplement Engine and DualEngine separately
     // (no need preprocessor WRITERSHIP_NO_COMPUTE_THREAD)
+    public interface IEngine
+    {
+        int TotalCells { get; }
+        int CurrentCellIndex { get; }
+        int WriteCellIndex { get; }
+        void MarkDirty(IHaveCells target, bool allowMultiple = false);
+        IDisposable RegisterListener(object[] targets, Action job);
+        IDisposable RegisterComputer(object[] targets, Action job);
+        void Update();
+    }
+
     public class Engine : IDisposable
     {
         private class Dirty
