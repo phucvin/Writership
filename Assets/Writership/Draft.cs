@@ -79,6 +79,8 @@ namespace Writership
         }
 
         public int TotalCells { get; private set; }
+        public int ReadCellIndex { get { return 0; } }
+        public int ComputeCellIndex { get { return WriteCellIndex - 1; } }
         public int WriteCellIndex { get { return TotalCells - 1; } }
 
         public int CurrentCellIndex
@@ -86,10 +88,10 @@ namespace Writership
             get
             {
 #if !WRITERSHIP_NO_COMPUTE_THREAD
-                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return 0;
-                else return 1;
+                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return ReadCellIndex;
+                else return ComputeCellIndex;
 #else
-                return 0;
+                return ReadCellIndex;
 #endif
             }
         }
@@ -117,39 +119,12 @@ namespace Writership
 
         public void RegisterListener(object[] targets, Action job)
         {
-            // TODO Lock to avoid multiple threads register at same time
-            var listeners = this.listeners[0];
-            for (int i = 0, n = targets.Length; i < n; ++i)
-            {
-                var target = targets[i];
-                List<Action> jobs;
-                if (!listeners.TryGetValue(target, out jobs))
-                {
-                    jobs = new List<Action>();
-                    listeners.Add(target, jobs);
-                }
-                jobs.Add(job);
-            }
-            // TODO Return disposable to unregister
+            RegisterListener(ReadCellIndex, targets, job);
         }
 
         public void RegisterComputer(object[] targets, Action job)
         {
-            // TODO Reduce duplication with RegisterListener
-            // TODO Lock to avoid multiple threads register at same time
-            var listeners = this.listeners[WriteCellIndex - 1];
-            for (int i = 0, n = targets.Length; i < n; ++i)
-            {
-                var target = targets[i];
-                List<Action> jobs;
-                if (!listeners.TryGetValue(target, out jobs))
-                {
-                    jobs = new List<Action>();
-                    listeners.Add(target, jobs);
-                }
-                jobs.Add(job);
-            }
-            // TODO Return disposable to unregister
+            RegisterListener(ComputeCellIndex, targets, job);
         }
 
         public void Update()
@@ -159,121 +134,82 @@ namespace Writership
             {
                 Thread.Sleep(1);
             }
-            CopyDirties(1, 0);
-            dirties[1].Clear();
+            CopyDirties(ComputeCellIndex, ReadCellIndex);
+            dirties[ComputeCellIndex].Clear();
 
-            { // TODO Refactor
-                var dirties = this.dirties[0];
-
-                for (int i = 0, n = dirties.Count; i < n; ++i)
-                {
-                    var dirty = dirties[i];
-                    if (dirty.Phase != 1) continue;
-                    dirty.Phase = 2;
-
-                    dirty.Inner.CopyCell(WriteCellIndex, 0);
-                }
-            }
-            CopyDirties(0, 1);
+            CopyCells(WriteCellIndex, ReadCellIndex);
+            CopyDirties(ReadCellIndex, ComputeCellIndex);
             isComputeDone = false;
             computeSignal.Set();
 
-            { // TODO Refactor
-                var dirties = this.dirties[0];
-                var listeners = this.listeners[0];
-                var calledJobs = new List<Action>();
-
-                for (int i = 0, n = dirties.Count; i < n; ++i)
-                {
-                    var dirty = dirties[i];
-                    if (dirty.Phase == 2) dirty.Phase = 3;
-                    else if (dirty.Phase == 11) dirty.Phase = 12;
-                    else continue;
-
-                    List<Action> jobs;
-                    if (listeners.TryGetValue(dirty.Inner, out jobs))
-                    {
-                        for (int j = 0, m = jobs.Count; j < m; ++j)
-                        {
-                            var job = jobs[j];
-                            if (calledJobs.Contains(job)) continue;
-                            calledJobs.Add(job);
-                            jobs[j]();
-                        }
-                    }
-                }
-
-                for (int i = 0, n = dirties.Count; i < n; ++i)
-                {
-                    var dirty = dirties[i];
-                    if (dirty.Phase == 3) dirty.Phase = 4;
-                    else if (dirty.Phase == 12) dirty.Phase = 13;
-                    else continue;
-
-                    dirty.Inner.ClearCell(CurrentCellIndex);
-                }
-            }
-            dirties[0].Clear();
+            Notify(ReadCellIndex);
+            dirties[ReadCellIndex].Clear();
 #else
-            Process(0);
-            dirties[0].Clear();
+            Process(ReadCellIndex);
+            dirties[ReadCellIndex].Clear();
 #endif
         }
 
-        private void Process(int at)
+        private void CopyCells(int from, int to)
+        {
+            var dirties = this.dirties[to];
+            for (int i = 0, n = dirties.Count; i < n; ++i)
+            {
+                var dirty = dirties[i];
+                if (dirty.Phase != 1) continue;
+                dirty.Phase = 2;
+
+                dirty.Inner.CopyCell(from, to);
+            }
+        }
+
+        private bool Notify(int at)
         {
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
             var calledJobs = new List<Action>();
-            int ran = 0;
 
-            do
+            for (int i = 0, n = dirties.Count; i < n; ++i)
             {
-                ++ran;
-                calledJobs.Clear();
+                var dirty = dirties[i];
+                if (dirty.Phase == 2) dirty.Phase = 3;
+                else if (dirty.Phase == 11) dirty.Phase = 12;
+                else continue;
 
-                for (int i = 0, n = dirties.Count; i < n; ++i)
+                List<Action> jobs;
+                if (listeners.TryGetValue(dirty.Inner, out jobs))
                 {
-                    var dirty = dirties[i];
-                    if (dirty.Phase != 1) continue;
-                    dirty.Phase = 2;
-
-                    dirty.Inner.CopyCell(WriteCellIndex, at);
-                }
-
-                for (int i = 0, n = dirties.Count; i < n; ++i)
-                {
-                    var dirty = dirties[i];
-                    if (dirty.Phase == 2) dirty.Phase = 3;
-                    else if (dirty.Phase == 11) dirty.Phase = 12;
-                    else continue;
-
-                    List<Action> jobs;
-                    if (listeners.TryGetValue(dirty.Inner, out jobs))
+                    for (int j = 0, m = jobs.Count; j < m; ++j)
                     {
-                        for (int j = 0, m = jobs.Count; j < m; ++j)
-                        {
-                            var job = jobs[j];
-                            if (calledJobs.Contains(job)) continue;
-                            calledJobs.Add(job);
-                            jobs[j]();
-                        }
+                        var job = jobs[j];
+                        if (calledJobs.Contains(job)) continue;
+                        calledJobs.Add(job);
+                        jobs[j]();
                     }
                 }
-
-                // FIXME Clear too soon, or copy to compute too late
-                // TODO Clear from write cell too
-                for (int i = 0, n = dirties.Count; i < n; ++i)
-                {
-                    var dirty = dirties[i];
-                    if (dirty.Phase == 3) dirty.Phase = 4;
-                    else if (dirty.Phase == 12) dirty.Phase = 13;
-                    else continue;
-
-                    dirty.Inner.ClearCell(CurrentCellIndex);
-                }
             }
-            while (calledJobs.Count > 0);
+
+            for (int i = 0, n = dirties.Count; i < n; ++i)
+            {
+                var dirty = dirties[i];
+                if (dirty.Phase == 3) dirty.Phase = 4;
+                else if (dirty.Phase == 12) dirty.Phase = 13;
+                else continue;
+
+                dirty.Inner.ClearCell(CurrentCellIndex);
+            }
+
+            return calledJobs.Count > 0;
+        }
+
+        private void Process(int at)
+        {
+            bool stillDirty = true;
+            while (stillDirty)
+            {
+                CopyCells(WriteCellIndex, at);
+                stillDirty = Notify(at);
+            }
         }
 
 #if !WRITERSHIP_NO_COMPUTE_THREAD
@@ -316,6 +252,27 @@ namespace Writership
             }
         }
 #endif
+
+        private IDisposable RegisterListener(int at, object[] targets, Action job)
+        {
+            // TODO Lock or use thread-safe collections
+            // to avoid multiple threads register at same time
+            var listeners = this.listeners[at];
+            for (int i = 0, n = targets.Length; i < n; ++i)
+            {
+                var target = targets[i];
+                List<Action> jobs;
+                if (!listeners.TryGetValue(target, out jobs))
+                {
+                    jobs = new List<Action>();
+                    listeners.Add(target, jobs);
+                }
+                jobs.Add(job);
+            }
+
+            // TODO Return disposable to unregister
+            return null;
+        }
     }
 
     public static class CreateExtensions
