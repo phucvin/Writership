@@ -15,7 +15,11 @@ namespace Examples.Counter
         {
             cd.Add(engine.RegisterListener(
                 new object[] { target },
-                () => text.text = target.Read().ToString()
+                () =>
+                {
+                    Debug.Log("Set text at frame: " + Time.frameCount);
+                    text.text = target.Read().ToString();
+                }
             ));
         }
 
