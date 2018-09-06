@@ -32,7 +32,7 @@ namespace Examples.TodoList
             engine.RegisterListener(
                 new object[] {
                     state.Items,
-                    state.ToggleItemComplete
+                    state.ToggleItemComplete.Applied
                 },
                 () =>
                 {
@@ -47,10 +47,17 @@ namespace Examples.TodoList
                 }
             );
 
+            engine.RegisterListener(
+                new object[] { state.UncompletedCount },
+                () => Debug.Log("Uncompleted count: " + state.UncompletedCount.Read())
+            );
+
             yield return null;
             state.CreateNewItem.Fire("hello world");
             yield return null;
             state.ToggleItemComplete.Fire("1");
+            yield return null;
+            state.CreateNewItem.Fire("bye world");
         }
 
         public void OnDestroy()

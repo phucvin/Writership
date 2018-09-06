@@ -33,7 +33,7 @@ namespace Examples.TodoList
             cd.Add(engine.RegisterComputer(
                 new object[] {
                     Items,
-                    ToggleItemComplete,
+                    ToggleItemComplete.Applied,
                 },
                 () => UncompletedCount.Write(Computers.UncompletedCount(
                     Items.Read()
