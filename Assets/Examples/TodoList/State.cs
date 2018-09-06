@@ -118,7 +118,6 @@ namespace Examples.TodoList
                 )
             ));
 
-
             cd.Add(engine.RegisterComputer(
                 new object[] {
                     editingItemId,
