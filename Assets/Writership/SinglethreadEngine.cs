@@ -155,10 +155,12 @@ namespace Writership
         private void Process(int at)
         {
             bool stillDirty = true;
+            int ran = 0;
             while (stillDirty)
             {
                 CopyCells(WriteCellIndex, at);
                 stillDirty = Notify(at);
+                if (++ran > 1000) throw new StackOverflowException("Engine overflow");
             }
         }
 
