@@ -4,17 +4,17 @@ namespace Writership
 {
     public static class EngineExtensions
     {
-        public static El<T> El<T>(this IEngine engine, T value)
+        public static IEl<T> El<T>(this IEngine engine, T value)
         {
             return new El<T>(engine, value);
         }
 
-        public static Li<T> Li<T>(this IEngine engine, IList<T> list)
+        public static ILi<T> Li<T>(this IEngine engine, IList<T> list)
         {
             return new Li<T>(engine, list);
         }
 
-        public static Op<T> Op<T>(this IEngine engine)
+        public static IOp<T> Op<T>(this IEngine engine)
         {
             return new Op<T>(engine);
         }

@@ -9,7 +9,8 @@ namespace Writership
         void Fire(T value);
         IOp<Empty> Applied { get; }
     }
-    public class Op<T> : IOp<T>, IHaveCells
+
+    internal class Op<T> : IOp<T>, IHaveCells
     {
         // TODO Maybe not a good solution, should compute by changed values (of dynamic children)
         private readonly Op<Empty> applied;

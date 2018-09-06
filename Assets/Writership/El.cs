@@ -6,7 +6,7 @@
         void Write(T value);
     }
 
-    public class El<T> : IEl<T>, IHaveCells
+    internal class El<T> : IEl<T>, IHaveCells
     {
         private readonly IEngine engine;
         private readonly T[] cells;
