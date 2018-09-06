@@ -4,14 +4,14 @@ namespace Writership
 {
     public class Li<T> : IHaveCells
     {
-        private readonly MultithreadEngine engine;
+        private readonly IEngine engine;
         private readonly List<T>[] cells;
 
 #if DEBUG
         private readonly Writership writership = new Writership();
 #endif
 
-        public Li(MultithreadEngine engine, IList<T> list)
+        public Li(IEngine engine, IList<T> list)
         {
             this.engine = engine;
 

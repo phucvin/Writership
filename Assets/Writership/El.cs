@@ -2,14 +2,14 @@
 {
     public class El<T> : IHaveCells
     {
-        private readonly MultithreadEngine engine;
+        private readonly IEngine engine;
         private readonly T[] cells;
 
 #if DEBUG
         private readonly Writership writership = new Writership();
 #endif
 
-        public El(MultithreadEngine engine, T value)
+        public El(IEngine engine, T value)
         {
             this.engine = engine;
 

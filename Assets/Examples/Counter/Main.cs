@@ -14,7 +14,7 @@ namespace Examples.Counter
         [SerializeField]
         private BasicButton decreaseButton = null;
 
-        private MultithreadEngine engine;
+        private IEngine engine;
         private State state;
 
         public void Start()

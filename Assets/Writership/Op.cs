@@ -4,10 +4,10 @@ namespace Writership
 {
     public class Op<T> : IHaveCells
     {
-        private readonly MultithreadEngine engine;
+        private readonly IEngine engine;
         private readonly List<T>[] cells;
 
-        public Op(MultithreadEngine engine)
+        public Op(IEngine engine)
         {
             this.engine = engine;
 

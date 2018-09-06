@@ -11,7 +11,7 @@ namespace Examples.Counter
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
 
-        public void Setup(MultithreadEngine engine, El<int> target)
+        public void Setup(IEngine engine, El<int> target)
         {
             cd.Add(engine.RegisterListener(
                 new object[] { target },

@@ -11,7 +11,7 @@ namespace Examples.Counter
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
 
-        public void Setup(MultithreadEngine engine, Op<Empty> op)
+        public void Setup(IEngine engine, Op<Empty> op)
         {
             button.onClick.AddListener(() => op.Fire(default(Empty)));
         }

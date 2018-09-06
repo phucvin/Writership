@@ -11,7 +11,7 @@ namespace Examples.Counter
 
         private readonly CompositeDisposable cd;
 
-        public State(MultithreadEngine engine)
+        public State(IEngine engine)
         {
             Value = engine.El(0);
             Increase = engine.Op<Empty>();
