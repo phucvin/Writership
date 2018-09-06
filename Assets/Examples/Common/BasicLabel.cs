@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using Writership;
 
-namespace Examples.Counter
+namespace Examples.Common
 {
     public class BasicLabel : MonoBehaviour
     {

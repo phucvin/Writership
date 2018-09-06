@@ -6,13 +6,13 @@ namespace Examples.Counter
     public class Main : MonoBehaviour
     {
         [SerializeField]
-        private BasicLabel valueLabel = null;
+        private Common.BasicLabel valueLabel = null;
 
         [SerializeField]
-        private BasicButton increaseButton = null;
+        private Common.BasicButton increaseButton = null;
 
         [SerializeField]
-        private BasicButton decreaseButton = null;
+        private Common.BasicButton decreaseButton = null;
 
         private IEngine engine;
         private State state;
