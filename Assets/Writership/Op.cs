@@ -4,10 +4,12 @@ namespace Writership
 {
     public class Op<T> : IHaveCells
     {
+        public readonly Op<T> Applied;
+
         private readonly IEngine engine;
         private readonly List<T>[] cells;
 
-        public Op(IEngine engine)
+        public Op(IEngine engine, bool needApplied = true)
         {
             this.engine = engine;
 
@@ -16,6 +18,24 @@ namespace Writership
             {
                 var l = new List<T>();
                 cells[i] = l;
+            }
+
+            if (needApplied)
+            {
+                Applied = new Op<T>(engine, needApplied: false);
+
+                engine.RegisterComputer(new object[] { this }, () =>
+                {
+                    var self = Read();
+                    for (int i = 0, n = self.Count; i < n; ++i)
+                    {
+                        Applied.Fire(self[i]);
+                    }
+                });
+            }
+            else
+            {
+                Applied = null;
             }
         }
 
