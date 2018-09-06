@@ -41,10 +41,10 @@ namespace Examples.TodoList
                     Items,
                     ToggleItemComplete.Applied,
                 },
-                // TODO Fix unnecessary mark dirty if no change
-                () => UncompletedCount.Write(Computers.UncompletedCount(
-                    Items.Read()
-                ))
+                () => Computers.UncompletedCount(
+                    UncompletedCount,
+                    Items
+                )
             ));
 
             cd.Add(engine.RegisterComputer(
@@ -54,13 +54,12 @@ namespace Examples.TodoList
                     DeleteCompletedItems,
                     DeleteItem
                 },
-                // TODO Fix unnecessary mark dirty if no change
                 () => Computers.Items(
-                    Items.AsWrite(),
+                    Items,
                     NextId,
-                    CreateNewItem.Read(),
-                    DeleteCompletedItems.Read(),
-                    DeleteItem.Read(),
+                    CreateNewItem,
+                    DeleteCompletedItems,
+                    DeleteItem,
                     ItemFactory
                 )
             ));
@@ -71,11 +70,11 @@ namespace Examples.TodoList
                     EditItem,
                     FinishEditItem
                 },
-                // TODO Fix unnecessary mark dirty if no change
-                () => EditingItemId.Write(Computers.EditingItem(
-                    EditItem.Read(),
-                    FinishEditItem.Read()
-                ))
+                () => Computers.EditingItem(
+                    EditingItemId,
+                    EditItem,
+                    FinishEditItem
+                )
             ));
         }
 
@@ -112,12 +111,11 @@ namespace Examples.TodoList
                 new object[] {
                     toggleComplete
                 },
-                // TODO Fix unnecessary mark dirty if no change
-                () => IsCompleted.Write(Computers.TodoItem.IsCompleted(
-                    IsCompleted.Read(),
-                    toggleComplete.Read(),
+                () => Computers.TodoItem.IsCompleted(
+                    IsCompleted,
+                    toggleComplete,
                     Id
-                ))
+                )
             ));
 
 
@@ -126,13 +124,12 @@ namespace Examples.TodoList
                     editingItemId,
                     finishEdit
                 },
-                // TODO Fix unnecessary mark dirty if no change
-                () => Content.Write(Computers.TodoItem.Content(
-                    Content.Read(),
-                    editingItemId.Read(),
-                    finishEdit.Read(),
+                () => Computers.TodoItem.Content(
+                    Content,
+                    editingItemId,
+                    finishEdit,
                     Id
-                ))
+                )
             ));
         }
 

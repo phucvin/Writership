@@ -1,39 +1,51 @@
-﻿using System.Collections.Generic;
-using Writership;
+﻿using Writership;
 
 namespace Examples.TodoList
 {
     public static class Computers
     {
-        public static int UncompletedCount(IList<TodoList.TodoItem> items)
+        public static void UncompletedCount(El<int> target, Li<TodoList.TodoItem> items_)
         {
+            var items = items_.Read();
             int uncompletedCount = 0;
             for (int i = 0, n = items.Count; i < n; ++i)
             {
                 if (!items[i].IsCompleted.Read()) ++uncompletedCount;
             }
-            return uncompletedCount;
+            if (uncompletedCount != target.Read()) target.Write(uncompletedCount);
         }
 
         public static void Items(
-            List<TodoList.TodoItem> items,
+            Li<TodoList.TodoItem> target,
             El<int> nextId,
-            IList<string> opNew,
-            IList<Empty> opDeleteCompleted,
-            IList<string> opDelete,
-            TodoList.TodoItem.Factory factory
-        )
+            Op<string> newItem_,
+            Op<Empty> deleteCompletedItems_,
+            Op<string> deleteItem_,
+            TodoList.TodoItem.Factory factory)
         {
-            if (opNew.Count > 0)
+            var newItem = newItem_.Read();
+            var deleteCompletedItems = deleteCompletedItems_.Read();
+            var deleteItem = deleteItem_.Read();
+
+            if (newItem.Count <= 0 &&
+                deleteCompletedItems.Count <= 0 &&
+                deleteItem.Count <= 0)
             {
-                for (int i = 0, n = opNew.Count; i < n; ++i)
-                {
-                    items.Add(factory.Create((nextId.Read() + i).ToString(), opNew[i]));
-                }
-                nextId.Write(nextId.Read() + opNew.Count);
+                return;
             }
 
-            if (opDeleteCompleted.Count > 0)
+            var items = target.AsWrite();
+
+            if (newItem.Count > 0)
+            {
+                for (int i = 0, n = newItem.Count; i < n; ++i)
+                {
+                    items.Add(factory.Create((nextId.Read() + i).ToString(), newItem[i]));
+                }
+                nextId.Write(nextId.Read() + newItem.Count);
+            }
+
+            if (deleteCompletedItems.Count > 0)
             {
                 items.RemoveAll(it =>
                 {
@@ -46,11 +58,11 @@ namespace Examples.TodoList
                 });
             }
 
-            if (opDelete.Count > 0)
+            if (deleteItem.Count > 0)
             {
                 items.RemoveAll(it =>
                 {
-                    if (opDelete.Contains(it.Id))
+                    if (deleteItem.Contains(it.Id))
                     {
                         it.Dispose();
                         return true;
@@ -60,33 +72,37 @@ namespace Examples.TodoList
             }
         }
 
-        public static string EditingItem(IList<string> opEdit, IList<string> opFinish)
+        public static void EditingItem(El<string> target, Op<string> edit_, Op<string> finish)
         {
-            if (opFinish.Count > 0) return null;
-            else if (opEdit.Count > 0) return opEdit[opEdit.Count - 1];
-            else return null;
+            var edit = edit_.Read();
+
+            if (finish.Read().Count > 0) target.Write(null);
+            else if (edit.Count > 0) target.Write(edit[edit.Count - 1]);
         }
 
         public static class TodoItem
         {
-            public static bool IsCompleted(bool isCompleted, IList<string> opToggle, string myId)
+            public static void IsCompleted(El<bool> target, Op<string> toggle_, string myId)
             {
-                for (int i = 0, n = opToggle.Count; i < n; ++i)
+                var toggle = toggle_.Read();
+
+                var isCompleted = target.Read();
+                for (int i = 0, n = toggle.Count; i < n; ++i)
                 {
-                    if (opToggle[i] == myId) isCompleted = !isCompleted;
+                    if (toggle[i] == myId) isCompleted = !isCompleted;
                 }
-                return isCompleted;
+                if (isCompleted != target.Read()) target.Write(isCompleted);
             }
 
-            public static string Content(string content, string editingItemId, IList<string> opFinishEdit, string myId)
+            public static void Content(El<string> target, El<string> editingItemId, Op<string> finishEdit_, string myId)
             {
-                if (editingItemId == myId && opFinishEdit.Count > 0)
-                {
-                    string newContent = opFinishEdit[opFinishEdit.Count - 1];
-                    if (!string.IsNullOrEmpty(newContent)) return newContent;
-                }
+                var finishEdit = finishEdit_.Read();
 
-                return content;
+                if (editingItemId.Read() == myId && finishEdit.Count > 0)
+                {
+                    string newContent = finishEdit[finishEdit.Count - 1];
+                    if (!string.IsNullOrEmpty(newContent)) target.Write(newContent);
+                }
             }
         }
     }

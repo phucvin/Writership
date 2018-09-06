@@ -24,12 +24,11 @@ namespace Examples.Counter
                     Increase,
                     Decrease
                 },
-                // TODO Fix unnecessary mark dirty if no change
-                () => Value.Write(Computers.Value(
-                    Value.Read(),
-                    Increase.Read(),
-                    Decrease.Read()
-                ))
+                () => Computers.Value(
+                    Value,
+                    Increase,
+                    Decrease
+                )
             ));
         }
 
