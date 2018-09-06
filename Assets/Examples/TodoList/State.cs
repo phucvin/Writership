@@ -40,8 +40,6 @@ namespace Examples.TodoList
                 new object[] {
                     Items,
                     ToggleItemComplete.Applied,
-                    DeleteCompletedItems.Applied,
-                    DeleteItem.Applied,
                 },
                 () => Computers.UncompletedCount(
                     UncompletedCount,
