@@ -26,7 +26,7 @@ namespace Examples.Common
         {
             var createdGameObjects = new List<GameObject>();
             var createdCd = new CompositeDisposable();
-            engine.RegisterListener(new object[] { src }, () =>
+            return engine.RegisterListener(new object[] { src }, () =>
             {
                 createdCd.Dispose();
                 for (int i = 0, n = createdGameObjects.Count; i < n; ++i)
@@ -44,7 +44,6 @@ namespace Examples.Common
                     createdGameObjects.Add(itemMap.gameObject);
                 }
             });
-            return null;
         }
     }
 }
