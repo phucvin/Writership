@@ -257,7 +257,7 @@ namespace Writership
             }
 
             if (at == CurrentCellIndex) job();
-            else MarkDirty((IHaveCells)targets[0]);
+            else MarkDirty((IHaveCells)targets[0], allowMultiple: true);
         }
     }
 }
