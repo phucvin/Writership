@@ -2,8 +2,6 @@
 
 namespace Writership
 {
-    // TODO Iimplement Engine and DualEngine separately
-    // (no need preprocessor WRITERSHIP_NO_COMPUTE_THREAD)
     public interface IEngine : IDisposable
     {
         int TotalCells { get; }

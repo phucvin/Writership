@@ -13,7 +13,7 @@ namespace Examples.Common
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
 
-        public IDisposable Setup(IEngine engine, Op<Empty> op)
+        public IDisposable Setup(IEngine engine, IOp<Empty> op)
         {
             Dispose();
 

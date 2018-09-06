@@ -5,9 +5,9 @@ namespace Examples.Counter
 {
     public class State : IDisposable
     {
-        public readonly El<int> Value;
-        public readonly Op<Empty> Increase;
-        public readonly Op<Empty> Decrease;
+        public readonly IEl<int> Value;
+        public readonly IOp<Empty> Increase;
+        public readonly IOp<Empty> Decrease;
 
         private readonly CompositeDisposable cd;
 

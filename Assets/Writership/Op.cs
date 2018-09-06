@@ -1,11 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Writership
 {
-    public class Op<T> : IHaveCells
+    public interface IOp<T>
+    {
+        IList<T> Read();
+        void Fire(T value);
+        IOp<Empty> Applied { get; }
+    }
+    public class Op<T> : IOp<T>, IHaveCells
     {
         // TODO Maybe not a good solution, should compute by changed values (of dynamic children)
-        public readonly Op<Empty> Applied;
+        private readonly Op<Empty> applied;
 
         private readonly IEngine engine;
         private readonly List<T>[] cells;
@@ -23,19 +30,28 @@ namespace Writership
 
             if (needApplied)
             {
-                Applied = new Op<Empty>(engine, needApplied: false);
+                applied = new Op<Empty>(engine, needApplied: false);
 
                 engine.RegisterComputer(new object[] { this }, () =>
                 {
                     if (Read().Count > 0)
                     {
-                        Applied.Fire(default(Empty));
+                        applied.Fire(default(Empty));
                     }
                 });
             }
             else
             {
-                Applied = null;
+                applied = null;
+            }
+        }
+
+        public IOp<Empty> Applied
+        {
+            get
+            {
+                if (applied == null) throw new InvalidOperationException("No Applied on create");
+                else return applied;
             }
         }
 

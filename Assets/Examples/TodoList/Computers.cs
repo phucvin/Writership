@@ -4,7 +4,7 @@ namespace Examples.TodoList
 {
     public static class Computers
     {
-        public static void UncompletedCount(El<int> target, Li<TodoList.TodoItem> items_)
+        public static void UncompletedCount(IEl<int> target, ILi<TodoList.TodoItem> items_)
         {
             var items = items_.Read();
             int uncompletedCount = 0;
@@ -16,11 +16,11 @@ namespace Examples.TodoList
         }
 
         public static void Items(
-            Li<TodoList.TodoItem> target,
-            El<int> nextId,
-            Op<string> newItem_,
-            Op<Empty> deleteCompletedItems_,
-            Op<string> deleteItem_,
+            ILi<TodoList.TodoItem> target,
+            IEl<int> nextId,
+            IOp<string> newItem_,
+            IOp<Empty> deleteCompletedItems_,
+            IOp<string> deleteItem_,
             TodoList.TodoItem.Factory factory)
         {
             var newItem = newItem_.Read();
@@ -72,7 +72,7 @@ namespace Examples.TodoList
             }
         }
 
-        public static void EditingItemId(El<string> target, Op<string> edit_, Op<string> finish)
+        public static void EditingItemId(IEl<string> target, IOp<string> edit_, IOp<string> finish)
         {
             var edit = edit_.Read();
             var editingItemId = target.Read();
@@ -85,7 +85,7 @@ namespace Examples.TodoList
 
         public static class TodoItem
         {
-            public static void IsCompleted(El<bool> target, Op<string> toggle_, string myId)
+            public static void IsCompleted(IEl<bool> target, IOp<string> toggle_, string myId)
             {
                 var toggle = toggle_.Read();
 
@@ -97,7 +97,7 @@ namespace Examples.TodoList
                 if (isCompleted != target.Read()) target.Write(isCompleted);
             }
 
-            public static void Content(El<string> target, El<string> editingItemId, Op<string> finishEdit_, string myId)
+            public static void Content(IEl<string> target, IEl<string> editingItemId, IOp<string> finishEdit_, string myId)
             {
                 var finishEdit = finishEdit_.Read();
 

@@ -2,7 +2,13 @@
 
 namespace Writership
 {
-    public class Li<T> : IHaveCells
+    public interface ILi<T>
+    {
+        IList<T> Read();
+        List<T> AsWrite();
+    }
+
+    public class Li<T> : ILi<T>, IHaveCells
     {
         private readonly IEngine engine;
         private readonly List<T>[] cells;

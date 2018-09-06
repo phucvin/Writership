@@ -5,9 +5,9 @@ namespace Examples.Counter
     public static class Computers
     {
         public static void Value(
-            El<int> target,
-            Op<Empty> inc,
-            Op<Empty> dec
+            IEl<int> target,
+            IOp<Empty> inc,
+            IOp<Empty> dec
         )
         {
             int delta = inc.Read().Count - dec.Read().Count;

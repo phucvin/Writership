@@ -12,7 +12,7 @@ namespace Examples.Common
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
 
-        public IDisposable Setup(IEngine engine, El<int> target)
+        public IDisposable Setup(IEngine engine, IEl<int> target)
         {
             Dispose();
 

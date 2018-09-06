@@ -1,6 +1,12 @@
 ﻿namespace Writership
 {
-    public class El<T> : IHaveCells
+    public interface IEl<T>
+    {
+        T Read();
+        void Write(T value);
+    }
+
+    public class El<T> : IEl<T>, IHaveCells
     {
         private readonly IEngine engine;
         private readonly T[] cells;

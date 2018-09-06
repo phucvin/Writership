@@ -6,16 +6,16 @@ namespace Examples.TodoList
 {
     public class State : IDisposable
     {
-        public readonly El<int> NextId;
-        public readonly Op<string> CreateNewItem;
-        public readonly Li<TodoItem> Items;
-        public readonly Op<string> ToggleItemComplete;
-        public readonly El<int> UncompletedCount;
-        public readonly Op<Empty> DeleteCompletedItems;
-        public readonly Op<string> DeleteItem;
-        public readonly Op<string> EditItem;
-        public readonly El<string> EditingItemId;
-        public readonly Op<string> FinishEditItem;
+        public readonly IEl<int> NextId;
+        public readonly IOp<string> CreateNewItem;
+        public readonly ILi<TodoItem> Items;
+        public readonly IOp<string> ToggleItemComplete;
+        public readonly IEl<int> UncompletedCount;
+        public readonly IOp<Empty> DeleteCompletedItems;
+        public readonly IOp<string> DeleteItem;
+        public readonly IOp<string> EditItem;
+        public readonly IEl<string> EditingItemId;
+        public readonly IOp<string> FinishEditItem;
         public readonly TodoItem.Factory ItemFactory;
 
         private readonly CompositeDisposable cd;
@@ -87,16 +87,16 @@ namespace Examples.TodoList
     public class TodoItem : IDisposable
     {
         public readonly string Id;
-        public readonly El<string> Content;
-        public readonly El<bool> IsCompleted;
+        public readonly IEl<string> Content;
+        public readonly IEl<bool> IsCompleted;
 
         private readonly CompositeDisposable cd;
 
         public TodoItem(
             IEngine engine,
-            Op<string> toggleComplete,
-            El<string> editingItemId,
-            Op<string> finishEdit,
+            IOp<string> toggleComplete,
+            IEl<string> editingItemId,
+            IOp<string> finishEdit,
             string id,
             string content
         )
@@ -141,15 +141,15 @@ namespace Examples.TodoList
         public class Factory
         {
             private readonly IEngine engine;
-            private readonly Op<string> toggleComplete;
-            private readonly El<string> editingItemId;
-            private readonly Op<string> finishEdit;
+            private readonly IOp<string> toggleComplete;
+            private readonly IEl<string> editingItemId;
+            private readonly IOp<string> finishEdit;
 
             public Factory(
                 IEngine engine,
-                Op<string> toggleComplete,
-                El<string> editingItemId,
-                Op<string> finishEdit
+                IOp<string> toggleComplete,
+                IEl<string> editingItemId,
+                IOp<string> finishEdit
             )
             {
                 this.engine = engine;
