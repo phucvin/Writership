@@ -4,7 +4,7 @@ namespace Writership
 {
     public class Op<T> : IHaveCells
     {
-        public readonly Op<T> Applied;
+        public readonly Op<Empty> Applied;
 
         private readonly IEngine engine;
         private readonly List<T>[] cells;
@@ -22,14 +22,13 @@ namespace Writership
 
             if (needApplied)
             {
-                Applied = new Op<T>(engine, needApplied: false);
+                Applied = new Op<Empty>(engine, needApplied: false);
 
                 engine.RegisterComputer(new object[] { this }, () =>
                 {
-                    var self = Read();
-                    for (int i = 0, n = self.Count; i < n; ++i)
+                    if (Read().Count > 0)
                     {
-                        Applied.Fire(self[i]);
+                        Applied.Fire(default(Empty));
                     }
                 });
             }
