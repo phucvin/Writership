@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Writership;
 
 namespace Examples.Counter
 {
-    public class Main : MonoBehaviour
+    public class Main : MonoBehaviour, IDisposable
     {
         [SerializeField]
         private Common.BasicLabel valueLabel = null;
@@ -21,6 +22,8 @@ namespace Examples.Counter
 
         public void Setup()
         {
+            Dispose();
+
             cd.Add(engine = new MultithreadEngine());
             cd.Add(state = new State(engine));
 
