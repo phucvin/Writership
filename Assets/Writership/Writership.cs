@@ -2,7 +2,7 @@
 
 namespace Writership
 {
-    public class Writership
+    internal class Writership
     {
         private string fileName;
         private int lineNumber;

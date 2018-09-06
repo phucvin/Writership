@@ -2,7 +2,7 @@
 
 namespace Writership
 {
-    public class Unregisterer : IDisposable
+    internal class Unregisterer : IDisposable
     {
         private readonly IEngine engine;
         private readonly int at;
