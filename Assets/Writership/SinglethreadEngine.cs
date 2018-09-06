@@ -176,8 +176,8 @@ namespace Writership
                 }
                 jobs.Add(job);
             }
-            
-            // TODO Call at correct thread
+
+            job();
         }
     }
 }

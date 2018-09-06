@@ -255,8 +255,9 @@ namespace Writership
                 }
                 jobs.Add(job);
             }
-            
-            // TODO Call at correct thread
+
+            if (at == CurrentCellIndex) job();
+            else MarkDirty((IHaveCells)targets[0]);
         }
     }
 }
