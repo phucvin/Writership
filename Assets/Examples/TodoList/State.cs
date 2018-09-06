@@ -41,6 +41,7 @@ namespace Examples.TodoList
                     Items,
                     ToggleItemComplete.Applied,
                 },
+                // TODO Fix unnecessary mark dirty if no change
                 () => UncompletedCount.Write(Computers.UncompletedCount(
                     Items.Read()
                 ))
@@ -53,6 +54,7 @@ namespace Examples.TodoList
                     DeleteCompletedItems,
                     DeleteItem
                 },
+                // TODO Fix unnecessary mark dirty if no change
                 () => Computers.Items(
                     Items.AsWrite(),
                     NextId,
@@ -69,6 +71,7 @@ namespace Examples.TodoList
                     EditItem,
                     FinishEditItem
                 },
+                // TODO Fix unnecessary mark dirty if no change
                 () => EditingItemId.Write(Computers.EditingItem(
                     EditItem.Read(),
                     FinishEditItem.Read()
@@ -109,6 +112,7 @@ namespace Examples.TodoList
                 new object[] {
                     toggleComplete
                 },
+                // TODO Fix unnecessary mark dirty if no change
                 () => IsCompleted.Write(Computers.TodoItem.IsCompleted(
                     IsCompleted.Read(),
                     toggleComplete.Read(),
@@ -122,6 +126,7 @@ namespace Examples.TodoList
                     editingItemId,
                     finishEdit
                 },
+                // TODO Fix unnecessary mark dirty if no change
                 () => Content.Write(Computers.TodoItem.Content(
                     Content.Read(),
                     editingItemId.Read(),

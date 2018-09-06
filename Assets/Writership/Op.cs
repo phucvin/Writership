@@ -4,6 +4,7 @@ namespace Writership
 {
     public class Op<T> : IHaveCells
     {
+        // TODO Maybe not a good solution, should compute by changed values (of dynamic children)
         public readonly Op<Empty> Applied;
 
         private readonly IEngine engine;
