@@ -129,6 +129,8 @@ namespace Writership
                 {
                     throw new InvalidOperationException("Not found on unregister");
                 }
+
+                if (jobs.Count <= 0) listeners.Remove(target);
             }
         }
 
