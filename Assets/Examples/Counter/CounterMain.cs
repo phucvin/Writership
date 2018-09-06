@@ -4,7 +4,7 @@ using Writership;
 
 namespace Examples.Counter
 {
-    public class Main : MonoBehaviour, IDisposable
+    public class CounterMain : MonoBehaviour, IDisposable
     {
         [SerializeField]
         private Common.BasicLabel valueLabel = null;
