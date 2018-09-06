@@ -20,8 +20,15 @@ namespace Examples.Counter
             cd = new CompositeDisposable();
 
             cd.Add(engine.RegisterComputer(
-                new object[] { Increase, Decrease, },
-                () => Computers.Value(Value, Increase, Decrease)
+                new object[] {
+                    Increase,
+                    Decrease
+                },
+                () => Value.Write(Computers.Value(
+                    Value.Read(),
+                    Increase.Read(),
+                    Decrease.Read()
+                ))
             ));
         }
 

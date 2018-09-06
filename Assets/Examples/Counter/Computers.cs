@@ -1,12 +1,18 @@
-﻿using Writership;
+﻿using System.Collections.Generic;
 
 namespace Examples.Counter
 {
     public static class Computers
     {
-        public static void Value(El<int> value, Op<Empty> inc, Op<Empty> dec)
+        public static int Value(
+            int value,
+            IList<Empty> opInc,
+            IList<Empty> opDec
+        )
         {
-            value.Write(value.Read() + inc.Read().Count - dec.Read().Count);
+            value += opInc.Count - opDec.Count;
+            if (value <= 0) value = 1;
+            return value;
         }
     }
 }
