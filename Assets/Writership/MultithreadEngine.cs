@@ -17,8 +17,9 @@ namespace Writership
 
         private readonly int mainThreadId;
         private bool isComputeDone;
-        private Thread computeThread;
+        private Exception computeException;
         private AutoResetEvent computeSignal;
+        private Thread computeThread;
 
         public MultithreadEngine()
         {
@@ -28,6 +29,8 @@ namespace Writership
 
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
             isComputeDone = false;
+            computeException = null;
+            computeSignal = new AutoResetEvent(false);
             if (TotalCells == 3)
             {
                 computeThread = new Thread(Compute);
@@ -37,7 +40,6 @@ namespace Writership
             {
                 computeThread = null;
             }
-            computeSignal = new AutoResetEvent(false);
 
             for (int i = 0, n = TotalCells; i < n; ++i)
             {
@@ -125,9 +127,9 @@ namespace Writership
             while (!isComputeDone)
             {
                 Thread.Sleep(1);
-                if (computeThread.ThreadState == ThreadState.Stopped)
+                if (computeException != null)
                 {
-                    throw new Exception("Exception in compute thread");
+                    throw computeException;
                 }
             }
             CopyDirties(ComputeCellIndex, ReadCellIndex);
@@ -208,11 +210,18 @@ namespace Writership
 
         private void Compute()
         {
-            while (true)
+            try
             {
-                Process(1);
-                isComputeDone = true;
-                computeSignal.WaitOne();
+                while (true)
+                {
+                    Process(1);
+                    isComputeDone = true;
+                    computeSignal.WaitOne();
+                }
+            }
+            catch (Exception e)
+            {
+                computeException = e;
             }
         }
 
