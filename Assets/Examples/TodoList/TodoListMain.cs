@@ -1,12 +1,15 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using Writership;
 
 namespace Examples.TodoList
 {
     public class TodoListMain : MonoBehaviour, IDisposable
     {
+        [SerializeField]
+        private Common.Map map = null;
+
         private IEngine engine;
         private State state;
 
@@ -18,6 +21,25 @@ namespace Examples.TodoList
 
             cd.Add(engine = new MultithreadEngine());
             cd.Add(state = new State(engine));
+
+            cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("newItem"),
+                state.CreateNewItem, () => map.GetComponent<InputField>("newItemContent").text
+            ));
+            cd.Add(Common.Binders.Label(engine, map.GetComponent<Text>("uncompletedCount"),
+                state.UncompletedCount, i => string.Format("Uncompleted count: {0}", i)
+            ));
+            cd.Add(Common.Binders.List(engine,
+                map.GetComponent<Transform>("itemsParent"),
+                map.GetComponent<Common.Map>("itemPrefab"),
+                state.Items, (map, item) =>
+                {
+                    var cd = new CompositeDisposable();
+                    cd.Add(Common.Binders.Label(engine, map.GetComponent<Text>("content"),
+                        item.Content, s => s
+                    ));
+                    return cd;
+                }
+            ));
         }
 
         public void Dispose()
@@ -25,45 +47,9 @@ namespace Examples.TodoList
             cd.Dispose();
         }
 
-        public IEnumerator Start()
+        public void Start()
         {
             Setup();
-
-            engine.RegisterListener(
-                new object[] {
-                    state.Items,
-                    state.ToggleItemComplete.Applied
-                },
-                () =>
-                {
-                    var items = state.Items.Read();
-                    Debug.Log("Items begin");
-                    for (int i = 0, n = items.Count; i < n; ++i)
-                    {
-                        var item = items[i];
-                        Debug.Log(item.Id + " | " + item.Content.Read() + " | " + (item.IsCompleted.Read() ? "x" : "-"));
-                    }
-                    Debug.Log("Items end");
-                }
-            );
-
-            engine.RegisterListener(
-                new object[] { state.UncompletedCount },
-                () => Debug.Log("Uncompleted count: " + state.UncompletedCount.Read())
-            );
-
-            yield return null;
-            state.CreateNewItem.Fire("hello world");
-            yield return null;
-            state.ToggleItemComplete.Fire("1");
-            yield return null;
-            state.CreateNewItem.Fire("bye world");
-            yield return null;
-            state.EditItem.Fire("2");
-            yield return null;
-            state.FinishEditItem.Fire("not bye world");
-            yield return null;
-            state.DeleteCompletedItems.Fire(default(Empty));
         }
 
         public void OnDestroy()

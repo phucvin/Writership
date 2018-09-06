@@ -16,7 +16,7 @@ namespace Examples.Common
         private Pair[] list = null;
 
         public T GetComponent<T>(string name)
-            where T : MonoBehaviour
+            where T : Component
         {
             for (int i = 0, n = list != null ? list.Length : 0; i < n; ++i)
             {

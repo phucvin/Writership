@@ -23,11 +23,14 @@ namespace Examples.Counter
             cd.Add(state = new State(engine));
 
             cd.Add(Common.Binders.Label(engine, map.GetComponent<Text>("value"),
-                state.Value, i => i.ToString()));
+                state.Value, i => i.ToString()
+            ));
             cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("inc"),
-                state.Increase, () => default(Empty)));
+                state.Increase, () => default(Empty)
+            ));
             cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("dec"),
-                state.Decrease, () => default(Empty)));
+                state.Decrease, () => default(Empty)
+            ));
         }
 
         public void Dispose()
