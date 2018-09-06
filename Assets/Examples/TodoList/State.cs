@@ -14,7 +14,7 @@ namespace Examples.TodoList
         public readonly Op<Empty> DeleteCompletedItems;
         public readonly Op<string> DeleteItem;
         public readonly Op<string> EditItem;
-        public readonly El<string> EditingItem;
+        public readonly El<string> EditingItemId;
         public readonly Op<string> FinishEditItem;
         public readonly TodoItem.Factory ItemFactory;
 
@@ -30,9 +30,9 @@ namespace Examples.TodoList
             DeleteCompletedItems = engine.Op<Empty>();
             DeleteItem = engine.Op<string>();
             EditItem = engine.Op<string>();
-            EditingItem = engine.El<string>(null);
+            EditingItemId = engine.El<string>(null);
             FinishEditItem = engine.Op<string>();
-            ItemFactory = new TodoItem.Factory(engine, ToggleItemComplete, EditingItem, FinishEditItem);
+            ItemFactory = new TodoItem.Factory(engine, ToggleItemComplete, EditingItemId, FinishEditItem);
 
             cd = new CompositeDisposable();
 
@@ -69,7 +69,7 @@ namespace Examples.TodoList
                     EditItem,
                     FinishEditItem
                 },
-                () => EditingItem.Write(Computers.EditingItem(
+                () => EditingItemId.Write(Computers.EditingItem(
                     EditItem.Read(),
                     FinishEditItem.Read()
                 ))
@@ -93,7 +93,7 @@ namespace Examples.TodoList
         public TodoItem(
             IEngine engine,
             Op<string> toggleComplete,
-            El<string> editingItem,
+            El<string> editingItemId,
             Op<string> finishEdit,
             string id,
             string content
@@ -119,12 +119,12 @@ namespace Examples.TodoList
 
             cd.Add(engine.RegisterComputer(
                 new object[] {
-                    editingItem,
+                    editingItemId,
                     finishEdit
                 },
                 () => Content.Write(Computers.TodoItem.Content(
                     Content.Read(),
-                    editingItem.Read(),
+                    editingItemId.Read(),
                     finishEdit.Read(),
                     Id
                 ))
@@ -140,25 +140,25 @@ namespace Examples.TodoList
         {
             private readonly IEngine engine;
             private readonly Op<string> toggleComplete;
-            private readonly El<string> editingItem;
+            private readonly El<string> editingItemId;
             private readonly Op<string> finishEdit;
 
             public Factory(
                 IEngine engine,
                 Op<string> toggleComplete,
-                El<string> editingItem,
+                El<string> editingItemId,
                 Op<string> finishEdit
             )
             {
                 this.engine = engine;
                 this.toggleComplete = toggleComplete;
-                this.editingItem = editingItem;
+                this.editingItemId = editingItemId;
                 this.finishEdit = finishEdit;
             }
 
             public TodoItem Create(string id, string content)
             {
-                return new TodoItem(engine, toggleComplete, editingItem, finishEdit, id, content);
+                return new TodoItem(engine, toggleComplete, editingItemId, finishEdit, id, content);
             }
         }
     }

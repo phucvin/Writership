@@ -78,9 +78,9 @@ namespace Examples.TodoList
                 return isCompleted;
             }
 
-            public static string Content(string content, string editingItem, IList<string> opFinishEdit, string myId)
+            public static string Content(string content, string editingItemId, IList<string> opFinishEdit, string myId)
             {
-                if (editingItem == myId && opFinishEdit.Count > 0)
+                if (editingItemId == myId && opFinishEdit.Count > 0)
                 {
                     string newContent = opFinishEdit[opFinishEdit.Count - 1];
                     if (!string.IsNullOrEmpty(newContent)) return newContent;
