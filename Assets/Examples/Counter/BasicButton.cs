@@ -13,11 +13,7 @@ namespace Examples.Counter
 
         public void Setup(IEngine engine, Op<Empty> op)
         {
-            button.onClick.AddListener(() =>
-            {
-                Debug.Log("Click at frame: " + Time.frameCount);
-                op.Fire(default(Empty));
-            });
+            button.onClick.AddListener(() => op.Fire(default(Empty)));
         }
 
         public void Dispose()

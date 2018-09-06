@@ -19,7 +19,7 @@ namespace Examples.Counter
 
         public void Start()
         {
-            engine = new SinglethreadEngine();
+            engine = new MultithreadEngine();
             state = new State(engine);
 
             valueLabel.Setup(engine, state.Value);
