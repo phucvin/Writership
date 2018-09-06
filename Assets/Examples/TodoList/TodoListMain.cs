@@ -58,6 +58,12 @@ namespace Examples.TodoList
             state.ToggleItemComplete.Fire("1");
             yield return null;
             state.CreateNewItem.Fire("bye world");
+            yield return null;
+            state.EditItem.Fire("2");
+            yield return null;
+            state.FinishEditItem.Fire("not bye world");
+            yield return null;
+            state.DeleteCompletedItems.Fire(default(Empty));
         }
 
         public void OnDestroy()

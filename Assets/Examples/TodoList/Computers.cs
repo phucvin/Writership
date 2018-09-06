@@ -60,6 +60,13 @@ namespace Examples.TodoList
             }
         }
 
+        public static string EditingItem(IList<string> opEdit, IList<string> opFinish)
+        {
+            if (opFinish.Count > 0) return null;
+            else if (opEdit.Count > 0) return opEdit[opEdit.Count - 1];
+            else return null;
+        }
+
         public static class TodoItem
         {
             public static bool IsCompleted(bool isCompleted, IList<string> opToggle, string myId)
@@ -69,6 +76,17 @@ namespace Examples.TodoList
                     if (opToggle[i] == myId) isCompleted = !isCompleted;
                 }
                 return isCompleted;
+            }
+
+            public static string Content(string content, string editingItem, IList<string> opFinishEdit, string myId)
+            {
+                if (editingItem == myId && opFinishEdit.Count > 0)
+                {
+                    string newContent = opFinishEdit[opFinishEdit.Count - 1];
+                    if (!string.IsNullOrEmpty(newContent)) return newContent;
+                }
+
+                return content;
             }
         }
     }
