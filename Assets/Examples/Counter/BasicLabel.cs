@@ -9,13 +9,24 @@ namespace Examples.Counter
         [SerializeField]
         private Text text = null;
 
-        // TODO Disposable
-        public void Setup(Engine engine, El<int> target)
+        private readonly CompositeDisposable cd = new CompositeDisposable();
+
+        public void Setup(MultithreadEngine engine, El<int> target)
         {
-            engine.RegisterListener(
+            cd.Add(engine.RegisterListener(
                 new object[] { target },
                 () => text.text = target.Read().ToString()
-            );
+            ));
+        }
+
+        public void Dispose()
+        {
+            cd.Dispose();
+        }
+
+        public void OnDestroy()
+        {
+            Dispose();
         }
     }
 }

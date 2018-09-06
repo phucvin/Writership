@@ -9,10 +9,21 @@ namespace Examples.Counter
         [SerializeField]
         private Button button = null;
 
-        // TODO Disposable
-        public void Setup(Engine engine, Op<Void> op)
+        private readonly CompositeDisposable cd = new CompositeDisposable();
+
+        public void Setup(MultithreadEngine engine, Op<Empty> op)
         {
-            button.onClick.AddListener(() => op.Fire(default(Void)));
+            button.onClick.AddListener(() => op.Fire(default(Empty)));
+        }
+
+        public void Dispose()
+        {
+            cd.Dispose();
+        }
+
+        public void OnDestroy()
+        {
+            Dispose();
         }
     }
 }

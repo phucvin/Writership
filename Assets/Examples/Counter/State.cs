@@ -1,24 +1,33 @@
-﻿using Writership;
+﻿using System;
+using Writership;
 
 namespace Examples.Counter
 {
-    // TODO Disposable
-    public class State
+    public class State : IDisposable
     {
         public readonly El<int> Value;
-        public readonly Op<Void> Increase;
-        public readonly Op<Void> Decrease;
+        public readonly Op<Empty> Increase;
+        public readonly Op<Empty> Decrease;
 
-        public State(Engine engine)
+        private readonly CompositeDisposable cd;
+
+        public State(MultithreadEngine engine)
         {
             Value = engine.El(0);
-            Increase = engine.Op<Void>();
-            Decrease = engine.Op<Void>();
+            Increase = engine.Op<Empty>();
+            Decrease = engine.Op<Empty>();
 
-            engine.RegisterComputer(
+            cd = new CompositeDisposable();
+
+            cd.Add(engine.RegisterComputer(
                 new object[] { Increase, Decrease, },
                 () => Computers.Value(Value, Increase, Decrease)
-            );
+            ));
+        }
+
+        public void Dispose()
+        {
+            cd.Dispose();
         }
     }
 }

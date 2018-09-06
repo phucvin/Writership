@@ -14,10 +14,56 @@ namespace Writership
         void MarkDirty(IHaveCells target, bool allowMultiple = false);
         IDisposable RegisterListener(object[] targets, Action job);
         IDisposable RegisterComputer(object[] targets, Action job);
+        void UnregisterListener(int at, object[] targets, Action job);
         void Update();
     }
 
-    public class Engine : IDisposable
+    public class CompositeDisposable : IDisposable
+    {
+        private readonly List<IDisposable> list;
+
+        public CompositeDisposable()
+        {
+            list = new List<IDisposable>();
+        }
+
+        public void Add(IDisposable item)
+        {
+            list.Add(item);
+        }
+
+        public void Dispose()
+        {
+            for (int i = 0, n = list.Count; i < n; ++i)
+            {
+                list[i].Dispose();
+            }
+            list.Clear();
+        }
+    }
+
+    public class Unregisterer : IDisposable
+    {
+        private readonly IEngine engine;
+        private readonly int at;
+        private readonly object[] targets;
+        private readonly Action job;
+
+        public Unregisterer(IEngine engine, int at, object[] targets, Action job)
+        {
+            this.engine = engine;
+            this.at = at;
+            this.targets = targets;
+            this.job = job;
+        }
+
+        public void Dispose()
+        {
+            engine.UnregisterListener(at, targets, job);
+        }
+    }
+
+    public class MultithreadEngine : IEngine, IDisposable
     {
         private class Dirty
         {
@@ -35,7 +81,7 @@ namespace Writership
         private AutoResetEvent computeSignal;
 #endif
 
-        public Engine()
+        public MultithreadEngine()
         {
 #if !WRITERSHIP_NO_COMPUTE_THREAD
             TotalCells = 3;
@@ -117,14 +163,32 @@ namespace Writership
             dirty.Phase = 1;
         }
 
-        public void RegisterListener(object[] targets, Action job)
+        public IDisposable RegisterListener(object[] targets, Action job)
         {
             RegisterListener(ReadCellIndex, targets, job);
+            return new Unregisterer(this, ReadCellIndex, targets, job);
         }
 
-        public void RegisterComputer(object[] targets, Action job)
+        public IDisposable RegisterComputer(object[] targets, Action job)
         {
             RegisterListener(ComputeCellIndex, targets, job);
+            return new Unregisterer(this, ReadCellIndex, targets, job);
+        }
+
+        public void UnregisterListener(int at, object[] targets, Action job)
+        {
+            // TODO Lock or use thread-safe collections
+            // to avoid multiple threads register at same time
+            var listeners = this.listeners[at];
+            for (int i = 0, n = targets.Length; i < n; ++i)
+            {
+                var target = targets[i];
+                List<Action> jobs;
+                if (!listeners.TryGetValue(target, out jobs) || !jobs.Remove(job))
+                {
+                    throw new InvalidOperationException("Not found on unregister");
+                }
+            }
         }
 
         public void Update()
@@ -279,17 +343,17 @@ namespace Writership
 
     public static class CreateExtensions
     {
-        public static El<T> El<T>(this Engine engine, T value)
+        public static El<T> El<T>(this MultithreadEngine engine, T value)
         {
             return new El<T>(engine, value);
         }
 
-        public static Li<T> Li<T>(this Engine engine, IList<T> list)
+        public static Li<T> Li<T>(this MultithreadEngine engine, IList<T> list)
         {
             return new Li<T>(engine, list);
         }
 
-        public static Op<T> Op<T>(this Engine engine)
+        public static Op<T> Op<T>(this MultithreadEngine engine)
         {
             return new Op<T>(engine);
         }
@@ -328,14 +392,14 @@ namespace Writership
 
     public class El<T> : IHaveCells
     {
-        private readonly Engine engine;
+        private readonly MultithreadEngine engine;
         private readonly T[] cells;
 
 #if DEBUG
         private readonly Writership writership = new Writership();
 #endif
 
-        public El(Engine engine, T value)
+        public El(MultithreadEngine engine, T value)
         {
             this.engine = engine;
 
@@ -375,14 +439,14 @@ namespace Writership
 
     public class Li<T> : IHaveCells
     {
-        private readonly Engine engine;
+        private readonly MultithreadEngine engine;
         private readonly List<T>[] cells;
 
 #if DEBUG
         private readonly Writership writership = new Writership();
 #endif
 
-        public Li(Engine engine, IList<T> list)
+        public Li(MultithreadEngine engine, IList<T> list)
         {
             this.engine = engine;
 
@@ -425,10 +489,10 @@ namespace Writership
 
     public class Op<T> : IHaveCells
     {
-        private readonly Engine engine;
+        private readonly MultithreadEngine engine;
         private readonly List<T>[] cells;
 
-        public Op(Engine engine)
+        public Op(MultithreadEngine engine)
         {
             this.engine = engine;
 
@@ -469,16 +533,16 @@ namespace Writership
         }
     }
 
-    public struct Void { }
+    public struct Empty { }
 
     public static class TestCase01
     {
         public static void Run()
         {
-            var e = new Engine();
+            var e = new MultithreadEngine();
             var name = e.El("jan");
             var age = e.El(1);
-            var changeName = e.Op<Void>();
+            var changeName = e.Op<Empty>();
 
             e.RegisterComputer(new object[] { name }, () =>
             {
@@ -494,8 +558,8 @@ namespace Writership
                 UnityEngine.Debug.Log("Age: " + age.Read());
             });
 
-            changeName.Fire(default(Void));
-            changeName.Fire(default(Void));
+            changeName.Fire(default(Empty));
+            changeName.Fire(default(Empty));
 
             e.Update();
             e.Update();

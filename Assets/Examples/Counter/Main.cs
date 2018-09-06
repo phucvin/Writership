@@ -14,12 +14,12 @@ namespace Examples.Counter
         [SerializeField]
         private BasicButton decreaseButton = null;
 
-        private Engine engine;
+        private MultithreadEngine engine;
         private State state;
 
         public void Start()
         {
-            engine = new Engine();
+            engine = new MultithreadEngine();
             state = new State(engine);
 
             valueLabel.Setup(engine, state.Value);
