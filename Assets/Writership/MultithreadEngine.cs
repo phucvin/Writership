@@ -99,7 +99,7 @@ namespace Writership
         public IDisposable RegisterComputer(object[] targets, Action job)
         {
             RegisterListener(ComputeCellIndex, targets, job);
-            return new Unregisterer(this, ReadCellIndex, targets, job);
+            return new Unregisterer(this, ComputeCellIndex, targets, job);
         }
 
         public void UnregisterListener(int at, object[] targets, Action job)
