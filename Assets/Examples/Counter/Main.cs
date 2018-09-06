@@ -17,24 +17,36 @@ namespace Examples.Counter
         private IEngine engine;
         private State state;
 
+        private readonly CompositeDisposable cd = new CompositeDisposable();
+
+        public void Setup()
+        {
+            cd.Add(engine = new MultithreadEngine());
+            cd.Add(state = new State(engine));
+
+            cd.Add(valueLabel.Setup(engine, state.Value));
+            cd.Add(increaseButton.Setup(engine, state.Increase));
+            cd.Add(decreaseButton.Setup(engine, state.Decrease));
+        }
+
+        public void Dispose()
+        {
+            cd.Dispose();
+        }
+
         public void Start()
         {
-            engine = new MultithreadEngine();
-            state = new State(engine);
+            Setup();
+        }
 
-            valueLabel.Setup(engine, state.Value);
-            increaseButton.Setup(engine, state.Increase);
-            decreaseButton.Setup(engine, state.Decrease);
+        public void OnDestroy()
+        {
+            Dispose();
         }
 
         public void Update()
         {
             engine.Update();
-        }
-
-        public void OnDestroy()
-        {
-            engine.Dispose();
         }
     }
 }

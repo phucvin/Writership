@@ -1,22 +1,27 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using Writership;
 
 namespace Examples.Common
 {
-    public class BasicLabel : MonoBehaviour
+    public class BasicLabel : MonoBehaviour, IDisposable
     {
         [SerializeField]
         private Text text = null;
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
 
-        public void Setup(IEngine engine, El<int> target)
+        public IDisposable Setup(IEngine engine, El<int> target)
         {
+            Dispose();
+
             cd.Add(engine.RegisterListener(
                 new object[] { target },
                 () => text.text = target.Read().ToString()
             ));
+
+            return this;
         }
 
         public void Dispose()
