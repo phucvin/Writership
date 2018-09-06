@@ -15,24 +15,17 @@ namespace Writership
         private readonly List<Dirty>[] dirties;
         private readonly Dictionary<object, List<Action>>[] listeners;
 
-#if !WRITERSHIP_NO_COMPUTE_THREAD
         private readonly int mainThreadId;
         private bool isComputeDone;
         private Thread computeThread;
         private AutoResetEvent computeSignal;
-#endif
 
         public MultithreadEngine()
         {
-#if !WRITERSHIP_NO_COMPUTE_THREAD
             TotalCells = 3;
-#else
-            TotalCells = 2;
-#endif
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
 
-#if !WRITERSHIP_NO_COMPUTE_THREAD
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
             isComputeDone = false;
             if (TotalCells == 3)
@@ -45,7 +38,6 @@ namespace Writership
                 computeThread = null;
             }
             computeSignal = new AutoResetEvent(false);
-#endif
 
             for (int i = 0, n = TotalCells; i < n; ++i)
             {
@@ -56,13 +48,11 @@ namespace Writership
 
         public void Dispose()
         {
-#if !WRITERSHIP_NO_COMPUTE_THREAD
             if (computeThread != null)
             {
                 computeThread.Abort();
                 computeThread = null;
             }
-#endif
         }
 
         public int TotalCells { get; private set; }
@@ -74,12 +64,8 @@ namespace Writership
         {
             get
             {
-#if !WRITERSHIP_NO_COMPUTE_THREAD
                 if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return ReadCellIndex;
                 else return ComputeCellIndex;
-#else
-                return ReadCellIndex;
-#endif
             }
         }
 
@@ -136,7 +122,6 @@ namespace Writership
 
         public void Update()
         {
-#if !WRITERSHIP_NO_COMPUTE_THREAD
             while (!isComputeDone)
             {
                 Thread.Sleep(1);
@@ -151,10 +136,6 @@ namespace Writership
 
             Notify(ReadCellIndex);
             dirties[ReadCellIndex].Clear();
-#else
-            Process(ReadCellIndex);
-            dirties[ReadCellIndex].Clear();
-#endif
         }
 
         private void CopyCells(int from, int to)
@@ -219,7 +200,6 @@ namespace Writership
             }
         }
 
-#if !WRITERSHIP_NO_COMPUTE_THREAD
         private void Compute()
         {
             while (true)
@@ -258,7 +238,6 @@ namespace Writership
                 }
             }
         }
-#endif
 
         private void RegisterListener(int at, object[] targets, Action job)
         {
