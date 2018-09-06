@@ -72,12 +72,15 @@ namespace Examples.TodoList
             }
         }
 
-        public static void EditingItem(El<string> target, Op<string> edit_, Op<string> finish)
+        public static void EditingItemId(El<string> target, Op<string> edit_, Op<string> finish)
         {
             var edit = edit_.Read();
+            var editingItemId = target.Read();
 
-            if (finish.Read().Count > 0) target.Write(null);
-            else if (edit.Count > 0) target.Write(edit[edit.Count - 1]);
+            if (finish.Read().Count > 0) editingItemId = null;
+            else if (edit.Count > 0) editingItemId = edit[edit.Count - 1];
+
+            if (editingItemId != target.Read()) target.Write(editingItemId);
         }
 
         public static class TodoItem
