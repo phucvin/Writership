@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 using Writership;
 
 namespace Examples.Counter
@@ -7,13 +8,7 @@ namespace Examples.Counter
     public class CounterMain : MonoBehaviour, IDisposable
     {
         [SerializeField]
-        private Common.BasicLabel valueLabel = null;
-
-        [SerializeField]
-        private Common.BasicButton increaseButton = null;
-
-        [SerializeField]
-        private Common.BasicButton decreaseButton = null;
+        private Common.Map map = null;
 
         private IEngine engine;
         private State state;
@@ -27,9 +22,12 @@ namespace Examples.Counter
             cd.Add(engine = new MultithreadEngine());
             cd.Add(state = new State(engine));
 
-            cd.Add(valueLabel.Setup(engine, state.Value));
-            cd.Add(increaseButton.Setup(engine, state.Increase));
-            cd.Add(decreaseButton.Setup(engine, state.Decrease));
+            cd.Add(Common.Binders.Label(engine, map.GetComponent<Text>("value"),
+                state.Value, i => i.ToString()));
+            cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("inc"),
+                state.Increase, () => default(Empty)));
+            cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("dec"),
+                state.Decrease, () => default(Empty)));
         }
 
         public void Dispose()

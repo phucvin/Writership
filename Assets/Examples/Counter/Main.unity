@@ -199,7 +199,6 @@ GameObject:
   - component: {fileID: 701379495}
   - component: {fileID: 701379494}
   - component: {fileID: 701379493}
-  - component: {fileID: 701379496}
   m_Layer: 5
   m_Name: Increase
   m_TagString: Untagged
@@ -301,18 +300,6 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 701379491}
   m_CullTransparentMesh: 0
---- !u!114 &701379496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 701379491}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad90427ff45dc4d4596b7b732c06692d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  button: {fileID: 701379493}
 --- !u!1 &746258823
 GameObject:
   m_ObjectHideFlags: 0
@@ -324,7 +311,6 @@ GameObject:
   - component: {fileID: 746258827}
   - component: {fileID: 746258826}
   - component: {fileID: 746258825}
-  - component: {fileID: 746258828}
   m_Layer: 5
   m_Name: Decrease
   m_TagString: Untagged
@@ -426,18 +412,6 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 746258823}
   m_CullTransparentMesh: 0
---- !u!114 &746258828
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 746258823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad90427ff45dc4d4596b7b732c06692d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  button: {fileID: 746258825}
 --- !u!1 &964765686
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,7 +584,6 @@ GameObject:
   - component: {fileID: 1339455673}
   - component: {fileID: 1339455675}
   - component: {fileID: 1339455674}
-  - component: {fileID: 1339455676}
   m_Layer: 5
   m_Name: Value
   m_TagString: Untagged
@@ -676,18 +649,6 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1339455672}
   m_CullTransparentMesh: 0
---- !u!114 &1339455676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1339455672}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff1dc442cc8a2094487f2f6fedbe4249, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  text: {fileID: 1339455674}
 --- !u!1 &1473612543
 GameObject:
   m_ObjectHideFlags: 0
@@ -836,6 +797,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1799370510}
   - component: {fileID: 1799370509}
+  - component: {fileID: 1799370511}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -854,9 +816,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37065b87ac8370941bef46f57e64cd5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  valueLabel: {fileID: 1339455676}
-  increaseButton: {fileID: 701379496}
-  decreaseButton: {fileID: 746258828}
+  map: {fileID: 1799370511}
 --- !u!4 &1799370510
 Transform:
   m_ObjectHideFlags: 0
@@ -870,6 +830,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1799370511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1799370508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32a0304a7a652848a3de69907d6d701, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  list:
+  - Name: value
+    GameObject: {fileID: 1339455672}
+  - Name: inc
+    GameObject: {fileID: 701379491}
+  - Name: dec
+    GameObject: {fileID: 746258823}
 --- !u!1 &1974580863
 GameObject:
   m_ObjectHideFlags: 0
