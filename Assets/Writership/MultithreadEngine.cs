@@ -27,6 +27,12 @@ namespace Writership
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
 
+            for (int i = 0, n = TotalCells; i < n; ++i)
+            {
+                dirties[i] = new List<Dirty>();
+                listeners[i] = new Dictionary<object, List<Action>>();
+            }
+
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
             isComputeDone = false;
             computeException = null;
@@ -39,12 +45,6 @@ namespace Writership
             else
             {
                 computeThread = null;
-            }
-
-            for (int i = 0, n = TotalCells; i < n; ++i)
-            {
-                dirties[i] = new List<Dirty>();
-                listeners[i] = new Dictionary<object, List<Action>>();
             }
         }
 
