@@ -97,10 +97,14 @@ public class TodoList
 
         state.CreateNewItem.Fire("hello");
         engine.Update();
+        state.EditItem.Fire("1");
+        engine.Update();
+        state.FinishEditItem.Fire("hello and bye");
+        engine.Update();
 
         engine.Update();
         engine.Dispose();
 
-        Assert.AreEqual("hello", state.Items.Read()[0].Content.Read());
+        Assert.AreEqual("hello and bye", state.Items.Read()[0].Content.Read());
     }
 }
