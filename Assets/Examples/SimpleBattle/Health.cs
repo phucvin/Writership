@@ -6,13 +6,11 @@ namespace Examples.SimpleBattle
 {
     public class Health : Disposable
     {
-        public readonly Info.Health Info;
         public readonly IEl<int> Max;
         public readonly IEl<int> Current;
 
         public Health(IEngine engine, Info.Health info)
         {
-            Info = info;
             Max = engine.El(info.Max);
             Current = engine.El(info.Current);
         }
@@ -47,10 +45,10 @@ namespace Examples.SimpleBattle
 
             for (int i = 0, n = modifiers.Count; i < n; ++i)
             {
-                var m = modifiers[i].Info as Info.HealthCurrentModifier?;
-                if (m == null) continue;
+                if (!(modifiers[i].Info is Info.HealthCurrentModifier)) continue;
+                var m = (Info.HealthCurrentModifier)modifiers[i].Info;
 
-                current += ticks * m.Value.Add;
+                current += ticks * m.Add;
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
