@@ -14,7 +14,7 @@ public class Counter
         var dec = Substitute.For<IOp<Empty>>();
 
         target.Read().Returns(0);
-        inc.Read().Returns(new List<Empty> { default(Empty) });
+        inc.Read().Returns(new List<Empty> { Empty.Instance });
         dec.Read().Returns(new List<Empty>());
 
         Computers.Value(target, inc, dec);

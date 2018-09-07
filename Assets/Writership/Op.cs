@@ -37,7 +37,7 @@ namespace Writership
                 {
                     if (Read().Count > 0)
                     {
-                        applied.Fire(default(Empty));
+                        applied.Fire(Empty.Instance);
                     }
                 });
             }

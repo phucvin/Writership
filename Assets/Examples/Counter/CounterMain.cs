@@ -26,10 +26,10 @@ namespace Examples.Counter
                 state.Value, i => i.ToString()
             ));
             cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("inc"),
-                state.Increase, () => default(Empty)
+                state.Increase, () => Empty.Instance
             ));
             cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("dec"),
-                state.Decrease, () => default(Empty)
+                state.Decrease, () => Empty.Instance
             ));
         }
 
