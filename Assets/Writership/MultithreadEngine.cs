@@ -73,6 +73,11 @@ namespace Writership
 
         public void MarkDirty(IHaveCells target, bool allowMultiple = false)
         {
+            MarkDirty(target, allowMultiple, phase: 1);
+        }
+
+        public void MarkDirty(IHaveCells target, bool allowMultiple, int phase)
+        {
             var dirties = this.dirties[CurrentCellIndex];
             var dirty = dirties.Find(it => ReferenceEquals(it.Inner, target));
             if (dirty == null)
@@ -89,7 +94,7 @@ namespace Writership
                 throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
             }
 
-            dirty.Phase = 1;
+            dirty.Phase = phase;
         }
 
         public IDisposable RegisterListener(object[] targets, Action job)
@@ -272,7 +277,7 @@ namespace Writership
             }
 
             if (at == CurrentCellIndex) job();
-            else MarkDirty((IHaveCells)targets[0], allowMultiple: true);
+            else MarkDirty((IHaveCells)targets[0], allowMultiple: true, phase: 11);
         }
     }
 }
