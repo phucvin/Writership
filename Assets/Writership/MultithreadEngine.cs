@@ -33,6 +33,7 @@ namespace Writership
             }
 
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            // TODO Maybe not need, but should find a way to make sure CurrentCellIndex is correct in any case
             if (mainThreadId != 1) throw new InvalidOperationException("MultithreadEngine can only be created at main thread");
             isComputeDone = false;
             computeException = null;
