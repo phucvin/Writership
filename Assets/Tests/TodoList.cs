@@ -88,4 +88,19 @@ public class TodoList
 
         Assert.AreEqual(new List<ITodoItem> { newItem2 }, targetAsWrite);
     }
+
+    [Test]
+    public void Simple()
+    {
+        var engine = new MultithreadEngine();
+        var state = new State(engine);
+
+        state.CreateNewItem.Fire("hello");
+        engine.Update();
+
+        engine.Update();
+        engine.Dispose();
+
+        Assert.AreEqual("hello", state.Items.Read()[0].Content.Read());
+    }
 }

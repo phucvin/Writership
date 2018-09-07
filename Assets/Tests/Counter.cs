@@ -21,4 +21,21 @@ public class Counter
 
         target.Received().Write(1);
     }
+
+    [Test]
+    public void Simple()
+    {
+        var engine = new MultithreadEngine();
+        var state = new State(engine);
+
+        state.Increase.Fire(Empty.Instance);
+        state.Increase.Fire(Empty.Instance);
+        state.Decrease.Fire(Empty.Instance);
+        engine.Update();
+
+        engine.Update();
+        engine.Dispose();
+
+        Assert.AreEqual(1, state.Value.Read());
+    }
 }
