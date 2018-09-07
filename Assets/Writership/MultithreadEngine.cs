@@ -130,6 +130,7 @@ namespace Writership
 
             CopyCells(WriteCellIndex, ReadCellIndex);
             CopyDirties(ReadCellIndex, ComputeCellIndex);
+            // TODO Skip compute if not dirty
             isComputeDone = false;
             ThreadPool.QueueUserWorkItem(computeWorkItem);
 
