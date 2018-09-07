@@ -2,10 +2,16 @@
 
 namespace Examples.SimpleBattle
 {
-    public class ModifierItem : Disposable
+    public interface IModifierItem
     {
-        public Info.IModifier Info;
-        public readonly IEl<int> Remain;
+        Info.IModifier Info { get; }
+        IEl<int> Remain { get; }
+    }
+
+    public class ModifierItem : Disposable, IModifierItem
+    {
+        public Info.IModifier Info { get; private set; }
+        public IEl<int> Remain { get; private set; }
 
         public ModifierItem(IEngine engine, Info.IModifier info)
         {

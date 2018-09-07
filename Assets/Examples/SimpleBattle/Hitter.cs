@@ -3,6 +3,8 @@ using Writership;
 
 namespace Examples.SimpleBattle
 {
+    public interface IHitter { }
+
     public abstract class Hitter : Disposable
     {
         public static Hitter PolyNew(IEngine engine, Info.IHitter info)

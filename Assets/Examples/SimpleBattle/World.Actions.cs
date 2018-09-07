@@ -9,7 +9,7 @@ namespace Examples.SimpleBattle
             public struct Hit
             {
                 public EntityId FromOwner;
-                public ILi<Hitter> FromHitters;
+                public ILi<IHitter> FromHitters;
 
                 public EntityId To;
                 public IEl<int> ToArmorValue;

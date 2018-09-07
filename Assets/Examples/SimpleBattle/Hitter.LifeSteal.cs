@@ -2,9 +2,14 @@
 
 namespace Examples.SimpleBattle
 {
-    public class LifeStealHitter : Hitter
+    public interface ILifeStealHitter : IHitter
     {
-        public readonly int Percent;
+        int Percent { get; }
+    }
+
+    public class LifeStealHitter : Hitter, ILifeStealHitter
+    {
+        public int Percent { get; private set; }
 
         public LifeStealHitter(IEngine engine, Info.LifeStealHitter info)
         {

@@ -5,11 +5,11 @@ namespace Examples.SimpleBattle
 {
     public class ModifierList : Disposable
     {
-        public readonly ILi<ModifierItem> List;
+        public readonly ILi<IModifierItem> List;
 
         public ModifierList(IEngine engine)
         {
-            List = engine.Li(new List<ModifierItem>());
+            List = engine.Li(new List<IModifierItem>());
         }
 
         public void Setup(IEngine engine)

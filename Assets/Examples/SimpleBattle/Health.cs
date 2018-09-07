@@ -17,7 +17,7 @@ namespace Examples.SimpleBattle
 
         public void Setup(IEngine engine,
             EntityId me, IEl<int> armorValue,
-            IOp<int> tick, ILi<ModifierItem> modifiers,
+            IOp<int> tick, ILi<IModifierItem> modifiers,
             IOp<World.Actions.Hit> hit)
         {
             cd.Add(engine.RegisterComputer(
@@ -30,7 +30,7 @@ namespace Examples.SimpleBattle
 
         public static void ComputeCurrent(IEl<int> target,
             int max, EntityId me, int armorValue,
-            IList<int> tick, IList<ModifierItem> modifiers,
+            IList<int> tick, IList<IModifierItem> modifiers,
             IList<World.Actions.Hit> hit)
         {
             int current = target.Read();
@@ -61,7 +61,7 @@ namespace Examples.SimpleBattle
 
                 for (int j = 0, m = hitters.Count; j < m; ++j)
                 {
-                    var l = hitters[j] as LifeStealHitter;
+                    var l = hitters[j] as ILifeStealHitter;
                     if (l == null) continue;
                     lifeStealPercent += l.Percent;
                 }
@@ -100,14 +100,14 @@ namespace Examples.SimpleBattle
             if (current != target.Read()) target.Write(current);
         }
 
-        public static int CalcDealtDamage(IList<Hitter> hitters, int armorValue)
+        public static int CalcDealtDamage(IList<IHitter> hitters, int armorValue)
         {
             int damage = 0;
 
             for (int j = 0, m = hitters.Count; j < m; ++j)
             {
-                var d = hitters[j] as DamageHitter;
-                var p = hitters[j] as PureDamageHitter;
+                var d = hitters[j] as IDamageHitter;
+                var p = hitters[j] as IPureDamageHitter;
                 if (d != null) damage += d.Subtract.Read() - armorValue;
                 else if (p != null) damage += p.Subtract.Read();
             }

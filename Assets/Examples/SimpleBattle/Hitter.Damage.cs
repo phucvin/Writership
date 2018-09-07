@@ -2,9 +2,14 @@
 
 namespace Examples.SimpleBattle
 {
-    public class DamageHitter : Hitter
+    public interface IDamageHitter : IHitter
     {
-        public readonly IEl<int> Subtract;
+        IEl<int> Subtract { get; }
+    }
+
+    public class DamageHitter : Hitter, IDamageHitter
+    {
+        public IEl<int> Subtract { get; private set; }
 
         public DamageHitter(IEngine engine, Info.DamageHitter info)
         {
