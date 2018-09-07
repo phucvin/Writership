@@ -54,4 +54,38 @@ public class TodoList
         
         Assert.AreEqual(new List<ITodoItem> { newItem1, newItem2 }, targetAsWrite);
     }
+
+    [Test]
+    public void CreateNewItemAndDelete()
+    {
+        var target = Substitute.For<ILi<ITodoItem>>();
+        var targetAsWrite = new List<ITodoItem>();
+        var nextId = Substitute.For<IEl<int>>();
+        var newItem = Substitute.For<IOp<string>>();
+        var deleteCompletedItems = Substitute.For<IOp<Empty>>();
+        var deleteItem = Substitute.For<IOp<string>>();
+        var itemFactory = Substitute.For<ITodoItemFactory>();
+        var newItem1 = Substitute.For<ITodoItem>();
+        var newItem2 = Substitute.For<ITodoItem>();
+
+        target.AsWrite().Returns(targetAsWrite);
+        nextId.Read().Returns(2);
+        newItem.Read().Returns(new List<string>
+        {
+            "hello", "bye"
+        });
+        deleteCompletedItems.Read().Returns(new List<Empty>());
+        deleteItem.Read().Returns(new List<string>
+        {
+            "2"
+        });
+        newItem1.Id.Returns("2");
+        newItem2.Id.Returns("3");
+        itemFactory.Create("2", "hello").Returns(newItem1);
+        itemFactory.Create("3", "bye").Returns(newItem2);
+
+        Computers.Items(target, nextId, newItem, deleteCompletedItems, deleteItem, itemFactory);
+
+        Assert.AreEqual(new List<ITodoItem> { newItem2 }, targetAsWrite);
+    }
 }
