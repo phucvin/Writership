@@ -71,19 +71,29 @@ namespace Examples.SimpleBattle
         {
             public struct Hit
             {
-                public string FromEntityId;
+                public EntityId FromOwner;
                 public ILi<Hitter> FromHitters;
 
-                public string ToEntityId;
+                public EntityId To;
                 public IEl<int> ToArmorValue;
                 public IEl<int> ToReflectDamagePercent;
             }
         }
     }
 
+    public class EntityId
+    {
+
+    }
+
     public class Character
     {
 
+    }
+
+    public class Bullet : Cd
+    {
+        
     }
 
     public abstract class Hitter : Cd
@@ -111,6 +121,20 @@ namespace Examples.SimpleBattle
             {
                 ((LifeStealHitter)self).Setup(engine);
             }
+            else throw new NotImplementedException();
+        }
+
+        public static Hitter PolyInstantiate(Hitter self, IEngine engine)
+        {
+            if (self is DamageHitter)
+            {
+                return ((DamageHitter)self).Instantiate(engine);
+            }
+            else if (self is LifeStealHitter)
+            {
+                return ((LifeStealHitter)self).Instantiate();
+            }
+            else throw new NotImplementedException();
         }
     }
 
@@ -127,6 +151,18 @@ namespace Examples.SimpleBattle
         {
 
         }
+
+        public Hitter Instantiate(IEngine engine)
+        {
+            var instance = new DamageHitter(engine, new Info.DamageHitter
+            {
+                Subtract = Subtract.Read()
+            });
+
+            // TODO Setup compute for instance's fields
+
+            return instance;
+        }
     }
 
     public class LifeStealHitter : Hitter
@@ -141,6 +177,11 @@ namespace Examples.SimpleBattle
         public void Setup(IEngine engine)
         {
 
+        }
+
+        public Hitter Instantiate()
+        {
+            return this;
         }
     }
 
@@ -159,20 +200,20 @@ namespace Examples.SimpleBattle
 
         public void Setup(IEngine engine,
             ILi<ModifierItem> modifiers, IOp<int> tick,
-            IOp<World.Actions.Hit> hit, string entityId,
+            IOp<World.Actions.Hit> hit, EntityId me,
             IEl<int> armorValue)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { modifiers, tick },
                 () => ComputeCurrent(Current,
                     Max.Read(), modifiers.Read(), tick.Read(),
-                    hit.Read(), entityId, armorValue.Read())
+                    hit.Read(), me, armorValue.Read())
             ));
         }
 
         public static void ComputeCurrent(IEl<int> target,
             int max, IList<ModifierItem> modifiers, IList<int> tick,
-            IList<World.Actions.Hit> hit, string entityId,
+            IList<World.Actions.Hit> hit, EntityId me,
             int armorValue)
         {
             int current = target.Read();
@@ -196,7 +237,7 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.FromEntityId != entityId) continue;
+                if (h.FromOwner != me) continue;
                 
                 var hitters = h.FromHitters.Read();
                 int lifeStealPercent = 0;
@@ -219,7 +260,7 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.ToEntityId != entityId) continue;
+                if (h.To != me) continue;
                 
                 current -= CalcDealtDamage(h.FromHitters.Read(), armorValue);
             }
@@ -227,7 +268,7 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.FromEntityId != entityId) continue;
+                if (h.FromOwner != me) continue;
 
                 var reflectDamagePercent = h.ToReflectDamagePercent.Read();
                 if (reflectDamagePercent <= 0) continue;
