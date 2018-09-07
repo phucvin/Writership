@@ -171,6 +171,173 @@ public class MultipleEngines
         }
     }
 
+    public class Visuals : IDisposable
+    {
+        private readonly IEngine engine;
+        private readonly State state;
+
+        private readonly CompositeDisposable cd = new CompositeDisposable();
+
+        public Visuals()
+        {
+            cd.Add(engine = new MultithreadEngine());
+            cd.Add(state = new State(engine));
+        }
+
+        public void Dispose()
+        {
+            cd.Dispose();
+        }
+
+        public void AddSprite(Sprite s)
+        {
+            state.Add.Fire(s);
+            engine.Update();
+        }
+
+        public void Update(int dt)
+        {
+            state.Tick.Fire(dt);
+            engine.Update();
+        }
+
+        public Sprite GetSprite(string id)
+        {
+            engine.Update();
+            var ids = state.Ids.Read();
+            var sheets = state.Sheets.Read();
+            var currentFrameIndexes = state.CurrentFrameIndexes.Read();
+            var totalFrames = state.TotalFrames.Read();
+            var speeds = state.Speeds.Read();
+
+            for (int i = 0, n = ids.Count; i < n; ++i)
+            {
+                if (ids[i] == id)
+                {
+                    return new Sprite
+                    {
+                        Id = ids[i],
+                        Sheet = sheets[i],
+                        CurrentFrameIndex = currentFrameIndexes[i],
+                        TotalFrame = totalFrames[i],
+                        Speed = speeds[i]
+                    };
+                }
+            }
+
+            return default(Sprite);
+        }
+
+        public void GetSpriteComponentArrays(out IList<string> ids, out IList<object> sheets, out IList<int> currentFrameIndexes)
+        {
+            engine.Update();
+            ids = state.Ids.Read();
+            sheets = state.Sheets.Read();
+            currentFrameIndexes = state.CurrentFrameIndexes.Read();
+        }
+
+        public struct Sprite
+        {
+            public string Id;
+            public object Sheet;
+            public int CurrentFrameIndex;
+            public int TotalFrame;
+            public int Speed;
+        }
+
+        public class State : IDisposable
+        {
+            public readonly ILi<string> Ids;
+            public readonly ILi<object> Sheets;
+            public readonly ILi<int> CurrentFrameIndexes;
+            public readonly ILi<int> TotalFrames;
+            public readonly ILi<int> Speeds;
+            public readonly IOp<int> Tick;
+            public readonly IOp<Sprite> Add;
+
+            private readonly CompositeDisposable cd = new CompositeDisposable();
+
+            public State(IEngine engine)
+            {
+                Ids = engine.Li(new List<string>());
+                Sheets = engine.Li(new List<object>());
+                CurrentFrameIndexes = engine.Li(new List<int>());
+                TotalFrames = engine.Li(new List<int>());
+                Speeds = engine.Li(new List<int>());
+                Tick = engine.Op<int>();
+                Add = engine.Op<Sprite>();
+
+                cd.Add(engine.RegisterComputer(
+                    new object[] { Tick, Add },
+                    () =>
+                    {
+                        var tick = Tick.Read();
+                        var add = Add.Read();
+
+                        if (tick.Count <= 0 && add.Count <= 0) return;
+
+                        var currentFrameIndexes = CurrentFrameIndexes.AsWrite();
+
+                        {
+                            var totalFrames = TotalFrames.Read();
+                            var speeds = Speeds.Read();
+
+                            for (int t = 0, c = tick.Count; t < c; ++t)
+                            {
+                                var dt = tick[t];
+
+                                for (int i = 0, n = Ids.Read().Count; i < n; ++i)
+                                {
+                                    var current = currentFrameIndexes[i];
+                                    current = (current + dt * speeds[i]) % totalFrames[i];
+                                    currentFrameIndexes[i] = current;
+                                }
+                            }
+                        }
+
+                        if (add.Count > 0)
+                        {
+                            for (int i = 0, n = add.Count; i < n; ++i)
+                            {
+                                var s = add[i];
+                                currentFrameIndexes.Add(s.CurrentFrameIndex);
+                            }
+                        }
+                    }
+                ));
+
+                cd.Add(engine.RegisterComputer(
+                    new object[] { Add },
+                    () =>
+                    {
+                        var add = Add.Read();
+
+                        if (add.Count <= 0) return;
+
+                        var ids = Ids.AsWrite();
+                        var sheets = Sheets.AsWrite();
+                        var totalFrames = TotalFrames.AsWrite();
+                        var speeds = Speeds.AsWrite();
+
+                        for (int i = 0, n = add.Count; i < n; ++i)
+                        {
+                            var s = add[i];
+                            ids.Add(s.Id);
+                            sheets.Add(s.Sheet);
+                            totalFrames.Add(s.TotalFrame);
+                            speeds.Add(s.Speed);
+                        }
+                    }
+                ));
+            }
+
+            public void Dispose()
+            {
+                cd.Dispose();
+            }
+        }
+    }
+
     [Test]
     public void PhysicsOnly()
     {
