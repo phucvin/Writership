@@ -18,8 +18,7 @@ namespace Writership
         private readonly int mainThreadId;
         private bool isComputeDone;
         private Exception computeException;
-        private AutoResetEvent computeSignal;
-        private Thread computeThread;
+        private WaitCallback computeWorkItem;
 
         public MultithreadEngine()
         {
@@ -36,25 +35,12 @@ namespace Writership
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
             isComputeDone = false;
             computeException = null;
-            computeSignal = new AutoResetEvent(false);
-            if (TotalCells == 3)
-            {
-                computeThread = new Thread(Compute);
-                computeThread.Start();
-            }
-            else
-            {
-                computeThread = null;
-            }
+            computeWorkItem = new WaitCallback(Compute);
+            ThreadPool.QueueUserWorkItem(computeWorkItem);
         }
 
         public void Dispose()
         {
-            if (computeThread != null)
-            {
-                computeThread.Abort();
-                computeThread = null;
-            }
         }
 
         public int TotalCells { get; private set; }
@@ -143,7 +129,7 @@ namespace Writership
             CopyCells(WriteCellIndex, ReadCellIndex);
             CopyDirties(ReadCellIndex, ComputeCellIndex);
             isComputeDone = false;
-            computeSignal.Set();
+            ThreadPool.QueueUserWorkItem(computeWorkItem);
 
             Notify(ReadCellIndex);
             dirties[ReadCellIndex].Clear();
@@ -213,16 +199,12 @@ namespace Writership
             }
         }
 
-        private void Compute()
+        private void Compute(object _)
         {
             try
             {
-                while (true)
-                {
-                    Process(1);
-                    isComputeDone = true;
-                    computeSignal.WaitOne();
-                }
+                Process(1);
+                isComputeDone = true;
             }
             catch (Exception e)
             {
