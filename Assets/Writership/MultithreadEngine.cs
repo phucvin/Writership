@@ -140,6 +140,7 @@ namespace Writership
         private void CopyCells(int from, int to)
         {
             var dirties = this.dirties[to];
+            // TODO Parallel
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
@@ -156,6 +157,7 @@ namespace Writership
             var listeners = this.listeners[at];
             var calledJobs = new List<Action>();
 
+            // TODO Parallel notify, but have to use thread-safe collections for calledJobs
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
@@ -218,6 +220,7 @@ namespace Writership
         {
             var fromDirties = dirties[from];
             var toDirties = dirties[to];
+            // TODO Parallel
             for (int i = 0, n = fromDirties.Count; i < n; ++i)
             {
                 var dirty = fromDirties[i];

@@ -187,8 +187,17 @@ public class MultipleEngines
         Assert.AreEqual(0, physics.GetRigidbody("1").X);
 
         physics.Update(2);
-        Assert.AreEqual(4, physics.GetRigidbody("1").X);
-        Assert.AreEqual(1, physics.GetRigidbody("1").Y);
+        Assert.AreEqual(
+            new Physics.Rigidbody
+            {
+                Id = "1",
+                X = 4,
+                Y = 1,
+                Vx = 2,
+                Vy = 0
+            },
+            physics.GetRigidbody("1")
+        );
 
         physics.Dispose();
     }
