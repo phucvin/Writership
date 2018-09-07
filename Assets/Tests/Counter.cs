@@ -7,18 +7,18 @@ using Writership;
 public class Counter
 {
     [Test]
-    public void Simple()
+    public void Value()
     {
-        var value = Substitute.For<IEl<int>>();
+        var target = Substitute.For<IEl<int>>();
         var inc = Substitute.For<IOp<Empty>>();
         var dec = Substitute.For<IOp<Empty>>();
 
-        value.Read().Returns(0);
+        target.Read().Returns(0);
         inc.Read().Returns(new List<Empty> { default(Empty) });
         dec.Read().Returns(new List<Empty>());
 
-        Computers.Value(value, inc, dec);
+        Computers.Value(target, inc, dec);
 
-        value.Received().Write(1);
+        target.Received().Write(1);
     }
 }

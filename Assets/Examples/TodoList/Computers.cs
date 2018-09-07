@@ -4,7 +4,7 @@ namespace Examples.TodoList
 {
     public static class Computers
     {
-        public static void UncompletedCount(IEl<int> target, ILi<TodoList.TodoItem> items_)
+        public static void UncompletedCount(IEl<int> target, ILi<ITodoItem> items_)
         {
             var items = items_.Read();
             int uncompletedCount = 0;
@@ -16,12 +16,12 @@ namespace Examples.TodoList
         }
 
         public static void Items(
-            ILi<TodoList.TodoItem> target,
+            ILi<ITodoItem> target,
             IEl<int> nextId,
             IOp<string> newItem_,
             IOp<Empty> deleteCompletedItems_,
             IOp<string> deleteItem_,
-            TodoList.TodoItem.Factory factory)
+            ITodoItemFactory factory)
         {
             var newItem = newItem_.Read();
             var deleteCompletedItems = deleteCompletedItems_.Read();

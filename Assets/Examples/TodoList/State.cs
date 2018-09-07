@@ -8,7 +8,7 @@ namespace Examples.TodoList
     {
         public readonly IEl<int> NextId;
         public readonly IOp<string> CreateNewItem;
-        public readonly ILi<TodoItem> Items;
+        public readonly ILi<ITodoItem> Items;
         public readonly IOp<string> ToggleItemComplete;
         public readonly IEl<int> UncompletedCount;
         public readonly IOp<Empty> DeleteCompletedItems;
@@ -16,7 +16,7 @@ namespace Examples.TodoList
         public readonly IOp<string> EditItem;
         public readonly IEl<string> EditingItemId;
         public readonly IOp<string> FinishEditItem;
-        public readonly TodoItem.Factory ItemFactory;
+        public readonly ITodoItemFactory ItemFactory;
 
         private readonly CompositeDisposable cd;
 
@@ -24,7 +24,7 @@ namespace Examples.TodoList
         {
             NextId = engine.El(1);
             CreateNewItem = engine.Op<string>();
-            Items = engine.Li(new List<TodoItem>());
+            Items = engine.Li(new List<ITodoItem>());
             ToggleItemComplete = engine.Op<string>();
             UncompletedCount = engine.El(0);
             DeleteCompletedItems = engine.Op<Empty>();
@@ -84,11 +84,23 @@ namespace Examples.TodoList
         }
     }
 
-    public class TodoItem : IDisposable
+    public interface ITodoItem : IDisposable
     {
-        public readonly string Id;
-        public readonly IEl<string> Content;
-        public readonly IEl<bool> IsCompleted;
+        string Id { get; }
+        IEl<string> Content { get; }
+        IEl<bool> IsCompleted { get; }
+    }
+
+    public interface ITodoItemFactory
+    {
+        ITodoItem Create(string id, string content);
+    }
+
+    public class TodoItem : ITodoItem
+    {
+        public readonly string id;
+        public readonly IEl<string> content;
+        public readonly IEl<bool> isCompleted;
 
         private readonly CompositeDisposable cd;
 
@@ -98,12 +110,11 @@ namespace Examples.TodoList
             IEl<string> editingItemId,
             IOp<string> finishEdit,
             string id,
-            string content
-        )
+            string content)
         {
-            Id = id;
-            Content = engine.El(content);
-            IsCompleted = engine.El(false);
+            this.id = id;
+            this.content = engine.El(content);
+            isCompleted = engine.El(false);
 
             cd = new CompositeDisposable();
 
@@ -112,9 +123,9 @@ namespace Examples.TodoList
                     toggleComplete
                 },
                 () => Computers.TodoItem.IsCompleted(
-                    IsCompleted,
+                    isCompleted,
                     toggleComplete,
-                    Id
+                    this.id
                 )
             ));
 
@@ -124,10 +135,10 @@ namespace Examples.TodoList
                     finishEdit
                 },
                 () => Computers.TodoItem.Content(
-                    Content,
+                    this.content,
                     editingItemId,
                     finishEdit,
-                    Id
+                    this.id
                 )
             ));
         }
@@ -137,7 +148,11 @@ namespace Examples.TodoList
             cd.Dispose();
         }
 
-        public class Factory
+        public string Id { get { return id; } }
+        public IEl<string> Content { get { return content; } }
+        public IEl<bool> IsCompleted { get { return isCompleted; } }
+
+        public class Factory : ITodoItemFactory
         {
             private readonly IEngine engine;
             private readonly IOp<string> toggleComplete;
@@ -157,7 +172,7 @@ namespace Examples.TodoList
                 this.finishEdit = finishEdit;
             }
 
-            public TodoItem Create(string id, string content)
+            public ITodoItem Create(string id, string content)
             {
                 return new TodoItem(engine, toggleComplete, editingItemId, finishEdit, id, content);
             }
