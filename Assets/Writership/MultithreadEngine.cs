@@ -33,6 +33,7 @@ namespace Writership
             }
 
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            if (mainThreadId != 1) throw new InvalidOperationException("MultithreadEngine can only be created at main thread");
             isComputeDone = false;
             computeException = null;
             computeWorkItem = new WaitCallback(Compute);
