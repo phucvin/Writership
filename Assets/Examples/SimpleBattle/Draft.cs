@@ -47,6 +47,14 @@ namespace Examples.SimpleBattle
         public struct DamageHitter : IHitter
         {
             public int Subtract;
+            // TODO Use this in calculating dealt damage
+            // TODO Consider even make it independent from hitters
+            public int CoeffPercent;
+        }
+
+        public struct PureDamageHitter : IHitter
+        {
+            public int Subtract;
         }
 
         public struct LifeStealHitter : IHitter
@@ -77,6 +85,7 @@ namespace Examples.SimpleBattle
                 public EntityId To;
                 public IEl<int> ToArmorValue;
                 public IEl<int> ToReflectDamagePercent;
+                public IEl<int> ToHealthCurrent;
             }
         }
     }
@@ -108,6 +117,10 @@ namespace Examples.SimpleBattle
             {
                 return new LifeStealHitter(engine, (Info.LifeStealHitter)info);
             }
+            else if (info is Info.PureDamageHitter)
+            {
+                return new PureDamageHitter(engine, (Info.PureDamageHitter)info);
+            }
             else throw new NotImplementedException();
         }
 
@@ -121,6 +134,10 @@ namespace Examples.SimpleBattle
             {
                 ((LifeStealHitter)self).Setup(engine);
             }
+            else if (self is PureDamageHitter)
+            {
+                ((PureDamageHitter)self).Setup(engine);
+            }
             else throw new NotImplementedException();
         }
 
@@ -133,6 +150,10 @@ namespace Examples.SimpleBattle
             else if (self is LifeStealHitter)
             {
                 return ((LifeStealHitter)self).Instantiate();
+            }
+            else if (self is PureDamageHitter)
+            {
+                return ((PureDamageHitter)self).Instantiate(engine);
             }
             else throw new NotImplementedException();
         }
@@ -155,6 +176,33 @@ namespace Examples.SimpleBattle
         public Hitter Instantiate(IEngine engine)
         {
             var instance = new DamageHitter(engine, new Info.DamageHitter
+            {
+                Subtract = Subtract.Read()
+            });
+
+            // TODO Setup compute for instance's fields
+
+            return instance;
+        }
+    }
+
+    public class PureDamageHitter : Hitter
+    {
+        public readonly IEl<int> Subtract;
+
+        public PureDamageHitter(IEngine engine, Info.PureDamageHitter info)
+        {
+            Subtract = engine.El(info.Subtract);
+        }
+
+        public void Setup(IEngine engine)
+        {
+
+        }
+
+        public Hitter Instantiate(IEngine engine)
+        {
+            var instance = new PureDamageHitter(engine, new Info.PureDamageHitter
             {
                 Subtract = Subtract.Read()
             });
@@ -199,22 +247,22 @@ namespace Examples.SimpleBattle
         }
 
         public void Setup(IEngine engine,
-            ILi<ModifierItem> modifiers, IOp<int> tick,
-            IOp<World.Actions.Hit> hit, EntityId me,
-            IEl<int> armorValue)
+            EntityId me, IEl<int> armorValue,
+            IOp<int> tick, ILi<ModifierItem> modifiers,
+            IOp<World.Actions.Hit> hit)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { modifiers, tick },
                 () => ComputeCurrent(Current,
-                    Max.Read(), modifiers.Read(), tick.Read(),
-                    hit.Read(), me, armorValue.Read())
+                    Max.Read(), me, armorValue.Read(),
+                    tick.Read(), modifiers.Read(), hit.Read())
             ));
         }
 
         public static void ComputeCurrent(IEl<int> target,
-            int max, IList<ModifierItem> modifiers, IList<int> tick,
-            IList<World.Actions.Hit> hit, EntityId me,
-            int armorValue)
+            int max, EntityId me, int armorValue,
+            IList<int> tick, IList<ModifierItem> modifiers,
+            IList<World.Actions.Hit> hit)
         {
             int current = target.Read();
 
@@ -252,8 +300,9 @@ namespace Examples.SimpleBattle
                 if (lifeStealPercent > 0)
                 {
                     int dealtDamage = CalcDealtDamage(hitters, h.ToArmorValue.Read());
-                    // TODO
-                    current += (int)Math.Ceiling(dealtDamage * (lifeStealPercent / 100f));
+                    int canStealAmount = Math.Min(dealtDamage, h.ToHealthCurrent.Read());
+
+                    current += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
                 }
             }
 
@@ -289,10 +338,10 @@ namespace Examples.SimpleBattle
             for (int j = 0, m = hitters.Count; j < m; ++j)
             {
                 var d = hitters[j] as DamageHitter;
-                if (d != null) damage += d.Subtract.Read();
+                var p = hitters[j] as PureDamageHitter;
+                if (d != null) damage += d.Subtract.Read() - armorValue;
+                else if (p != null) damage += p.Subtract.Read();
             }
-
-            damage -= armorValue;
 
             return damage;
         }
