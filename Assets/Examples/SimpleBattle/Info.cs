@@ -60,4 +60,10 @@
     {
         public IModifier Modifer;
     }
+
+    public struct DotHitter : IHitter
+    {
+        public int Subtract;
+        public int Speed;
+    }
 }

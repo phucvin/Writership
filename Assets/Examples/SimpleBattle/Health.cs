@@ -18,20 +18,21 @@ namespace Examples.SimpleBattle
         public void Setup(IEngine engine,
             EntityId me, IEl<int> armorValue,
             IOp<int> tick, ILi<IModifierItem> modifiers,
-            IOp<World.Actions.Hit> hit)
+            IOp<World.Actions.Hit> hit, ILi<IStickHitItem> stickHits)
         {
             cd.Add(engine.RegisterComputer(
-                new object[] { modifiers, tick },
+                new object[] { modifiers, tick, hit, stickHits },
                 () => ComputeCurrent(Current,
                     Max.Read(), me, armorValue.Read(),
-                    tick.Read(), modifiers.Read(), hit.Read())
+                    tick.Read(), modifiers.Read(),
+                    hit.Read(), stickHits.Read())
             ));
         }
 
         public static void ComputeCurrent(IEl<int> target,
             int max, EntityId me, int armorValue,
             IList<int> tick, IList<IModifierItem> modifiers,
-            IList<World.Actions.Hit> hit)
+            IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits)
         {
             int current = target.Read();
 
@@ -45,10 +46,11 @@ namespace Examples.SimpleBattle
 
             for (int i = 0, n = modifiers.Count; i < n; ++i)
             {
-                if (!(modifiers[i].Info is Info.HealthCurrentModifier)) continue;
-                var m = (Info.HealthCurrentModifier)modifiers[i].Info;
+                var m = modifiers[i];
+                if (!(m.Info is Info.HealthCurrentModifier)) continue;
+                var h = (Info.HealthCurrentModifier)modifiers[i].Info;
 
-                current += ticks * m.Add;
+                current += (ticks + (m.Remain.Read() == h.Duration ? 1 : 0)) * h.Add;
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
@@ -93,6 +95,27 @@ namespace Examples.SimpleBattle
 
                 var dealtDamage = CalcDealtDamage(h.FromHitters.Read(), h.ToArmorValue.Read());
                 current -= (int)Math.Ceiling(dealtDamage * (reflectDamagePercent / 100f));
+            }
+
+            for (int i = 0, n = stickHits.Count; i < n; ++i)
+            {
+                var s = stickHits[i];
+                var h = s.Hit;
+                if (h.To != me) continue;
+
+                var hitters = h.FromHitters.Read();
+
+                for (int j = 0, m = hitters.Count; j < m; ++j)
+                {
+                    var d = hitters[j] as IDotHitter;
+                    if (d == null) continue;
+
+                    int repeat = (s.Elapsed.Read() % d.Speed.Read()) + ticks / d.Speed.Read();
+                    if (s.Elapsed.Read() == 0 || repeat > 0)
+                    {
+                        current -= (d.Subtract.Read() - armorValue) * Math.Max(1, repeat);
+                    }
+                }
             }
 
             if (current > max) current = max;

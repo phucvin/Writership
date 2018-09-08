@@ -8,6 +8,7 @@ namespace Examples.SimpleBattle
         {
             public struct Hit
             {
+                public EntityId From;
                 public EntityId FromOwner;
                 public ILi<IHitter> FromHitters;
 
@@ -17,7 +18,15 @@ namespace Examples.SimpleBattle
                 public IEl<int> ToHealthCurrent;
             }
 
-            // TODO
+            public struct EndHit
+            {
+                public EntityId From;
+                public EntityId FromOwner;
+
+                public EntityId To;
+            }
+
+            // TODO Handle this
             public struct Cast
             {
                 public EntityId Owner;

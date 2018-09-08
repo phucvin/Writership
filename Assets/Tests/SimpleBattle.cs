@@ -35,6 +35,7 @@ public class SimpleBattle
                 ToArmorValue = hitToArmorValue,
             }
         };
+        var stickHits = new List<IStickHitItem>();
 
         target.Read().Returns(99);
         healthCurrentModifier.Info.Returns(new Info.HealthCurrentModifier
@@ -46,8 +47,8 @@ public class SimpleBattle
         pureDamageHitter.Subtract.Read().Returns(6);
 
         Health.ComputeCurrent(target, max, me, armorValue,
-            tick, modifiers, hit);
+            tick, modifiers, hit, stickHits);
 
-        target.Received().Write(90);
+        target.Received().Write(87);
     }
 }
