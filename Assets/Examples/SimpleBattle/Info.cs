@@ -1,10 +1,14 @@
 ﻿namespace Examples.SimpleBattle.Info
 {
+    public struct Team
+    {
+        public int Value;
+    }
+
     public struct Health
     {
         public int Max;
         public int Current;
-        public int RegenSpeed;
     }
 
     public struct Armor

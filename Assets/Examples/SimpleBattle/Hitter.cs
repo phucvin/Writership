@@ -5,7 +5,7 @@ namespace Examples.SimpleBattle
 {
     public interface IHitter { }
 
-    public abstract class Hitter : Disposable
+    public abstract class Hitter : Disposable, IHitter
     {
         public static Hitter PolyNew(IEngine engine, Info.IHitter info)
         {
@@ -24,7 +24,7 @@ namespace Examples.SimpleBattle
             else throw new NotImplementedException();
         }
 
-        public static void PolySetup(Hitter self, IEngine engine)
+        public static void PolySetup(IHitter self, IEngine engine)
         {
             if (self is DamageHitter)
             {
@@ -41,7 +41,7 @@ namespace Examples.SimpleBattle
             else throw new NotImplementedException();
         }
 
-        public static Hitter PolyInstantiate(Hitter self, IEngine engine)
+        public static Hitter PolyInstantiate(IHitter self, IEngine engine)
         {
             if (self is DamageHitter)
             {

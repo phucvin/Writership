@@ -12,7 +12,7 @@ public class SimpleBattle
     {
         var target = Substitute.For<IEl<int>>();
         int max = 100;
-        var me = new EntityId();
+        var me = new Entity();
         int armorValue = 10;
         var tick = new List<int> { 1, 1 };
         var healthCurrentModifier = Substitute.For<IModifierItem>();
@@ -28,7 +28,7 @@ public class SimpleBattle
         {
             new World.Actions.Hit
             {
-                FromOwner = new EntityId(),
+                FromOwner = new Entity(),
                 FromHitters = hitters,
 
                 To = me,

@@ -8,11 +8,11 @@ namespace Examples.SimpleBattle
         {
             public struct Hit
             {
-                public EntityId From;
-                public EntityId FromOwner;
+                public Entity From;
+                public Entity FromOwner;
                 public ILi<IHitter> FromHitters;
 
-                public EntityId To;
+                public Entity To;
                 public IEl<int> ToArmorValue;
                 public IEl<int> ToReflectDamagePercent;
                 public IEl<int> ToHealthCurrent;
@@ -20,16 +20,16 @@ namespace Examples.SimpleBattle
 
             public struct EndHit
             {
-                public EntityId From;
-                public EntityId FromOwner;
+                public Entity From;
+                public Entity FromOwner;
 
-                public EntityId To;
+                public Entity To;
             }
 
             // TODO Handle this
             public struct Cast
             {
-                public EntityId Owner;
+                public Entity Owner;
                 public ILi<IHitter> Hitters;
             }
         }

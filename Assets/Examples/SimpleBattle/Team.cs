@@ -2,16 +2,16 @@
 
 namespace Examples.SimpleBattle
 {
-    public interface IArmor
+    public interface ITeam
     {
         IEl<int> Value { get; }
     }
 
-    public class Armor : Disposable, IArmor
+    public class Team : Disposable, ITeam
     {
         public IEl<int> Value { get; private set; }
 
-        public Armor(IEngine engine, Info.Armor info)
+        public Team(IEngine engine, Info.Team info)
         {
             Value = engine.El(info.Value);
         }

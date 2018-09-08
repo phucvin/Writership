@@ -3,9 +3,13 @@ using Writership;
 
 namespace Examples.SimpleBattle
 {
+    public interface IModifierList
+    {
+        ILi<IModifierItem> Items { get; }
+    }
     public class ModifierList : Disposable
     {
-        public readonly ILi<IModifierItem> Items;
+        public ILi<IModifierItem> Items { get; private set; }
 
         public ModifierList(IEngine engine, IList<Info.IModifier> info)
         {
@@ -17,7 +21,7 @@ namespace Examples.SimpleBattle
             Items = engine.Li(items);
         }
 
-        public void Setup(IEngine engine, EntityId me,
+        public void Setup(IEngine engine, Entity me,
             IOp<int> tick, IOp<World.Actions.Hit> hit,
             IModifierItemFactory itemFactory)
         {
@@ -29,7 +33,7 @@ namespace Examples.SimpleBattle
         }
 
         public static void ComputeList(ILi<IModifierItem> target,
-            EntityId me, IList<int> tick, IList<World.Actions.Hit> hit,
+            Entity me, IList<int> tick, IList<World.Actions.Hit> hit,
             IModifierItemFactory itemFactory)
         {
             if (tick.Count <= 0) return;

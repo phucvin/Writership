@@ -4,10 +4,16 @@ using Writership;
 
 namespace Examples.SimpleBattle
 {
-    public class Health : Disposable
+    public interface IHealth
     {
-        public readonly IEl<int> Max;
-        public readonly IEl<int> Current;
+        IEl<int> Max { get; }
+        IEl<int> Current { get; }
+    }
+
+    public class Health : Disposable, IHealth
+    {
+        public IEl<int> Max { get; private set; }
+        public IEl<int> Current { get; private set; }
 
         public Health(IEngine engine, Info.Health info)
         {
@@ -16,7 +22,7 @@ namespace Examples.SimpleBattle
         }
 
         public void Setup(IEngine engine,
-            EntityId me, IEl<int> armorValue,
+            Entity me, IEl<int> armorValue,
             IOp<int> tick, ILi<IModifierItem> modifiers,
             IOp<World.Actions.Hit> hit, ILi<IStickHitItem> stickHits)
         {
@@ -30,7 +36,7 @@ namespace Examples.SimpleBattle
         }
 
         public static void ComputeCurrent(IEl<int> target,
-            int max, EntityId me, int armorValue,
+            int max, Entity me, int armorValue,
             IList<int> tick, IList<IModifierItem> modifiers,
             IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits)
         {
