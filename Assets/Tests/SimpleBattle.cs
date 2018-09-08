@@ -40,8 +40,10 @@ public class SimpleBattle
         target.Read().Returns(99);
         healthCurrentModifier.Info.Returns(new Info.HealthCurrentModifier
         {
-            Add = 2
+            Add = 2,
+            Duration = 100
         });
+        healthCurrentModifier.Remain.Read().Returns(100);
         hitters.Read().Returns(new List<IHitter> { damageHitter, pureDamageHitter });
         damageHitter.Subtract.Read().Returns(17);
         pureDamageHitter.Subtract.Read().Returns(6);

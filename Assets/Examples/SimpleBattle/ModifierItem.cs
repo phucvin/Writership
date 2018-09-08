@@ -55,7 +55,7 @@ namespace Examples.SimpleBattle
         public static void ComputeRemain(IEl<int> target, IList<int> tick)
         {
             int remain = target.Read();
-            if (remain < 0) return;
+            if (remain == 0) return;
 
             for (int i = 0, n = tick.Count; i < n; ++i)
             {

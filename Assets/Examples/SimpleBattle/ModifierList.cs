@@ -36,11 +36,6 @@ namespace Examples.SimpleBattle
 
             var items = target.AsWrite();
 
-            if (tick.Count > 0)
-            {
-                items.RemoveAll(it => it.Remain.Read() == 0);
-            }
-
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
@@ -54,6 +49,11 @@ namespace Examples.SimpleBattle
 
                     items.Add(itemFactory.Create(a.Modifier));
                 }
+            }
+
+            if (tick.Count > 0)
+            {
+                items.RemoveAll(it => it.Remain.Read() == 0);
             }
         }
     }
