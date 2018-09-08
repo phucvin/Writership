@@ -34,9 +34,10 @@ namespace Examples.SimpleBattle
             IList<int> tick, IList<IModifierItem> modifiers,
             IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits)
         {
-            int current = target.Read();
+            if (target.Read() <= 0) return;
 
-            if (current <= 0) return;
+            int add = 0;
+            int sub = 0;
 
             int ticks = 0;
             for (int i = 0, n = tick.Count; i < n; ++i)
@@ -50,7 +51,7 @@ namespace Examples.SimpleBattle
                 if (!(m.Info is Info.HealthCurrentModifier)) continue;
                 var h = (Info.HealthCurrentModifier)modifiers[i].Info;
 
-                current += (ticks + (m.Remain.Read() == h.Duration ? 1 : 0)) * h.Add;
+                add += (ticks + (m.Remain.Read() == h.Duration ? 1 : 0)) * h.Add;
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
@@ -73,7 +74,7 @@ namespace Examples.SimpleBattle
                     int dealtDamage = CalcDealtDamage(hitters, h.ToArmorValue.Read());
                     int canStealAmount = Math.Min(dealtDamage, h.ToHealthCurrent.Read());
 
-                    current += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
+                    add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
                 }
             }
 
@@ -82,7 +83,7 @@ namespace Examples.SimpleBattle
                 var h = hit[i];
                 if (h.To != me) continue;
                 
-                current -= CalcDealtDamage(h.FromHitters.Read(), armorValue);
+                sub += CalcDealtDamage(h.FromHitters.Read(), armorValue);
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
@@ -94,7 +95,7 @@ namespace Examples.SimpleBattle
                 if (reflectDamagePercent <= 0) continue;
 
                 var dealtDamage = CalcDealtDamage(h.FromHitters.Read(), h.ToArmorValue.Read());
-                current -= (int)Math.Ceiling(dealtDamage * (reflectDamagePercent / 100f));
+                sub += (int)Math.Ceiling(dealtDamage * (reflectDamagePercent / 100f));
             }
 
             for (int i = 0, n = stickHits.Count; i < n; ++i)
@@ -113,14 +114,15 @@ namespace Examples.SimpleBattle
                     int repeat = (s.Elapsed.Read() % d.Speed.Read()) + ticks / d.Speed.Read();
                     if (s.Elapsed.Read() == 0 || repeat > 0)
                     {
-                        current -= (d.Subtract.Read() - armorValue) * Math.Max(1, repeat);
+                        sub += (d.Subtract.Read() - armorValue) * Math.Max(1, repeat);
                     }
                 }
             }
 
-            if (current > max) current = max;
-            else if (current < 0) current = 0;
-
+            // Can be very flexible here, prefer add over sub, sub over add or fair
+            int current = target.Read();
+            current = Math.Min(max, current + add);
+            current = Math.Max(0, current - sub);
             if (current != target.Read()) target.Write(current);
         }
 
