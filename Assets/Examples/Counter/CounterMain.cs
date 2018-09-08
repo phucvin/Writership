@@ -17,8 +17,6 @@ namespace Examples.Counter
 
         public void Setup()
         {
-            Dispose();
-
             cd.Add(engine = new MultithreadEngine());
             cd.Add(state = new State(engine));
 
