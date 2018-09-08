@@ -7,7 +7,8 @@ namespace Examples.SimpleBattle
     {
         ILi<IModifierItem> Items { get; }
     }
-    public class ModifierList : Disposable
+
+    public class ModifierList : Disposable, IModifierList
     {
         public ILi<IModifierItem> Items { get; private set; }
 
@@ -21,7 +22,7 @@ namespace Examples.SimpleBattle
             Items = engine.Li(items);
         }
 
-        public void Setup(IEngine engine, Entity me,
+        public void Setup(IEngine engine, IEntity me,
             IOp<int> tick, IOp<World.Actions.Hit> hit,
             IModifierItemFactory itemFactory)
         {
@@ -33,7 +34,7 @@ namespace Examples.SimpleBattle
         }
 
         public static void ComputeList(ILi<IModifierItem> target,
-            Entity me, IList<int> tick, IList<World.Actions.Hit> hit,
+            IEntity me, IList<int> tick, IList<World.Actions.Hit> hit,
             IModifierItemFactory itemFactory)
         {
             if (tick.Count <= 0) return;
@@ -45,7 +46,7 @@ namespace Examples.SimpleBattle
                 var h = hit[i];
                 if (h.To != me) continue;
 
-                var hitters = h.FromHitters.Read();
+                var hitters = h.From.Hitters.Items;
                 for (int j = 0, m = hitters.Count; j < m; ++j)
                 {
                     var a = hitters[j] as IAddModifierHitter;

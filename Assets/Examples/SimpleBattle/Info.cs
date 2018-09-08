@@ -72,4 +72,18 @@
         public int Subtract;
         public int Speed;
     }
+
+    public struct Character
+    {
+        public Team Team;
+        public Health Health;
+        public Armor Armor;
+        public DamageReflector DamageReflector;
+        public IModifier[] Modifiers;
+    }
+
+    public struct Bullet
+    {
+        public IHitter[] Hitters;
+    }
 }

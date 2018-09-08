@@ -5,16 +5,16 @@ namespace Examples.SimpleBattle
 {
     public interface IStickHitList
     {
-        ILi<IStickHitItem> Hits { get; }
+        ILi<IStickHitItem> Items { get; }
     }
 
     public class StickHitList : Disposable, IStickHitList
     {
-        public ILi<IStickHitItem> Hits { get; private set; }
+        public ILi<IStickHitItem> Items { get; private set; }
 
         public StickHitList(IEngine engine)
         {
-            Hits = engine.Li(new List<IStickHitItem>());
+            Items = engine.Li(new List<IStickHitItem>());
         }
 
         public void Setup(IEngine engine,

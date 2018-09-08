@@ -12,7 +12,6 @@ public class SimpleBattle
     {
         var target = Substitute.For<IEl<int>>();
         int max = 100;
-        var me = new Entity();
         int armorValue = 10;
         var tick = new List<int> { 1, 1 };
         var healthCurrentModifier = Substitute.For<IModifierItem>();
@@ -20,19 +19,16 @@ public class SimpleBattle
         {
             healthCurrentModifier
         };
-        var hitters = Substitute.For<ILi<IHitter>>();
+        var hitFrom = Substitute.For<IEntity>();
+        var hitTo = Substitute.For<IEntity>();
         var damageHitter = Substitute.For<IDamageHitter>();
         var pureDamageHitter = Substitute.For<IPureDamageHitter>();
-        var hitToArmorValue = Substitute.For<IEl<int>>();
         var hit = new List<World.Actions.Hit>
         {
             new World.Actions.Hit
             {
-                FromOwner = new Entity(),
-                FromHitters = hitters,
-
-                To = me,
-                ToArmorValue = hitToArmorValue,
+                From = hitFrom,
+                To = hitTo
             }
         };
         var stickHits = new List<IStickHitItem>();
@@ -44,11 +40,14 @@ public class SimpleBattle
             Duration = 100
         });
         healthCurrentModifier.Remain.Read().Returns(100);
-        hitters.Read().Returns(new List<IHitter> { damageHitter, pureDamageHitter });
         damageHitter.Subtract.Read().Returns(17);
         pureDamageHitter.Subtract.Read().Returns(6);
+        hitFrom.Hitters.Items.Returns(new List<IHitter>
+        {
+            damageHitter, pureDamageHitter
+        });
 
-        Health.ComputeCurrent(target, max, me, armorValue,
+        Health.ComputeCurrent(target, max, hitTo, armorValue,
             tick, modifiers, hit, stickHits);
 
         target.Received().Write(87);

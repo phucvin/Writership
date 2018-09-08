@@ -8,7 +8,7 @@
         IDamageReflector DamageReflector { get; }
         IModifierList Modifiers { get; }
         IHitterList Hitters { get; }
-
+        IHasOwner HasOwner { get; }
     }
 
     public partial class Entity : IEntity
@@ -19,5 +19,6 @@
         public IDamageReflector DamageReflector { get; private set; }
         public IModifierList Modifiers { get; private set; }
         public IHitterList Hitters { get; private set; }
+        public IHasOwner HasOwner { get; private set; }
     }
 }

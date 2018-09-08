@@ -5,31 +5,28 @@ namespace Examples.SimpleBattle
 {
     public interface IHitterList
     {
-        IList<IHitter> Hitters { get; }
+        IList<IHitter> Items { get; }
     }
 
-    public class HitterList : Disposable
+    public class HitterList : Disposable, IHitterList
     {
-        public IList<IHitter> Hitters { get; private set; }
-
-        private readonly List<IHitter> hitters;
+        public IList<IHitter> Items { get; private set; }
 
         public HitterList(IEngine engine, IList<Info.IHitter> info)
         {
-            hitters = new List<IHitter>();
-            Hitters = hitters.AsReadOnly();
-
+            var items = new List<IHitter>();
             for (int i = 0, n = info.Count; i < n; ++i)
             {
-                hitters.Add(Hitter.PolyNew(engine, info[i]));
+                items.Add(Hitter.PolyNew(engine, info[i]));
             }
+            Items = items.AsReadOnly();
         }
 
         public void Setup(IEngine engine)
         {
-            for (int i = 0, n = hitters.Count; i < n; ++i)
+            for (int i = 0, n = Items.Count; i < n; ++i)
             {
-                Hitter.PolySetup(hitters[i], engine);
+                Hitter.PolySetup(Items[i], engine);
             }
         }
     }

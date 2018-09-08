@@ -22,7 +22,7 @@ namespace Examples.SimpleBattle
         }
 
         public void Setup(IEngine engine,
-            Entity me, IEl<int> armorValue,
+            IEntity me, IEl<int> armorValue,
             IOp<int> tick, ILi<IModifierItem> modifiers,
             IOp<World.Actions.Hit> hit, ILi<IStickHitItem> stickHits)
         {
@@ -36,7 +36,7 @@ namespace Examples.SimpleBattle
         }
 
         public static void ComputeCurrent(IEl<int> target,
-            int max, Entity me, int armorValue,
+            int max, IEntity me, int armorValue,
             IList<int> tick, IList<IModifierItem> modifiers,
             IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits)
         {
@@ -63,9 +63,9 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.FromOwner != me) continue;
-                
-                var hitters = h.FromHitters.Read();
+                if (h.From.HasOwner.Owner != me) continue;
+
+                var hitters = h.From.Hitters.Items;
                 int lifeStealPercent = 0;
 
                 for (int j = 0, m = hitters.Count; j < m; ++j)
@@ -77,8 +77,8 @@ namespace Examples.SimpleBattle
 
                 if (lifeStealPercent > 0)
                 {
-                    int dealtDamage = CalcDealtDamage(hitters, h.ToArmorValue.Read());
-                    int canStealAmount = Math.Min(dealtDamage, h.ToHealthCurrent.Read());
+                    int dealtDamage = CalcDealtDamage(hitters, h.To.Armor.Value.Read());
+                    int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
                     add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
                 }
             }
@@ -87,9 +87,9 @@ namespace Examples.SimpleBattle
             {
                 var s = stickHits[i];
                 var h = s.Hit;
-                if (h.FromOwner != me) continue;
+                if (h.From.HasOwner.Owner != me) continue;
 
-                var hitters = h.FromHitters.Read();
+                var hitters = h.From.Hitters.Items;
                 int lifeStealPercent = 0;
 
                 for (int j = 0, m = hitters.Count; j < m; ++j)
@@ -101,8 +101,8 @@ namespace Examples.SimpleBattle
 
                 if (lifeStealPercent > 0)
                 {
-                    int dealtDamage = CalcDealtDot(ticks, s, h.FromHitters.Read(), h.ToArmorValue.Read());
-                    int canStealAmount = Math.Min(dealtDamage, h.ToHealthCurrent.Read());
+                    int dealtDamage = CalcDealtDot(ticks, s, h.From.Hitters.Items, h.To.Armor.Value.Read());
+                    int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
                     add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
                 }
             }
@@ -112,18 +112,18 @@ namespace Examples.SimpleBattle
                 var h = hit[i];
                 if (h.To != me) continue;
                 
-                sub += CalcDealtDamage(h.FromHitters.Read(), armorValue);
+                sub += CalcDealtDamage(h.From.Hitters.Items, armorValue);
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.FromOwner != me) continue;
+                if (h.From.HasOwner.Owner != me) continue;
 
-                var reflectDamagePercent = h.ToReflectDamagePercent.Read();
+                var reflectDamagePercent = h.To.DamageReflector.Percent.Read();
                 if (reflectDamagePercent <= 0) continue;
 
-                var dealtDamage = CalcDealtDamage(h.FromHitters.Read(), h.ToArmorValue.Read());
+                var dealtDamage = CalcDealtDamage(h.From.Hitters.Items, h.To.Armor.Value.Read());
                 sub += (int)Math.Ceiling(dealtDamage * (reflectDamagePercent / 100f));
             }
 
@@ -133,7 +133,7 @@ namespace Examples.SimpleBattle
                 var h = s.Hit;
                 if (h.To != me) continue;
 
-                sub += CalcDealtDot(ticks, s, h.FromHitters.Read(), armorValue);
+                sub += CalcDealtDot(ticks, s, h.From.Hitters.Items, armorValue);
             }
 
             // Can be very flexible here, prefer add over sub, sub over add or fair
