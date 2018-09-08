@@ -73,7 +73,30 @@ namespace Examples.SimpleBattle
                 {
                     int dealtDamage = CalcDealtDamage(hitters, h.ToArmorValue.Read());
                     int canStealAmount = Math.Min(dealtDamage, h.ToHealthCurrent.Read());
+                    add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
+                }
+            }
 
+            for (int i = 0, n = stickHits.Count; i < n; ++i)
+            {
+                var s = stickHits[i];
+                var h = s.Hit;
+                if (h.FromOwner != me) continue;
+
+                var hitters = h.FromHitters.Read();
+                int lifeStealPercent = 0;
+
+                for (int j = 0, m = hitters.Count; j < m; ++j)
+                {
+                    var l = hitters[j] as ILifeStealHitter;
+                    if (l == null) continue;
+                    lifeStealPercent += l.Percent;
+                }
+
+                if (lifeStealPercent > 0)
+                {
+                    int dealtDamage = CalcDealtDot(ticks, s, h.FromHitters.Read(), h.ToArmorValue.Read());
+                    int canStealAmount = Math.Min(dealtDamage, h.ToHealthCurrent.Read());
                     add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
                 }
             }
@@ -104,19 +127,7 @@ namespace Examples.SimpleBattle
                 var h = s.Hit;
                 if (h.To != me) continue;
 
-                var hitters = h.FromHitters.Read();
-
-                for (int j = 0, m = hitters.Count; j < m; ++j)
-                {
-                    var d = hitters[j] as IDotHitter;
-                    if (d == null) continue;
-
-                    int repeat = (s.Elapsed.Read() % d.Speed.Read()) + ticks / d.Speed.Read();
-                    if (s.Elapsed.Read() == 0 || repeat > 0)
-                    {
-                        sub += (d.Subtract.Read() - armorValue) * Math.Max(1, repeat);
-                    }
-                }
+                sub += CalcDealtDot(ticks, s, h.FromHitters.Read(), armorValue);
             }
 
             // Can be very flexible here, prefer add over sub, sub over add or fair
@@ -128,17 +139,36 @@ namespace Examples.SimpleBattle
 
         public static int CalcDealtDamage(IList<IHitter> hitters, int armorValue)
         {
-            int damage = 0;
+            int dealt = 0;
 
             for (int j = 0, m = hitters.Count; j < m; ++j)
             {
                 var d = hitters[j] as IDamageHitter;
                 var p = hitters[j] as IPureDamageHitter;
-                if (d != null) damage += d.Subtract.Read() - armorValue;
-                else if (p != null) damage += p.Subtract.Read();
+                if (d != null) dealt += d.Subtract.Read() - armorValue;
+                else if (p != null) dealt += p.Subtract.Read();
             }
 
-            return damage;
+            return dealt;
+        }
+
+        public static int CalcDealtDot(int ticks, IStickHitItem stick, IList<IHitter> hitters, int armorValue)
+        {
+            int dealt = 0;
+
+            for (int j = 0, m = hitters.Count; j < m; ++j)
+            {
+                var d = hitters[j] as IDotHitter;
+                if (d == null) continue;
+
+                int repeat = (stick.Elapsed.Read() % d.Speed.Read()) + ticks / d.Speed.Read();
+                if (stick.Elapsed.Read() == 0 || repeat > 0)
+                {
+                    dealt += (d.Subtract.Read() - armorValue) * Math.Max(1, repeat);
+                }
+            }
+
+            return dealt;
         }
     }
 }
