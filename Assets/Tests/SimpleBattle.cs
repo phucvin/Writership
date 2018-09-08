@@ -30,15 +30,11 @@ public class SimpleBattle
             new World.Actions.Hit
             {
                 From = hitFrom,
-                To = hitTo,
-                RandomSeeds = new RandomSeeds
-                {
-                    DamagePureChance = 1,
-                    DamageCriticalChance = 2,
-                }
+                To = hitTo
             }
         };
         var stickHits = new List<IStickHitItem>();
+        var randomSeed = Substitute.For<IRandomSeed>();
 
         target.Read().Returns(99);
         healthCurrentModifier.Info.Returns(new Info.HealthCurrentModifier
@@ -50,9 +46,10 @@ public class SimpleBattle
         hitFrom.Hitters.Damage.Subtract.Read().Returns(17);
         hitFrom.Hitters.Damage.PureChance.Read().Returns(100);
         hitFrom.Hitters.Damage.CriticalChance.Read().Returns(50);
+        randomSeed.Value.Read().Returns(198);
 
         Health.ComputeCurrent(target, max, hitTo, armorValue,
-            tick, modifiers, hit, stickHits);
+            tick, modifiers, hit, stickHits, randomSeed);
 
         target.Received().Write(83);
     }

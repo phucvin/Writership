@@ -24,21 +24,24 @@ namespace Examples.SimpleBattle
         public void Setup(IEngine engine,
             IEntity me, IEl<int> armorValue,
             IOp<World.Actions.Tick> tick, ILi<IModifierItem> modifiers,
-            IOp<World.Actions.Hit> hit, ILi<IStickHitItem> stickHits)
+            IOp<World.Actions.Hit> hit, ILi<IStickHitItem> stickHits,
+            IRandomSeed randomSeed)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { modifiers, tick, hit, stickHits },
                 () => ComputeCurrent(Current,
                     Max.Read(), me, armorValue.Read(),
                     tick.Read(), modifiers.Read(),
-                    hit.Read(), stickHits.Read())
+                    hit.Read(), stickHits.Read(),
+                    randomSeed)
             ));
         }
 
         public static void ComputeCurrent(IEl<int> target,
             int max, IEntity me, int armorValue,
             IList<World.Actions.Tick> tick, IList<IModifierItem> modifiers,
-            IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits)
+            IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits,
+            IRandomSeed randomSeed)
         {
             if (target.Read() <= 0) return;
 
@@ -71,7 +74,7 @@ namespace Examples.SimpleBattle
                 if (lifeStealPercent > 0)
                 {
                     int dealtDamage = CalcDealtDamage(hitters.Damage,
-                        h.To.Armor.Value.Read(), h.RandomSeeds);
+                        h.To.Armor.Value.Read(), randomSeed);
                     int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
                     add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
                 }
@@ -89,7 +92,7 @@ namespace Examples.SimpleBattle
                 if (lifeStealPercent > 0)
                 {
                     int dealtDamage = CalcDealtDot(ticks, s, hitters.Damage,
-                        h.To.Armor.Value.Read(), h.RandomSeeds);
+                        h.To.Armor.Value.Read(), randomSeed);
                     int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
                     add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
                 }
@@ -100,7 +103,7 @@ namespace Examples.SimpleBattle
                 var h = hit[i];
                 if (h.To != me) continue;
                 
-                sub += CalcDealtDamage(h.From.Hitters.Damage, armorValue, h.RandomSeeds);
+                sub += CalcDealtDamage(h.From.Hitters.Damage, armorValue, randomSeed);
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
@@ -112,7 +115,7 @@ namespace Examples.SimpleBattle
                 if (reflectDamagePercent <= 0) continue;
 
                 var dealtDamage = CalcDealtDamage(h.From.Hitters.Damage,
-                    h.To.Armor.Value.Read(), h.RandomSeeds);
+                    h.To.Armor.Value.Read(), randomSeed);
                 sub += (int)Math.Ceiling(dealtDamage * (reflectDamagePercent / 100f));
             }
 
@@ -123,7 +126,7 @@ namespace Examples.SimpleBattle
                 if (h.To != me) continue;
 
                 sub += CalcDealtDot(ticks, s, h.From.Hitters.Damage,
-                    armorValue, h.RandomSeeds);
+                    armorValue, randomSeed);
             }
 
             // Can be very flexible here, prefer add over sub, sub over add or fair
@@ -134,12 +137,12 @@ namespace Examples.SimpleBattle
         }
 
         public static int CalcDealtDamage(IDamageHitter damage,
-            int armorValue, RandomSeeds seeds)
+            int armorValue, IRandomSeed randomSeed)
         {
             int dealt = 0;
             Random rand;
             
-            rand = new Random(seeds.DamagePureChance);
+            rand = new Random(randomSeed.Value.Read() + 19042);
             if (rand.Next(100) < damage.PureChance.Read())
             {
                 dealt += damage.Subtract.Read();
@@ -149,7 +152,7 @@ namespace Examples.SimpleBattle
                 dealt += Math.Max(1, damage.Subtract.Read() - armorValue);
             }
 
-            rand = new Random(seeds.DamageCriticalChance);
+            rand = new Random(randomSeed.Value.Read() + 642);
             if (rand.Next(100) < damage.CriticalChance.Read())
             {
                 dealt *= 2;
@@ -160,13 +163,13 @@ namespace Examples.SimpleBattle
 
         public static int CalcDealtDot(int ticks,
             IStickHitItem stick, IDamageHitter damage,
-            int armorValue, RandomSeeds randomSeeds)
+            int armorValue, IRandomSeed randomSeed)
         {
             int dealt = 0;
             int repeat = (stick.Elapsed.Read() % damage.DotSpeed.Read()) + ticks / damage.DotSpeed.Read();
             if (stick.Elapsed.Read() == 0 || repeat > 0)
             {
-                dealt += CalcDealtDamage(damage, armorValue, randomSeeds) * Math.Max(1, repeat);
+                dealt += CalcDealtDamage(damage, armorValue, randomSeed) * Math.Max(1, repeat);
             }
             return dealt;
         }
