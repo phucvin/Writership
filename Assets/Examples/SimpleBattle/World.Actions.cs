@@ -15,6 +15,7 @@ namespace Examples.SimpleBattle
             {
                 public IEntity From;
                 public IEntity To;
+                public RandomSeeds RandomSeeds;
             }
 
             public struct EndHit

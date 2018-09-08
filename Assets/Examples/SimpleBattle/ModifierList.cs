@@ -46,13 +46,12 @@ namespace Examples.SimpleBattle
                 var h = hit[i];
                 if (h.To != me) continue;
 
-                var hitters = h.From.Hitters.Items;
-                for (int j = 0, m = hitters.Count; j < m; ++j)
-                {
-                    var a = hitters[j] as IAddModifierHitter;
-                    if (a == null) continue;
+                var a = h.From.Hitters.AddModifier;
+                if (a == null) continue;
 
-                    items.Add(itemFactory.Create(a.Modifier));
+                for (int j = 0, m = a.Modifiers.Count; j < m; ++j)
+                {
+                    items.Add(itemFactory.Create(a.Modifiers[j]));
                 }
             }
 

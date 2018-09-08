@@ -1,4 +1,6 @@
-﻿namespace Examples.SimpleBattle.Info
+﻿using System.Collections.Generic;
+
+namespace Examples.SimpleBattle.Info
 {
     public struct Team
     {
@@ -42,31 +44,26 @@
     {
     }
 
+    public struct HitterList
+    {
+        public DamageHitter? Damage;
+        public AddModifierHitter? AddModifier;
+    }
+
     public struct DamageHitter : IHitter
     {
         public int Subtract;
-    }
-    
-    public struct PureDamageHitter : IHitter
-    {
-        public int Subtract;
-    }
-
-    public struct LifeStealHitter : IHitter
-    {
-        public int Percent;
+        public int PureChance;
+        public int CriticalChance;
+        public int LifeStealPercent;
+        public int DotSpeed;
     }
 
     public struct AddModifierHitter : IHitter
     {
-        public IModifier Modifer;
+        public IList<IModifier> Modifers;
     }
 
-    public struct DotHitter : IHitter
-    {
-        public int Subtract;
-        public int Speed;
-    }
 
     public struct Character
     {
@@ -74,11 +71,11 @@
         public Health Health;
         public Armor Armor;
         public DamageReflector DamageReflector;
-        public IModifier[] Modifiers;
+        public IList<IModifier> Modifiers;
     }
 
     public struct Bullet
     {
-        public IHitter[] Hitters;
+        public HitterList Hitters;
     }
 }

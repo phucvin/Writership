@@ -1,33 +1,56 @@
-﻿using System.Collections.Generic;
-using Writership;
+﻿using Writership;
 
 namespace Examples.SimpleBattle
 {
     public interface IHitterList
     {
-        IList<IHitter> Items { get; }
+        IDamageHitter Damage { get; }
+        IAddModifierHitter AddModifier { get; }
     }
 
     public class HitterList : Disposable, IHitterList
     {
-        public IList<IHitter> Items { get; private set; }
+        public IDamageHitter Damage { get; private set; }
+        public IAddModifierHitter AddModifier { get; private set; }
 
-        public HitterList(IEngine engine, IList<Info.IHitter> info)
+        private HitterList() { }
+
+        public HitterList(IEngine engine, Info.HitterList info)
         {
-            var items = new List<IHitter>();
-            for (int i = 0, n = info.Count; i < n; ++i)
+            if (info.Damage.HasValue)
             {
-                items.Add(Hitter.PolyNew(engine, info[i]));
+                Damage = new DamageHitter(engine, info.Damage.Value);
             }
-            Items = items.AsReadOnly();
+            if (info.AddModifier.HasValue)
+            {
+                AddModifier = new AddModifierHitter(engine, info.AddModifier.Value);
+            }
         }
 
         public void Setup(IEngine engine)
         {
-            for (int i = 0, n = Items.Count; i < n; ++i)
+            if (Damage != null)
             {
-                Hitter.PolySetup(Items[i], engine);
+                ((DamageHitter)Damage).Setup(engine);
             }
+            else if (AddModifier != null)
+            {
+                ((AddModifierHitter)AddModifier).Setup(engine);
+            }
+        }
+
+        public HitterList Instantiate(IEngine engine)
+        {
+            var l = new HitterList();
+            if (Damage != null)
+            {
+                l.Damage = ((DamageHitter)Damage).Instantiate(engine);
+            }
+            else if (AddModifier != null)
+            {
+                l.AddModifier = ((AddModifierHitter)AddModifier).Instantiate();
+            }
+            return l;
         }
     }
 }

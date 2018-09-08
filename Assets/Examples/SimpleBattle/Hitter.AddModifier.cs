@@ -1,19 +1,20 @@
-﻿using Writership;
+﻿using System.Collections.Generic;
+using Writership;
 
 namespace Examples.SimpleBattle
 {
     public interface IAddModifierHitter : IHitter
     {
-        Info.IModifier Modifier { get; }
+        IList<Info.IModifier> Modifiers { get; }
     }
 
     public class AddModifierHitter : Hitter, IAddModifierHitter
     {
-        public Info.IModifier Modifier { get; private set; }
+        public IList<Info.IModifier> Modifiers { get; private set; }
 
         public AddModifierHitter(IEngine engine, Info.AddModifierHitter info)
         {
-            Modifier = info.Modifer;
+            Modifiers = info.Modifers;
         }
 
         public void Setup(IEngine engine)
@@ -21,7 +22,7 @@ namespace Examples.SimpleBattle
 
         }
 
-        public Hitter Instantiate()
+        public AddModifierHitter Instantiate()
         {
             return this;
         }
