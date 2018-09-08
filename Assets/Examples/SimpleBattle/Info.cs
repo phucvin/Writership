@@ -40,6 +40,13 @@ namespace Examples.SimpleBattle.Info
         public int Duration { get; set; }
     }
 
+    public struct ArmorModifier : IModifier
+    {
+        public int Add;
+        public int Multiply;
+        public int Duration { get; set; }
+    }
+
     public interface IHitter
     {
     }

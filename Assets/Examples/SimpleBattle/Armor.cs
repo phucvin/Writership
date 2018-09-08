@@ -18,7 +18,7 @@ namespace Examples.SimpleBattle
 
         public void Setup(IEngine engine)
         {
-
+            // TODO
         }
     }
 }

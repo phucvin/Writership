@@ -19,7 +19,6 @@ namespace Examples.SimpleBattle
 
         public void Setup(IEngine engine)
         {
-
         }
 
         public AddModifierHitter Instantiate()

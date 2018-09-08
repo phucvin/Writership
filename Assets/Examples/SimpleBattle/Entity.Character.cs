@@ -6,6 +6,7 @@ namespace Examples.SimpleBattle
     {
         public static Entity BuildCharacter(IEngine engine)
         {
+            // TODO
             var e = new Entity
             {
                 Health = new Health(engine, default(Info.Health)),

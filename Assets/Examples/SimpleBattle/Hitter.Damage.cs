@@ -30,7 +30,7 @@ namespace Examples.SimpleBattle
 
         public void Setup(IEngine engine)
         {
-
+            // TODO Handle buffs (modifiers)
         }
 
         public DamageHitter Instantiate(IEngine engine)
