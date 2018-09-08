@@ -2,9 +2,14 @@
 
 namespace Examples.SimpleBattle
 {
-    public class DamageReflector : Disposable
+    public interface IDamageReflector
     {
-        public readonly IEl<int> Percent;
+        IEl<int> Percent { get; }
+    }
+
+    public class DamageReflector : Disposable, IDamageReflector
+    {
+        public IEl<int> Percent { get; private set; }
 
         public DamageReflector(IEngine engine, Info.DamageReflector info)
         {

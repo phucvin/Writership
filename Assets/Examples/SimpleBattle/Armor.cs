@@ -2,9 +2,14 @@
 
 namespace Examples.SimpleBattle
 {
-    public class Armor : Disposable
+    public interface IAmor
     {
-        public readonly IEl<int> Value;
+        IEl<int> Value { get; }
+    }
+
+    public class Armor : Disposable, IAmor
+    {
+        public IEl<int> Value { get; private set; }
 
         public Armor(IEngine engine, Info.Armor info)
         {

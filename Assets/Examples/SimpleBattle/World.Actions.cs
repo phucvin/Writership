@@ -16,6 +16,13 @@ namespace Examples.SimpleBattle
                 public IEl<int> ToReflectDamagePercent;
                 public IEl<int> ToHealthCurrent;
             }
+
+            // TODO
+            public struct Cast
+            {
+                public EntityId Owner;
+                public ILi<IHitter> Hitters;
+            }
         }
     }
 }
