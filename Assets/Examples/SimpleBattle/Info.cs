@@ -55,4 +55,9 @@
     {
         public int Percent;
     }
+
+    public struct AddModifierHitter : IHitter
+    {
+        public IModifier Modifer;
+    }
 }

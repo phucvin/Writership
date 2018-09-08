@@ -96,6 +96,7 @@ namespace Examples.SimpleBattle
             }
 
             if (current > max) current = max;
+            else if (current < 0) current = 0;
 
             if (current != target.Read()) target.Write(current);
         }

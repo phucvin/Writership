@@ -48,6 +48,6 @@ public class SimpleBattle
         Health.ComputeCurrent(target, max, me, armorValue,
             tick, modifiers, hit);
 
-        target.Received().Write(87);
+        target.Received().Write(90);
     }
 }
