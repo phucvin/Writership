@@ -25,7 +25,7 @@ namespace Examples.SimpleBattle
             Remain = engine.El(info.Duration);
         }
 
-        public void Setup(IEngine engine, IOp<int> tick)
+        public void Setup(IEngine engine, IOp<World.Actions.Tick> tick)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { tick },
@@ -36,9 +36,9 @@ namespace Examples.SimpleBattle
         public class Factory : IModifierItemFactory
         {
             private IEngine engine;
-            private IOp<int> tick;
+            private IOp<World.Actions.Tick> tick;
 
-            public void Setup(IEngine engine, IOp<int> tick)
+            public void Setup(IEngine engine, IOp<World.Actions.Tick> tick)
             {
                 this.engine = engine;
                 this.tick = tick;
@@ -52,14 +52,15 @@ namespace Examples.SimpleBattle
             }
         }
 
-        public static void ComputeRemain(IEl<int> target, IList<int> tick)
+        public static void ComputeRemain(IEl<int> target,
+            IList<World.Actions.Tick> tick)
         {
             int remain = target.Read();
             if (remain == 0) return;
 
             for (int i = 0, n = tick.Count; i < n; ++i)
             {
-                remain -= tick[i];
+                remain -= tick[i].Dt;
             }
 
             if (remain < 0) remain = 0;

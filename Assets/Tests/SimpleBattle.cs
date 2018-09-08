@@ -13,7 +13,11 @@ public class SimpleBattle
         var target = Substitute.For<IEl<int>>();
         int max = 100;
         int armorValue = 10;
-        var tick = new List<int> { 1, 1 };
+        var tick = new List<World.Actions.Tick>
+        {
+            new World.Actions.Tick { Dt = 1 },
+            new World.Actions.Tick { Dt = 1 }
+        };
         var healthCurrentModifier = Substitute.For<IModifierItem>();
         var modifiers = new List<IModifierItem>
         {

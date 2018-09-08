@@ -23,7 +23,7 @@ namespace Examples.SimpleBattle
         }
 
         public void Setup(IEngine engine, IEntity me,
-            IOp<int> tick, IOp<World.Actions.Hit> hit,
+            IOp<World.Actions.Tick> tick, IOp<World.Actions.Hit> hit,
             IModifierItemFactory itemFactory)
         {
             cd.Add(engine.RegisterComputer(
@@ -34,7 +34,7 @@ namespace Examples.SimpleBattle
         }
 
         public static void ComputeList(ILi<IModifierItem> target,
-            IEntity me, IList<int> tick, IList<World.Actions.Hit> hit,
+            IEntity me, IList<World.Actions.Tick> tick, IList<World.Actions.Hit> hit,
             IModifierItemFactory itemFactory)
         {
             if (tick.Count <= 0) return;

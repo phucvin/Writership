@@ -20,7 +20,7 @@ namespace Examples.SimpleBattle
             Elapsed = engine.El(0);
         }
 
-        public void Setup(IEngine engine, IOp<int> tick)
+        public void Setup(IEngine engine, IOp<World.Actions.Tick> tick)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { tick },
@@ -28,13 +28,14 @@ namespace Examples.SimpleBattle
             ));
         }
 
-        public static void ComputeElapsed(IEl<int> target, IList<int> tick)
+        public static void ComputeElapsed(IEl<int> target,
+            IList<World.Actions.Tick> tick)
         {
             int elapsed = target.Read();
 
             for (int i = 0, n = tick.Count; i < n; ++i)
             {
-                elapsed += tick[i];
+                elapsed += tick[i].Dt;
             }
 
             if (elapsed != target.Read()) target.Write(elapsed);

@@ -23,7 +23,7 @@ namespace Examples.SimpleBattle
 
         public void Setup(IEngine engine,
             IEntity me, IEl<int> armorValue,
-            IOp<int> tick, ILi<IModifierItem> modifiers,
+            IOp<World.Actions.Tick> tick, ILi<IModifierItem> modifiers,
             IOp<World.Actions.Hit> hit, ILi<IStickHitItem> stickHits)
         {
             cd.Add(engine.RegisterComputer(
@@ -37,7 +37,7 @@ namespace Examples.SimpleBattle
 
         public static void ComputeCurrent(IEl<int> target,
             int max, IEntity me, int armorValue,
-            IList<int> tick, IList<IModifierItem> modifiers,
+            IList<World.Actions.Tick> tick, IList<IModifierItem> modifiers,
             IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits)
         {
             if (target.Read() <= 0) return;
@@ -48,7 +48,7 @@ namespace Examples.SimpleBattle
             int ticks = 0;
             for (int i = 0, n = tick.Count; i < n; ++i)
             {
-                ticks += tick[i];
+                ticks += tick[i].Dt;
             }
 
             for (int i = 0, n = modifiers.Count; i < n; ++i)

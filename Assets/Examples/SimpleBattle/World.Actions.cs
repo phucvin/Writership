@@ -6,6 +6,11 @@ namespace Examples.SimpleBattle
     {
         public class Actions
         {
+            public struct Tick
+            {
+                public int Dt;
+            }
+
             public struct Hit
             {
                 public IEntity From;

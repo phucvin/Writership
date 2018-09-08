@@ -45,13 +45,8 @@
     public struct DamageHitter : IHitter
     {
         public int Subtract;
-        // TODO Use this in calculating dealt damage
-        // TODO Consider even make it independent from hitters
-        public int CoeffPercent;
     }
-
-    // TODO Merge PureDamage to Damage too
-    // TODO Critical hit -> Hard because of random is different on different compute location
+    
     public struct PureDamageHitter : IHitter
     {
         public int Subtract;
