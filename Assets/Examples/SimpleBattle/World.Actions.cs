@@ -6,6 +6,15 @@ namespace Examples.SimpleBattle
     {
         public class Actions
         {
+            public readonly IOp<Tick> tick;
+            public readonly IOp<Hit> hit;
+
+            public Actions(IEngine engine)
+            {
+                tick = engine.Op<Tick>();
+                hit = engine.Op<Hit>();
+            }
+
             public struct Tick
             {
                 public int Dt;
