@@ -13,6 +13,7 @@ namespace Examples.SimpleBattle
         {
             public IEntity From;
             public IEntity To;
+            public int RandomSeed;
         }
 
         public struct EndHit

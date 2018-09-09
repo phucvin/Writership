@@ -25,7 +25,8 @@ public class SimpleBattle
             new Ops.Hit
             {
                 From = hitFrom,
-                To = hitTo
+                To = hitTo,
+                RandomSeed = 11
             }
         };
         var stickHits = new List<IStickHitItem>();
