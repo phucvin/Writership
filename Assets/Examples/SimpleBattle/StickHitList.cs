@@ -18,7 +18,7 @@ namespace Examples.SimpleBattle
         }
 
         public void Setup(IEngine engine,
-            IOp<World.Actions.Hit> hit, IOp<World.Actions.EndHit> endHit)
+            IOp<Ops.Hit> hit, IOp<Ops.EndHit> endHit)
         {
             // TODO
         }

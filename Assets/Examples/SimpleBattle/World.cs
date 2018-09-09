@@ -4,20 +4,21 @@ namespace Examples.SimpleBattle
 {
     public partial class World : Disposable
     {
-        public readonly Actions actions; // TODO How to be uppercase
+        public readonly IOps Ops;
         public readonly ICharacterFactory CharacterFactory;
 
         public World(IEngine engine)
         {
-            actions = new Actions(engine);
+            Ops = cd.Add(new Ops_(engine));
             CharacterFactory = new Entity.CharacterFactory();
         }
 
         public void Setup(IEngine engine)
         {
-            actions.Setup(engine);
+            ((Ops_)Ops).Setup(engine);
             ((Entity.CharacterFactory)CharacterFactory).Setup(engine,
-                actions.tick, actions.hit);
+                Ops.Tick, Ops.Hit);
+
 #if DEBUG
             SetupGuards(engine);
 #endif

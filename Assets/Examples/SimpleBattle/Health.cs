@@ -23,8 +23,8 @@ namespace Examples.SimpleBattle
 
         public void Setup(IEngine engine,
             IEntity me, IEl<int> armorValue,
-            IOp<World.Actions.Tick> tick, ILi<IModifierItem> modifiers,
-            IOp<World.Actions.Hit> hit, ILi<IStickHitItem> stickHits,
+            IOp<Ops.Tick> tick, ILi<IModifierItem> modifiers,
+            IOp<Ops.Hit> hit, ILi<IStickHitItem> stickHits,
             IRandomSeed randomSeed)
         {
             cd.Add(engine.RegisterComputer(
@@ -39,8 +39,8 @@ namespace Examples.SimpleBattle
 
         public static void ComputeCurrent(IEl<int> target,
             int max, IEntity me, int armorValue,
-            IList<World.Actions.Tick> tick, IList<IModifierItem> modifiers,
-            IList<World.Actions.Hit> hit, IList<IStickHitItem> stickHits,
+            IList<Ops.Tick> tick, IList<IModifierItem> modifiers,
+            IList<Ops.Hit> hit, IList<IStickHitItem> stickHits,
             IRandomSeed randomSeed)
         {
             if (target.Read() <= 0) return;

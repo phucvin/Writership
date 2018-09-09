@@ -21,7 +21,7 @@ namespace Examples.SimpleBattle
             Value = engine.El(rand.Next());
         }
 
-        public void Setup(IEngine engine, IOp<World.Actions.Tick> tick)
+        public void Setup(IEngine engine, IOp<Ops.Tick> tick)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { tick },

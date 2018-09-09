@@ -12,11 +12,11 @@ namespace Examples.SimpleBattle
         public class CharacterFactory : ICharacterFactory
         {
             private IEngine engine;
-            private IOp<World.Actions.Tick> tick;
-            private IOp<World.Actions.Hit> hit;
+            private IOp<Ops.Tick> tick;
+            private IOp<Ops.Hit> hit;
 
             public void Setup(IEngine engine,
-                IOp<World.Actions.Tick> tick, IOp<World.Actions.Hit> hit)
+                IOp<Ops.Tick> tick, IOp<Ops.Hit> hit)
             {
                 this.engine = engine;
                 this.tick = tick;

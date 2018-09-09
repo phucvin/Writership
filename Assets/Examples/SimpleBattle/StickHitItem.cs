@@ -5,22 +5,22 @@ namespace Examples.SimpleBattle
 {
     public interface IStickHitItem
     {
-        World.Actions.Hit Hit { get; }
+        Ops.Hit Hit { get; }
         IEl<int> Elapsed { get; }
     }
 
     public class StickHitItem : Disposable, IStickHitItem
     {
-        public World.Actions.Hit Hit { get; private set; }
+        public Ops.Hit Hit { get; private set; }
         public IEl<int> Elapsed { get; private set; }
 
-        public StickHitItem(IEngine engine, World.Actions.Hit hit)
+        public StickHitItem(IEngine engine, Ops.Hit hit)
         {
             Hit = hit;
             Elapsed = engine.El(0);
         }
 
-        public void Setup(IEngine engine, IOp<World.Actions.Tick> tick)
+        public void Setup(IEngine engine, IOp<Ops.Tick> tick)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { tick },
@@ -29,7 +29,7 @@ namespace Examples.SimpleBattle
         }
 
         public static void ComputeElapsed(IEl<int> target,
-            IList<World.Actions.Tick> tick)
+            IList<Ops.Tick> tick)
         {
             int elapsed = target.Read();
 

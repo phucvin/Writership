@@ -10,12 +10,12 @@ namespace Examples.SimpleBattle
         private void SetupGuards(IEngine engine)
         {
             cd.Add(engine.RegisterListener(
-                new object[] { actions.hit },
-                () => CheckHit(actions.hit.Read())
+                new object[] { Ops.Hit },
+                () => CheckHit(Ops.Hit.Read())
             ));
         }
 
-        public static void CheckHit(IList<Actions.Hit> hit)
+        public static void CheckHit(IList<Ops.Hit> hit)
         {
             for (int i = 0, n = hit.Count; i < n; ++i)
             {

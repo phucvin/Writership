@@ -13,10 +13,10 @@ public class SimpleBattle
         var target = Substitute.For<IEl<int>>();
         int max = 100;
         int armorValue = 10;
-        var tick = new List<World.Actions.Tick>
+        var tick = new List<Ops.Tick>
         {
-            new World.Actions.Tick { Dt = 1 },
-            new World.Actions.Tick { Dt = 1 }
+            new Ops.Tick { Dt = 1 },
+            new Ops.Tick { Dt = 1 }
         };
         var healthCurrentModifier = Substitute.For<IModifierItem>();
         var modifiers = new List<IModifierItem>
@@ -25,9 +25,9 @@ public class SimpleBattle
         };
         var hitFrom = Substitute.For<IEntity>();
         var hitTo = Substitute.For<IEntity>();
-        var hit = new List<World.Actions.Hit>
+        var hit = new List<Ops.Hit>
         {
-            new World.Actions.Hit
+            new Ops.Hit
             {
                 From = hitFrom,
                 To = hitTo

@@ -17,6 +17,12 @@ namespace Writership
             list.Add(item);
         }
 
+        public T Add<T>(T item) where T : IDisposable
+        {
+            list.Add(item);
+            return item;
+        }
+
         public void Dispose()
         {
             for (int i = 0, n = list.Count; i < n; ++i)
