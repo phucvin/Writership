@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Writership;
 
 namespace Examples.SimpleBattle
@@ -13,9 +12,10 @@ namespace Examples.SimpleBattle
     public interface IModifierItemFactory
     {
         IModifierItem Create(Info.IModifier info);
+        void Dispose(IModifierItem item);
     }
 
-    public class ModifierItem : Disposable, IModifierItem
+    public class ModifierItem : IModifierItem
     {
         public Info.IModifier Info { get; private set; }
         public IEl<int> Remain { get; private set; }
@@ -26,7 +26,7 @@ namespace Examples.SimpleBattle
             Remain = engine.El(info.Duration);
         }
 
-        public void Setup(IEngine engine, IWorld world)
+        public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { world.Ops.Tick },
@@ -50,7 +50,7 @@ namespace Examples.SimpleBattle
             if (remain != target.Read()) target.Write(remain);
         }
 
-        public class Factory : IModifierItemFactory, IDisposable
+        public class Factory : CompositeDisposableFactory<IModifierItem>, IModifierItemFactory
         {
             private IEngine engine;
             private IWorld world;
@@ -61,15 +61,17 @@ namespace Examples.SimpleBattle
                 this.world = world;
             }
 
-            public void Dispose()
-            {
-            }
-
             public IModifierItem Create(Info.IModifier info)
             {
                 var item = new ModifierItem(engine, info);
-                item.Setup(engine, world);
+                var cd = Add(item);
+                item.Setup(cd, engine, world);
                 return item;
+            }
+
+            public void Dispose(IModifierItem item)
+            {
+                Remove(item).Dispose();
             }
         }
     }

@@ -8,7 +8,7 @@ namespace Examples.SimpleBattle
         IAddModifierHitter AddModifier { get; }
     }
 
-    public class HitterList : Disposable, IHitterList
+    public class HitterList : IHitterList
     {
         public IDamageHitter Damage { get; private set; }
         public IAddModifierHitter AddModifier { get; private set; }
@@ -19,19 +19,19 @@ namespace Examples.SimpleBattle
         {
             if (info.Damage.HasValue)
             {
-                Damage = cd.Add(new DamageHitter(engine, info.Damage.Value));
+                Damage = new DamageHitter(engine, info.Damage.Value);
             }
             if (info.AddModifier.HasValue)
             {
-                AddModifier = cd.Add(new AddModifierHitter(info.AddModifier.Value));
+                AddModifier = new AddModifierHitter(info.AddModifier.Value);
             }
         }
 
-        public void Setup(IEngine engine, IEntity entity)
+        public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity)
         {
             if (Damage != null)
             {
-                ((DamageHitter)Damage).Setup(engine, entity);
+                ((DamageHitter)Damage).Setup(cd, engine, entity);
             }
             else if (AddModifier != null)
             {
@@ -44,11 +44,11 @@ namespace Examples.SimpleBattle
             var l = new HitterList();
             if (Damage != null)
             {
-                l.Damage = l.cd.Add(((DamageHitter)Damage).Instantiate(engine));
+                l.Damage = ((DamageHitter)Damage).Instantiate(engine);
             }
             else if (AddModifier != null)
             {
-                l.AddModifier = l.cd.Add(((AddModifierHitter)AddModifier).Instantiate());
+                l.AddModifier = ((AddModifierHitter)AddModifier).Instantiate();
             }
             return l;
         }

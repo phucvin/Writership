@@ -11,7 +11,7 @@ namespace Examples.SimpleBattle
         IEl<int> RegenSpeed { get; }
     }
 
-    public class Health : Disposable, IHealth
+    public class Health : IHealth
     {
         public IEl<int> Max { get; private set; }
         public IEl<int> Current { get; private set; }
@@ -24,7 +24,7 @@ namespace Examples.SimpleBattle
             RegenSpeed = engine.El(info.RegenSpeed);
         }
 
-        public void Setup(IEngine engine, IEntity entity, IWorld world)
+        public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] {

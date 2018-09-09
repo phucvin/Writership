@@ -8,7 +8,7 @@ namespace Examples.SimpleBattle
         ILi<IStickHitItem> Items { get; }
     }
 
-    public class StickHitList : Disposable, IStickHitList
+    public class StickHitList : IStickHitList
     {
         public ILi<IStickHitItem> Items { get; private set; }
 
@@ -17,7 +17,7 @@ namespace Examples.SimpleBattle
             Items = engine.Li(new List<IStickHitItem>());
         }
 
-        public void Setup(IEngine engine, IWorld world)
+        public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { world.Ops.Hit, world.Ops.EndHit },
@@ -50,6 +50,7 @@ namespace Examples.SimpleBattle
                         var end = endHit[j];
                         if (start.From == end.From && start.To == end.To)
                         {
+                            itemFactory.Dispose(items[i]);
                             items.RemoveAt(i);
                         }
                     }

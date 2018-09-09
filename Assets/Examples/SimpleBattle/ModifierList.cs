@@ -8,7 +8,7 @@ namespace Examples.SimpleBattle
         ILi<IModifierItem> Items { get; }
     }
 
-    public class ModifierList : Disposable, IModifierList
+    public class ModifierList : IModifierList
     {
         public ILi<IModifierItem> Items { get; private set; }
 
@@ -22,7 +22,7 @@ namespace Examples.SimpleBattle
             Items = engine.Li(items);
         }
 
-        public void Setup(IEngine engine, IEntity entity, IWorld world)
+        public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { world.Ops.Tick, world.Ops.Hit },
@@ -60,7 +60,7 @@ namespace Examples.SimpleBattle
                 {
                     if (it.Remain.Read() == 0)
                     {
-                        ((ModifierItem)it).Dispose();
+                        itemFactory.Dispose(it);
                         return true;
                     }
                     return false;

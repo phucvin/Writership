@@ -8,7 +8,7 @@ namespace Examples.SimpleBattle
         IEl<int> Value { get; }
     }
 
-    public class Armor : Disposable, IArmor
+    public class Armor : IArmor
     {
         private readonly int baseValue;
         public IEl<int> Value { get; private set; }
@@ -19,7 +19,7 @@ namespace Examples.SimpleBattle
             Value = engine.El(baseValue);
         }
 
-        public void Setup(IEngine engine, IEntity entity)
+        public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { entity.Modifiers.Items },

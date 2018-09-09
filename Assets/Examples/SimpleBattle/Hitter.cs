@@ -6,7 +6,7 @@ namespace Examples.SimpleBattle
     {
     }
 
-    public abstract class Hitter : Disposable, IHitter
+    public abstract class Hitter : IHitter
     {
         public Hitter(Info.IHitter info)
         {

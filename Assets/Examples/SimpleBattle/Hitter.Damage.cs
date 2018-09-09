@@ -48,7 +48,7 @@ namespace Examples.SimpleBattle
             return instance;
         }
 
-        public void Setup(IEngine engine, IEntity entity)
+        public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { entity.Modifiers.Items },

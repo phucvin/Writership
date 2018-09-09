@@ -5,7 +5,7 @@
         IEntity Owner { get; }
     }
 
-    public class HasOwner : Disposable, IHasOwner
+    public class HasOwner : IHasOwner
     {
         public IEntity Owner { get; private set; }
 

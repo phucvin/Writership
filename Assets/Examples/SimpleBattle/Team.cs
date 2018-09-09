@@ -7,7 +7,7 @@ namespace Examples.SimpleBattle
         IEl<int> Value { get; }
     }
 
-    public class Team : Disposable, ITeam
+    public class Team : ITeam
     {
         public IEl<int> Value { get; private set; }
 
@@ -16,7 +16,7 @@ namespace Examples.SimpleBattle
             Value = engine.El(info.Value);
         }
 
-        public void Setup(IEngine engine)
+        public void Setup()
         {
         }
     }

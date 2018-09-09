@@ -13,7 +13,7 @@ namespace Examples.SimpleBattle
         IRandomSeed RandomSeed { get; }
     }
 
-    public partial class World : Disposable, IWorld
+    public partial class World : IWorld
     {
         public IOps Ops { get; private set; }
         public ICharacterFactory CharacterFactory { get; private set; }
@@ -24,27 +24,27 @@ namespace Examples.SimpleBattle
 
         public World(IEngine engine)
         {
-            Ops = cd.Add(new Ops_(engine));
-            CharacterFactory = cd.Add(new Entity.CharacterFactory());
-            ModifierItemFactory = cd.Add(new ModifierItem.Factory());
-            StickHitItemFactory = cd.Add(new StickHitItem.Factory());
-            StickHits = cd.Add(new StickHitList(engine));
-            RandomSeed = cd.Add(new RandomSeed(engine, new Random().Next()));
+            Ops = new Ops_(engine);
+            CharacterFactory = new Entity.CharacterFactory();
+            ModifierItemFactory = new ModifierItem.Factory();
+            StickHitItemFactory = new StickHitItem.Factory();
+            StickHits = new StickHitList(engine);
+            RandomSeed = new RandomSeed(engine, new Random().Next());
         }
 
-        public void Setup(IEngine engine)
+        public void Setup(CompositeDisposable cd, IEngine engine)
         {
             var world = this;
 
-            ((Ops_)Ops).Setup(engine);
+            ((Ops_)Ops).Setup();
             ((Entity.CharacterFactory)CharacterFactory).Setup(engine, world);
             ((ModifierItem.Factory)ModifierItemFactory).Setup(engine, world);
             ((StickHitItem.Factory)StickHitItemFactory).Setup(engine, world);
-            ((StickHitList)StickHits).Setup(engine, world);
-            ((RandomSeed)RandomSeed).Setup(engine, world);
+            ((StickHitList)StickHits).Setup(cd, engine, world);
+            ((RandomSeed)RandomSeed).Setup(cd, engine, world);
 
 #if DEBUG
-            SetupGuards(engine);
+            SetupGuards(cd, engine);
 #endif
         }
     }

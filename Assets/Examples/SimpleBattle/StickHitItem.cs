@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Writership;
 
 namespace Examples.SimpleBattle
@@ -13,9 +12,10 @@ namespace Examples.SimpleBattle
     public interface IStickHitItemFactory
     {
         IStickHitItem Create(Ops.Hit hit);
+        void Dispose(IStickHitItem item);
     }
 
-    public class StickHitItem : Disposable, IStickHitItem
+    public class StickHitItem : IStickHitItem
     {
         public Ops.Hit Hit { get; private set; }
         public IEl<int> Elapsed { get; private set; }
@@ -26,7 +26,7 @@ namespace Examples.SimpleBattle
             Elapsed = engine.El(0);
         }
 
-        public void Setup(IEngine engine, IWorld world)
+        public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { world.Ops.Tick },
@@ -47,7 +47,7 @@ namespace Examples.SimpleBattle
             if (elapsed != target.Read()) target.Write(elapsed);
         }
 
-        public class Factory : IStickHitItemFactory, IDisposable
+        public class Factory : CompositeDisposableFactory<IStickHitItem>, IStickHitItemFactory
         {
             private IEngine engine;
             private IWorld world;
@@ -58,15 +58,17 @@ namespace Examples.SimpleBattle
                 this.world = world;
             }
 
-            public void Dispose()
-            {
-            }
-
             public IStickHitItem Create(Ops.Hit hit)
             {
                 var item = new StickHitItem(engine, hit);
-                item.Setup(engine, world);
+                var cd = Add(item);
+                item.Setup(cd, engine, world);
                 return item;
+            }
+
+            public void Dispose(IStickHitItem item)
+            {
+                Remove(item).Dispose();
             }
         }
     }

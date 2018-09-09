@@ -1,16 +1,16 @@
-﻿using System;
-using Writership;
+﻿using Writership;
 
 namespace Examples.SimpleBattle
 {
     public interface ICharacterFactory
     {
         IEntity Create(Info.Character info);
+        void Dispose(IEntity entity);
     }
 
     public partial class Entity
     {
-        public class CharacterFactory : ICharacterFactory, IDisposable
+        public class CharacterFactory : CompositeDisposableFactory<IEntity>, ICharacterFactory
         {
             private IEngine engine;
             private IWorld world;
@@ -21,19 +21,23 @@ namespace Examples.SimpleBattle
                 this.world = world;
             }
 
-            public void Dispose() { }
-
             public IEntity Create(Info.Character info)
             {
                 var e = new Entity();
+                var cd = Add(e);
                 // TODO Create
                 var health = new Health(engine, info.Health);
 
                 // TODO Setup and assign
-                health.Setup(engine, e, world);
+                health.Setup(cd, engine, e, world);
                 e.Health = health;
 
                 return e;
+            }
+
+            public void Dispose(IEntity entity)
+            {
+                Remove(entity).Dispose();
             }
         }
     }

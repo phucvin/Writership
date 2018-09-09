@@ -36,7 +36,7 @@ namespace Examples.SimpleBattle
         IOp<Ops.EndHit> EndHit { get; }
     }
 
-    public class Ops_ : Disposable, IOps
+    public class Ops_ : IOps
     {
         public IOp<Ops.Tick> Tick { get; private set; }
         public IOp<Ops.Hit> Hit { get; private set; }
@@ -49,7 +49,7 @@ namespace Examples.SimpleBattle
             EndHit = engine.Op<Ops.EndHit>();
         }
 
-        public void Setup(IEngine engine)
+        public void Setup()
         {
         }
     }

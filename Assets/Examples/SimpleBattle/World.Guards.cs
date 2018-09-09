@@ -4,10 +4,10 @@ using Writership;
 
 namespace Examples.SimpleBattle
 {
-    public partial class World : Disposable
+    public partial class World
     {
 #if DEBUG
-        private void SetupGuards(IEngine engine)
+        private void SetupGuards(CompositeDisposable cd, IEngine engine)
         {
             cd.Add(engine.RegisterListener(
                 new object[] { Ops.Hit },

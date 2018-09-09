@@ -8,7 +8,7 @@ namespace Examples.SimpleBattle
         IEl<int> Percent { get; }
     }
 
-    public class DamageReflector : Disposable, IDamageReflector
+    public class DamageReflector : IDamageReflector
     {
         private readonly int basePercent;
         public IEl<int> Percent { get; private set; }
@@ -19,7 +19,7 @@ namespace Examples.SimpleBattle
             Percent = engine.El(basePercent);
         }
 
-        public void Setup(IEngine engine, IEntity entity)
+        public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] { entity.Modifiers.Items },
