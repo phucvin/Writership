@@ -8,40 +8,41 @@ namespace Examples.SimpleBattle
     {
         IEl<int> Max { get; }
         IEl<int> Current { get; }
+        IEl<int> RegenSpeed { get; }
     }
 
     public class Health : Disposable, IHealth
     {
         public IEl<int> Max { get; private set; }
         public IEl<int> Current { get; private set; }
+        public IEl<int> RegenSpeed { get; private set; }
 
         public Health(IEngine engine, Info.Health info)
         {
             Max = engine.El(info.Max);
             Current = engine.El(info.Current);
+            RegenSpeed = engine.El(info.RegenSpeed);
         }
 
         public void Setup(IEngine engine, IEntity entity, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
                 new object[] {
-                    entity.Modifiers.Items,
                     world.Ops.Tick,
                     world.Ops.Hit,
                     world.StickHits.Items
                 },
-                () => ComputeCurrent(Current, Max.Read(),
+                () => ComputeCurrent(Current, Max.Read(), RegenSpeed.Read(),
                     entity, entity.Armor.Value.Read(),
-                    world.Ops.Tick.Read(), entity.Modifiers.Items.Read(),
-                    world.Ops.Hit.Read(), world.StickHits.Items.Read(),
+                    world.Ops.Tick.Read(), world.Ops.Hit.Read(),
+                    world.StickHits.Items.Read(),
                     world.RandomSeed.Value.Read())
             ));
         }
 
         public static void ComputeCurrent(IEl<int> target,
-            int max, IEntity entity, int armorValue,
-            IList<Ops.Tick> tick, IList<IModifierItem> modifiers,
-            IList<Ops.Hit> hit, IList<IStickHitItem> stickHits,
+            int max, int regenSpeed, IEntity entity, int armorValue,
+            IList<Ops.Tick> tick, IList<Ops.Hit> hit, IList<IStickHitItem> stickHits,
             int randomSeed)
         {
             if (target.Read() <= 0) return;
@@ -55,15 +56,7 @@ namespace Examples.SimpleBattle
                 ticks += tick[i].Dt;
             }
 
-            // TODO Incorrect way to implement health regen
-            for (int i = 0, n = modifiers.Count; i < n; ++i)
-            {
-                var m = modifiers[i];
-                if (!(m.Info is Info.HealthCurrentModifier)) continue;
-                var h = (Info.HealthCurrentModifier)modifiers[i].Info;
-
-                add += (ticks + (m.Remain.Read() == h.Duration ? 1 : 0)) * h.Add;
-            }
+            add += ticks * regenSpeed;
 
             for (int i = 0, n = hit.Count; i < n; ++i)
             {

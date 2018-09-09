@@ -11,6 +11,7 @@ namespace Examples.SimpleBattle.Info
     {
         public int Max;
         public int Current;
+        public int RegenSpeed;
     }
 
     public struct Armor
