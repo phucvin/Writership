@@ -1,4 +1,5 @@
-﻿using Writership;
+﻿using System;
+using Writership;
 
 namespace Examples.SimpleBattle
 {
@@ -9,7 +10,7 @@ namespace Examples.SimpleBattle
 
     public partial class Entity
     {
-        public class CharacterFactory : ICharacterFactory
+        public class CharacterFactory : ICharacterFactory, IDisposable
         {
             private IEngine engine;
             private IOp<Ops.Tick> tick;
@@ -22,6 +23,8 @@ namespace Examples.SimpleBattle
                 this.tick = tick;
                 this.hit = hit;
             }
+
+            public void Dispose() { }
 
             public IEntity Create(Info.Character info)
             {

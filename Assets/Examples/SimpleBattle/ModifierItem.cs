@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Writership;
 
 namespace Examples.SimpleBattle
@@ -33,7 +34,7 @@ namespace Examples.SimpleBattle
             ));
         }
 
-        public class Factory : IModifierItemFactory
+        public class Factory : IModifierItemFactory, IDisposable
         {
             private IEngine engine;
             private IOp<Ops.Tick> tick;
@@ -42,6 +43,10 @@ namespace Examples.SimpleBattle
             {
                 this.engine = engine;
                 this.tick = tick;
+            }
+
+            public void Dispose()
+            {
             }
 
             public IModifierItem Create(Info.IModifier info)

@@ -10,7 +10,7 @@ namespace Examples.SimpleBattle
         public World(IEngine engine)
         {
             Ops = cd.Add(new Ops_(engine));
-            CharacterFactory = new Entity.CharacterFactory();
+            CharacterFactory = cd.Add(new Entity.CharacterFactory());
         }
 
         public void Setup(IEngine engine)
