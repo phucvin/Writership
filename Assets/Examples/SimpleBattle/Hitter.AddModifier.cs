@@ -13,6 +13,7 @@ namespace Examples.SimpleBattle
         public IList<Info.IModifier> Modifiers { get; private set; }
 
         public AddModifierHitter(IEngine engine, Info.AddModifierHitter info)
+            : base(info)
         {
             Modifiers = info.Modifers;
         }

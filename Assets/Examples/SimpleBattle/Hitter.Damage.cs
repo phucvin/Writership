@@ -20,6 +20,7 @@ namespace Examples.SimpleBattle
         public IEl<int> DotSpeed { get; private set; }
 
         public DamageHitter(IEngine engine, Info.DamageHitter info)
+            : base(info)
         {
             Subtract = engine.El(info.Subtract);
             PureChance = engine.El(info.PureChance);

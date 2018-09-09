@@ -47,8 +47,16 @@ namespace Examples.SimpleBattle.Info
         public int Duration { get; set; }
     }
 
+    public enum HitTo
+    {
+        Enemy,
+        Teammate,
+        SelfAndTeammate
+    }
+
     public interface IHitter
     {
+        HitTo HitTo { get; }
     }
 
     public struct HitterList
@@ -59,6 +67,7 @@ namespace Examples.SimpleBattle.Info
 
     public struct DamageHitter : IHitter
     {
+        public HitTo HitTo { get; set; }
         public int Subtract;
         public int PureChance;
         public int CriticalChance;
@@ -68,6 +77,7 @@ namespace Examples.SimpleBattle.Info
 
     public struct AddModifierHitter : IHitter
     {
+        public HitTo HitTo { get; set; }
         public IList<IModifier> Modifers;
     }
 

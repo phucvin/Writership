@@ -69,15 +69,15 @@ namespace Examples.SimpleBattle
                 if (h.From.HasOwner.Owner != me) continue;
 
                 var hitters = h.From.Hitters;
-                int lifeStealPercent = hitters.Damage.LifeStealPercent.Read();
+                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
 
-                if (lifeStealPercent > 0)
-                {
-                    int dealtDamage = CalcDealtDamage(hitters.Damage,
-                        h.To.Armor.Value.Read(), randomSeed);
-                    int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
-                    add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
-                }
+                int lifeStealPercent = hitters.Damage.LifeStealPercent.Read();
+                if (lifeStealPercent <= 0) continue;
+
+                int dealtDamage = CalcDealtDamage(hitters.Damage,
+                    h.To.Armor.Value.Read(), randomSeed);
+                int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
+                add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
             }
 
             for (int i = 0, n = stickHits.Count; i < n; ++i)
@@ -87,23 +87,26 @@ namespace Examples.SimpleBattle
                 if (h.From.HasOwner.Owner != me) continue;
 
                 var hitters = h.From.Hitters;
-                int lifeStealPercent = hitters.Damage.LifeStealPercent.Read();
+                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
 
-                if (lifeStealPercent > 0)
-                {
-                    int dealtDamage = CalcDealtDot(ticks, s, hitters.Damage,
-                        h.To.Armor.Value.Read(), randomSeed);
-                    int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
-                    add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
-                }
+                int lifeStealPercent = hitters.Damage.LifeStealPercent.Read();
+                if (lifeStealPercent <= 0) continue;
+
+                int dealtDamage = CalcDealtDot(ticks, s, hitters.Damage,
+                    h.To.Armor.Value.Read(), randomSeed);
+                int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
+                add += (int)Math.Ceiling(canStealAmount * (lifeStealPercent / 100f));
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
                 if (h.To != me) continue;
-                
-                sub += CalcDealtDamage(h.From.Hitters.Damage, armorValue, randomSeed);
+
+                var hitters = h.From.Hitters;
+                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
+
+                sub += CalcDealtDamage(hitters.Damage, armorValue, randomSeed);
             }
 
             for (int i = 0, n = hit.Count; i < n; ++i)
@@ -114,7 +117,10 @@ namespace Examples.SimpleBattle
                 var reflectDamagePercent = h.To.DamageReflector.Percent.Read();
                 if (reflectDamagePercent <= 0) continue;
 
-                var dealtDamage = CalcDealtDamage(h.From.Hitters.Damage,
+                var hitters = h.From.Hitters;
+                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
+
+                int dealtDamage = CalcDealtDamage(hitters.Damage,
                     h.To.Armor.Value.Read(), randomSeed);
                 sub += (int)Math.Ceiling(dealtDamage * (reflectDamagePercent / 100f));
             }
@@ -125,7 +131,10 @@ namespace Examples.SimpleBattle
                 var h = s.Hit;
                 if (h.To != me) continue;
 
-                sub += CalcDealtDot(ticks, s, h.From.Hitters.Damage,
+                var hitters = h.From.Hitters;
+                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
+
+                sub += CalcDealtDot(ticks, s, hitters.Damage,
                     armorValue, randomSeed);
             }
 
