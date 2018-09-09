@@ -9,7 +9,7 @@ namespace Examples.SimpleBattle
 #if DEBUG
         private void SetupGuards(CompositeDisposable cd, IEngine engine)
         {
-            cd.Add(engine.RegisterListener(
+            cd.Add(engine.RegisterComputer(
                 new object[] { Ops.Hit },
                 () => CheckHit(Ops.Hit.Read())
             ));
