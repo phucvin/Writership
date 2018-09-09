@@ -92,8 +92,9 @@ public class TodoList
     [Test]
     public void Simple()
     {
+        var cd = new CompositeDisposable();
         var engine = new MultithreadEngine();
-        var state = new State(engine);
+        var state = new State(cd, engine);
 
         state.CreateNewItem.Fire("hello");
         engine.Update();
@@ -103,6 +104,7 @@ public class TodoList
         engine.Update();
 
         engine.Update();
+        cd.Dispose();
         engine.Dispose();
 
         Assert.AreEqual("hello and bye", state.Items.Read()[0].Content.Read());

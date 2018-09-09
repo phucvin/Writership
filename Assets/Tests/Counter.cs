@@ -25,8 +25,9 @@ public class Counter
     [Test]
     public void Simple()
     {
+        var cd = new CompositeDisposable();
         var engine = new MultithreadEngine();
-        var state = new State(engine);
+        var state = new State(cd, engine);
 
         state.Increase.Fire(Empty.Instance);
         state.Increase.Fire(Empty.Instance);
@@ -34,6 +35,7 @@ public class Counter
         engine.Update();
 
         engine.Update();
+        cd.Dispose();
         engine.Dispose();
 
         Assert.AreEqual(1, state.Value.Read());

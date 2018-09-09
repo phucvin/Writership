@@ -21,16 +21,16 @@ namespace Examples.Counter
             state = new State(cd, engine);
 
             Common.Binders.Label(cd, engine,
-                map.GetComponent<Text>("value"),
-                state.Value, i => i.ToString()
+                map.GetComponent<Text>("value"), state.Value,
+                i => i.ToString()
             );
             Common.Binders.ButtonClick(cd, engine,
-                map.GetComponent<Button>("inc"),
-                state.Increase, () => Empty.Instance
+                map.GetComponent<Button>("inc"), state.Increase,
+                () => Empty.Instance
             );
             Common.Binders.ButtonClick(cd, engine,
-                map.GetComponent<Button>("dec"),
-                state.Decrease, () => Empty.Instance
+                map.GetComponent<Button>("dec"), state.Decrease,
+                () => Empty.Instance
             );
         }
 

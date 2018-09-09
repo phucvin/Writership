@@ -21,17 +21,18 @@ namespace Examples.TodoList
             state = new State(cd, engine);
 
             Common.Binders.ButtonClick(cd, engine,
-                map.GetComponent<Button>("newItem"),
-                state.CreateNewItem, () => map.GetComponent<InputField>("newItemContent").text
+                map.GetComponent<Button>("newItem"), state.CreateNewItem,
+                () => map.GetComponent<InputField>("newItemContent").text
             );
             Common.Binders.Label(cd, engine,
-                map.GetComponent<Text>("uncompletedCount"),
-                state.UncompletedCount, i => string.Format("Uncompleted count: {0}", i)
+                map.GetComponent<Text>("uncompletedCount"), state.UncompletedCount,
+                i => string.Format("Uncompleted count: {0}", i)
             );
             Common.Binders.List(cd, engine,
                 map.GetComponent<Transform>("itemsParent"),
                 map.GetComponent<Common.Map>("itemPrefab"),
-                state.Items, (cd, map, item) =>
+                state.Items,
+                (cd, map, item) =>
                 {
                     Common.Binders.Label(cd, engine, map.GetComponent<Text>("content"),
                         item.Content, s => s
