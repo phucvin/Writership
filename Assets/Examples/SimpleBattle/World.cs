@@ -37,7 +37,8 @@ namespace Examples.SimpleBattle
             var world = this;
 
             ((Ops_)Ops).Setup();
-            ((Entity.CharacterFactory)CharacterFactory).Setup(engine, world);
+            // TODO Get parent transform from outer scope
+            ((Entity.CharacterFactory)CharacterFactory).Setup(engine, world, null);
             ((ModifierItem.Factory)ModifierItemFactory).Setup(engine, world);
             ((StickHitItem.Factory)StickHitItemFactory).Setup(engine, world);
             ((StickHitList)StickHits).Setup(cd, engine, world);

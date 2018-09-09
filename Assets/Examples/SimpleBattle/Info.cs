@@ -90,6 +90,7 @@ namespace Examples.SimpleBattle.Info
 
     public struct Character
     {
+        public object Prototype;
         public Team Team;
         public Health Health;
         public Armor Armor;

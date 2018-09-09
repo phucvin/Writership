@@ -2,6 +2,7 @@
 {
     public interface IEntity
     {
+        ISpatial Spatial { get; }
         ITeam Team { get; }
         IHealth Health { get; }
         IArmor Armor { get; }
@@ -14,6 +15,7 @@
 
     public partial class Entity : IEntity
     {
+        public ISpatial Spatial { get; private set; }
         public ITeam Team { get; private set; }
         public IHealth Health { get; private set; }
         public IArmor Armor { get; private set; }
