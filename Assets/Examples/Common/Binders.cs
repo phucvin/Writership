@@ -10,7 +10,8 @@ namespace Examples.Common
     public static class Binders
     {
         public static void Label<T>(CompositeDisposable cd, IEngine engine,
-            Text dst, IEl<T> src, Func<T, string> converter)
+            Text dst, IEl<T> src,
+            Func<T, string> converter)
         {
             if (!dst) return;
 
@@ -21,7 +22,8 @@ namespace Examples.Common
         }
 
         public static void ButtonClick<T>(CompositeDisposable cd, IEngine engine,
-            Button src, IOp<T> dst, Func<T> valueGetter)
+            Button src, IOp<T> dst,
+            Func<T> valueGetter)
         {
             if (!src) return;
 
