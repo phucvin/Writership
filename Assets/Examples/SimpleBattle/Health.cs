@@ -69,6 +69,9 @@ namespace Examples.SimpleBattle
                 int lifeStealPercent = hitters.Damage.LifeStealPercent.Read();
                 if (lifeStealPercent <= 0) continue;
 
+                // TODO Still need hit random seed, beside world random seed
+                // to make sure 2 hits in same update
+                // are different when calc critical
                 int dealtDamage = CalcDealtDamage(hitters.Damage,
                     h.To.Armor.Value.Read(), randomSeed);
                 int canStealAmount = Math.Min(dealtDamage, h.To.Health.Current.Read());
