@@ -15,13 +15,13 @@ namespace Examples.SimpleBattle
         {
             private IEngine engine;
             private IWorld world;
-            private Transform parent;
+            private Common.Map map;
 
-            public void Setup(IEngine engine, IWorld world, Transform parent)
+            public void Setup(IEngine engine, IWorld world, Common.Map map)
             {
                 this.engine = engine;
                 this.world = world;
-                this.parent = parent;
+                this.map = map;
             }
 
             public IEntity Create(Info.Character info)
@@ -29,8 +29,13 @@ namespace Examples.SimpleBattle
                 var e = new Entity();
                 var cd = Add(e);
 
-                var gameObject = Object.Instantiate((GameObject)info.Prototype, parent);
+                // TODO Can only call this in Unity thread, not compute thread
+                var gameObject = Object.Instantiate((GameObject)info.Prototype,
+                    map.GetComponent<Transform>("characterParent"));
                 cd.Add(new DestroyOnDispose(gameObject));
+
+                // TODO Use this in bullet create position
+                // var gameObjectMap = gameObject.GetComponent<Common.Map>();
                 
                 // TODO Create
                 var health = new Health(engine, info.Health);
