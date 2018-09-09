@@ -4,7 +4,7 @@ namespace Examples.SimpleBattle
 {
     public partial class World
     {
-        public class Actions
+        public class Actions : Disposable
         {
             public readonly IOp<Tick> tick;
             public readonly IOp<Hit> hit;
@@ -13,6 +13,10 @@ namespace Examples.SimpleBattle
             {
                 tick = engine.Op<Tick>();
                 hit = engine.Op<Hit>();
+            }
+
+            public void Setup(IEngine engine)
+            {
             }
 
             public struct Tick
