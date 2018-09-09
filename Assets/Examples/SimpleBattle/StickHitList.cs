@@ -17,8 +17,7 @@ namespace Examples.SimpleBattle
             Items = engine.Li(new List<IStickHitItem>());
         }
 
-        public void Setup(IEngine engine,
-            IOp<Ops.Hit> hit, IOp<Ops.EndHit> endHit)
+        public void Setup(IEngine engine)
         {
             // TODO
         }

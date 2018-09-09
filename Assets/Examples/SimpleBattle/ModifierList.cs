@@ -22,19 +22,18 @@ namespace Examples.SimpleBattle
             Items = engine.Li(items);
         }
 
-        public void Setup(IEngine engine, IEntity me,
-            IOp<Ops.Tick> tick, IOp<Ops.Hit> hit,
-            IModifierItemFactory itemFactory)
+        public void Setup(IEngine engine, IEntity entity, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
-                new object[] { tick },
-                () => ComputeList(Items, me,
-                    tick.Read(), hit.Read(), itemFactory)
+                new object[] { world.Ops.Tick, world.Ops.Hit },
+                () => ComputeList(Items, entity,
+                    world.Ops.Tick.Read(), world.Ops.Hit.Read(),
+                    world.ModifierItemFactory)
             ));
         }
 
         public static void ComputeList(ILi<IModifierItem> target,
-            IEntity me, IList<Ops.Tick> tick, IList<Ops.Hit> hit,
+            IEntity entity, IList<Ops.Tick> tick, IList<Ops.Hit> hit,
             IModifierItemFactory itemFactory)
         {
             if (tick.Count <= 0) return;
@@ -44,7 +43,7 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.To != me) continue;
+                if (h.To != entity) continue;
 
                 var a = h.From.Hitters.AddModifier;
                 if (a == null) continue;

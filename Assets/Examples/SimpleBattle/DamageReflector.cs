@@ -16,7 +16,7 @@ namespace Examples.SimpleBattle
             Percent = engine.El(info.Percent);
         }
 
-        public void Setup(IEngine engine, ILi<IModifierItem> modifiers)
+        public void Setup(IEngine engine)
         {
             // TODO
         }

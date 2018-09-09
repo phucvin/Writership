@@ -20,11 +20,11 @@ namespace Examples.SimpleBattle
             Elapsed = engine.El(0);
         }
 
-        public void Setup(IEngine engine, IOp<Ops.Tick> tick)
+        public void Setup(IEngine engine, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
-                new object[] { tick },
-                () => ComputeElapsed(Elapsed, tick.Read())
+                new object[] { world.Ops.Tick },
+                () => ComputeElapsed(Elapsed, world.Ops.Tick.Read())
             ));
         }
 

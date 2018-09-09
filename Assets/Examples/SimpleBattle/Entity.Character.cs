@@ -13,15 +13,12 @@ namespace Examples.SimpleBattle
         public class CharacterFactory : ICharacterFactory, IDisposable
         {
             private IEngine engine;
-            private IOp<Ops.Tick> tick;
-            private IOp<Ops.Hit> hit;
+            private IWorld world;
 
-            public void Setup(IEngine engine,
-                IOp<Ops.Tick> tick, IOp<Ops.Hit> hit)
+            public void Setup(IEngine engine, IWorld world)
             {
                 this.engine = engine;
-                this.tick = tick;
-                this.hit = hit;
+                this.world = world;
             }
 
             public void Dispose() { }
@@ -33,7 +30,7 @@ namespace Examples.SimpleBattle
                 var health = new Health(engine, info.Health);
 
                 // TODO Setup and assign
-                health.Setup(engine, e, null, tick, null, hit, null, null);
+                health.Setup(engine, e, world);
                 e.Health = health;
 
                 return e;

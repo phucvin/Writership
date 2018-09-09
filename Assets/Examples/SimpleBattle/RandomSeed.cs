@@ -8,7 +8,7 @@ namespace Examples.SimpleBattle
         IEl<int> Value { get; }
     }
 
-    public class RandomSeed : Disposable
+    public class RandomSeed : Disposable, IRandomSeed
     {
         public IEl<int> Value { get; private set; }
 
@@ -21,13 +21,16 @@ namespace Examples.SimpleBattle
             Value = engine.El(rand.Next());
         }
 
-        public void Setup(IEngine engine, IOp<Ops.Tick> tick)
+        public void Setup(IEngine engine, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
-                new object[] { tick },
+                new object[] { world.Ops.Tick },
                 () =>
                 {
-                    if (tick.Read().Count > 0) Value.Write(rand.Next());
+                    if (world.Ops.Tick.Read().Count > 0)
+                    {
+                        Value.Write(rand.Next());
+                    }
                 }
             ));
         }

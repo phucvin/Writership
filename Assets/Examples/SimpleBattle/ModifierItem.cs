@@ -26,35 +26,12 @@ namespace Examples.SimpleBattle
             Remain = engine.El(info.Duration);
         }
 
-        public void Setup(IEngine engine, IOp<Ops.Tick> tick)
+        public void Setup(IEngine engine, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
-                new object[] { tick },
-                () => ComputeRemain(Remain, tick.Read())
+                new object[] { world.Ops.Tick },
+                () => ComputeRemain(Remain, world.Ops.Tick.Read())
             ));
-        }
-
-        public class Factory : IModifierItemFactory, IDisposable
-        {
-            private IEngine engine;
-            private IOp<Ops.Tick> tick;
-
-            public void Setup(IEngine engine, IOp<Ops.Tick> tick)
-            {
-                this.engine = engine;
-                this.tick = tick;
-            }
-
-            public void Dispose()
-            {
-            }
-
-            public IModifierItem Create(Info.IModifier info)
-            {
-                var item = new ModifierItem(engine, info);
-                item.Setup(engine, tick);
-                return item;
-            }
         }
 
         public static void ComputeRemain(IEl<int> target,
@@ -71,6 +48,29 @@ namespace Examples.SimpleBattle
             if (remain < 0) remain = 0;
 
             if (remain != target.Read()) target.Write(remain);
+        }
+
+        public class Factory : IModifierItemFactory, IDisposable
+        {
+            private IEngine engine;
+            private IWorld world;
+
+            public void Setup(IEngine engine, IWorld world)
+            {
+                this.engine = engine;
+                this.world = world;
+            }
+
+            public void Dispose()
+            {
+            }
+
+            public IModifierItem Create(Info.IModifier info)
+            {
+                var item = new ModifierItem(engine, info);
+                item.Setup(engine, world);
+                return item;
+            }
         }
     }
 }

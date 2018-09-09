@@ -21,27 +21,28 @@ namespace Examples.SimpleBattle
             Current = engine.El(info.Current);
         }
 
-        public void Setup(IEngine engine,
-            IEntity me, IEl<int> armorValue,
-            IOp<Ops.Tick> tick, ILi<IModifierItem> modifiers,
-            IOp<Ops.Hit> hit, ILi<IStickHitItem> stickHits,
-            IRandomSeed randomSeed)
+        public void Setup(IEngine engine, IEntity entity, IWorld world)
         {
             cd.Add(engine.RegisterComputer(
-                new object[] { modifiers, tick, hit, stickHits },
-                () => ComputeCurrent(Current,
-                    Max.Read(), me, armorValue.Read(),
-                    tick.Read(), modifiers.Read(),
-                    hit.Read(), stickHits.Read(),
-                    randomSeed)
+                new object[] {
+                    entity.Modifiers.Items,
+                    world.Ops.Tick,
+                    world.Ops.Hit,
+                    world.StickHits.Items
+                },
+                () => ComputeCurrent(Current, Max.Read(),
+                    entity, entity.Armor.Value.Read(),
+                    world.Ops.Tick.Read(), entity.Modifiers.Items.Read(),
+                    world.Ops.Hit.Read(), world.StickHits.Items.Read(),
+                    world.RandomSeed.Value.Read())
             ));
         }
 
         public static void ComputeCurrent(IEl<int> target,
-            int max, IEntity me, int armorValue,
+            int max, IEntity entity, int armorValue,
             IList<Ops.Tick> tick, IList<IModifierItem> modifiers,
             IList<Ops.Hit> hit, IList<IStickHitItem> stickHits,
-            IRandomSeed randomSeed)
+            int randomSeed)
         {
             if (target.Read() <= 0) return;
 
@@ -66,7 +67,7 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.From.HasOwner.Owner != me) continue;
+                if (h.From.HasOwner.Owner != entity) continue;
 
                 var hitters = h.From.Hitters;
                 if (hitters.Damage == null) continue;
@@ -84,7 +85,7 @@ namespace Examples.SimpleBattle
             {
                 var s = stickHits[i];
                 var h = s.Hit;
-                if (h.From.HasOwner.Owner != me) continue;
+                if (h.From.HasOwner.Owner != entity) continue;
 
                 var hitters = h.From.Hitters;
                 if (hitters.Damage == null) continue;
@@ -101,7 +102,7 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.To != me) continue;
+                if (h.To != entity) continue;
 
                 var hitters = h.From.Hitters;
                 if (hitters.Damage == null) continue;
@@ -112,7 +113,7 @@ namespace Examples.SimpleBattle
             for (int i = 0, n = hit.Count; i < n; ++i)
             {
                 var h = hit[i];
-                if (h.From.HasOwner.Owner != me) continue;
+                if (h.From.HasOwner.Owner != entity) continue;
 
                 var reflectDamagePercent = h.To.DamageReflector.Percent.Read();
                 if (reflectDamagePercent <= 0) continue;
@@ -129,7 +130,7 @@ namespace Examples.SimpleBattle
             {
                 var s = stickHits[i];
                 var h = s.Hit;
-                if (h.To != me) continue;
+                if (h.To != entity) continue;
 
                 var hitters = h.From.Hitters;
                 if (hitters.Damage == null) continue;
@@ -146,12 +147,12 @@ namespace Examples.SimpleBattle
         }
 
         public static int CalcDealtDamage(IDamageHitter damage,
-            int armorValue, IRandomSeed randomSeed)
+            int armorValue, int randomSeed)
         {
             int dealt = 0;
             Random rand;
             
-            rand = new Random(randomSeed.Value.Read() + 19042);
+            rand = new Random(randomSeed + 19042);
             if (rand.Next(100) < damage.PureChance.Read())
             {
                 dealt += damage.Subtract.Read();
@@ -161,7 +162,7 @@ namespace Examples.SimpleBattle
                 dealt += Math.Max(1, damage.Subtract.Read() - armorValue);
             }
 
-            rand = new Random(randomSeed.Value.Read() + 642);
+            rand = new Random(randomSeed + 642);
             if (rand.Next(100) < damage.CriticalChance.Read())
             {
                 dealt *= 2;
@@ -172,7 +173,7 @@ namespace Examples.SimpleBattle
 
         public static int CalcDealtDot(int ticks,
             IStickHitItem stick, IDamageHitter damage,
-            int armorValue, IRandomSeed randomSeed)
+            int armorValue, int randomSeed)
         {
             int dealt = 0;
             int repeat = (stick.Elapsed.Read() % damage.DotSpeed.Read()) + ticks / damage.DotSpeed.Read();
