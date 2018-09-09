@@ -17,27 +17,27 @@ namespace Examples.TodoList
 
         public void Setup()
         {
-            cd.Add(engine = new MultithreadEngine());
-            cd.Add(state = new State(engine));
+            engine = new MultithreadEngine();
+            state = new State(cd, engine);
 
-            cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("newItem"),
+            Common.Binders.ButtonClick(cd, engine,
+                map.GetComponent<Button>("newItem"),
                 state.CreateNewItem, () => map.GetComponent<InputField>("newItemContent").text
-            ));
-            cd.Add(Common.Binders.Label(engine, map.GetComponent<Text>("uncompletedCount"),
+            );
+            Common.Binders.Label(cd, engine,
+                map.GetComponent<Text>("uncompletedCount"),
                 state.UncompletedCount, i => string.Format("Uncompleted count: {0}", i)
-            ));
-            cd.Add(Common.Binders.List(engine,
+            );
+            Common.Binders.List(cd, engine,
                 map.GetComponent<Transform>("itemsParent"),
                 map.GetComponent<Common.Map>("itemPrefab"),
-                state.Items, (map, item) =>
+                state.Items, (cd, map, item) =>
                 {
-                    var cd = new CompositeDisposable();
-                    cd.Add(Common.Binders.Label(engine, map.GetComponent<Text>("content"),
+                    Common.Binders.Label(cd, engine, map.GetComponent<Text>("content"),
                         item.Content, s => s
-                    ));
-                    return cd;
+                    );
                 }
-            ));
+            );
         }
 
         public void Dispose()

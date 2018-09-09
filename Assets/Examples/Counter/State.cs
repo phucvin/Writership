@@ -1,23 +1,18 @@
-﻿using System;
-using Writership;
+﻿using Writership;
 
 namespace Examples.Counter
 {
-    public class State : IDisposable
+    public class State
     {
         public readonly IEl<int> Value;
         public readonly IOp<Empty> Increase;
         public readonly IOp<Empty> Decrease;
 
-        private readonly CompositeDisposable cd;
-
-        public State(IEngine engine)
+        public State(CompositeDisposable cd, IEngine engine)
         {
             Value = engine.El(0);
             Increase = engine.Op<Empty>();
             Decrease = engine.Op<Empty>();
-
-            cd = new CompositeDisposable();
 
             cd.Add(engine.RegisterComputer(
                 new object[] {
@@ -30,11 +25,6 @@ namespace Examples.Counter
                     Decrease
                 )
             ));
-        }
-
-        public void Dispose()
-        {
-            cd.Dispose();
         }
     }
 }

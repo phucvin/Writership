@@ -17,23 +17,27 @@ namespace Examples.Counter
 
         public void Setup()
         {
-            cd.Add(engine = new MultithreadEngine());
-            cd.Add(state = new State(engine));
+            engine = new MultithreadEngine();
+            state = new State(cd, engine);
 
-            cd.Add(Common.Binders.Label(engine, map.GetComponent<Text>("value"),
+            Common.Binders.Label(cd, engine,
+                map.GetComponent<Text>("value"),
                 state.Value, i => i.ToString()
-            ));
-            cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("inc"),
+            );
+            Common.Binders.ButtonClick(cd, engine,
+                map.GetComponent<Button>("inc"),
                 state.Increase, () => Empty.Instance
-            ));
-            cd.Add(Common.Binders.ButtonClick(engine, map.GetComponent<Button>("dec"),
+            );
+            Common.Binders.ButtonClick(cd, engine,
+                map.GetComponent<Button>("dec"),
                 state.Decrease, () => Empty.Instance
-            ));
+            );
         }
 
         public void Dispose()
         {
             cd.Dispose();
+            engine.Dispose();
         }
 
         public void Start()

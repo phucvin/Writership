@@ -9,64 +9,60 @@ namespace Examples.Common
 {
     public static class Binders
     {
-        public static IDisposable Label<T>(IEngine engine, Text dst, IEl<T> src, Func<T, string> converter)
+        public static void Label<T>(CompositeDisposable cd, IEngine engine,
+            Text dst, IEl<T> src, Func<T, string> converter)
         {
-            if (!dst) return NotBinded.Instance;
-            return engine.RegisterListener(new object[] { src }, () =>
-                dst.text = converter(src.Read()));
+            if (!dst) return;
+
+            cd.Add(engine.RegisterListener(
+                new object[] { src },
+                () => dst.text = converter(src.Read())
+            ));
         }
 
-        public static IDisposable ButtonClick<T>(IEngine engine, Button src, IOp<T> dst, Func<T> valueGetter)
+        public static void ButtonClick<T>(CompositeDisposable cd, IEngine engine,
+            Button src, IOp<T> dst, Func<T> valueGetter)
         {
-            if (!src) return NotBinded.Instance;
+            if (!src) return;
+
             UnityAction action = () => dst.Fire(valueGetter());
             src.onClick.AddListener(action);
-            return new RemoveOnClickListener(src, action);
+            cd.Add(new RemoveOnClickListener(src, action));
         }
 
-        public static IDisposable List<T>(IEngine engine, Transform dst, Map prefab, ILi<T> src, Func<Map, T, IDisposable> itemBinder)
+        public static void List<T>(CompositeDisposable cd, IEngine engine,
+            Transform dst, Map prefab, ILi<T> src,
+            Action<CompositeDisposable, Map, T> itemBinder)
         {
-            if (!dst || !prefab) return NotBinded.Instance;
+            if (!dst || !prefab) return;
+
             var createdGameObjects = new List<GameObject>();
             var createdCd = new CompositeDisposable();
-            return engine.RegisterListener(new object[] { src }, () =>
-            {
-                createdCd.Dispose();
-                for (int i = 0, n = createdGameObjects.Count; i < n; ++i)
+
+            cd.Add(createdCd);
+            cd.Add(engine.RegisterListener(
+                new object[] { src },
+                () =>
                 {
-                    UnityEngine.Object.Destroy(createdGameObjects[i]);
+                    createdCd.Dispose();
+                    for (int i = 0, n = createdGameObjects.Count; i < n; ++i)
+                    {
+                        UnityEngine.Object.Destroy(createdGameObjects[i]);
+                    }
+
+                    var items = src.Read();
+                    for (int i = 0, n = items.Count; i < n; ++i)
+                    {
+                        var itemMap = UnityEngine.Object.Instantiate(prefab.gameObject, dst).GetComponent<Map>();
+                        itemMap.gameObject.SetActive(true);
+                        var itemCd = new CompositeDisposable();
+                        createdCd.Add(itemCd);
+
+                        itemBinder(itemCd, itemMap, items[i]);
+                        createdGameObjects.Add(itemMap.gameObject);
+                    }
                 }
-
-                var items = src.Read();
-                for (int i = 0, n = items.Count; i < n; ++i)
-                {
-                    var itemMap = UnityEngine.Object.Instantiate(prefab.gameObject, dst).GetComponent<Map>();
-                    itemMap.gameObject.SetActive(true);
-
-                    createdCd.Add(itemBinder(itemMap, items[i]));
-                    createdGameObjects.Add(itemMap.gameObject);
-                }
-            });
-        }
-
-        private class NotBinded : IDisposable
-        {
-#if DEBUG
-            private static readonly NotBinded instance = new NotBinded();
-
-            public static NotBinded Instance
-            {
-                get
-                {
-                    Debug.LogWarning("Something is not binded, see trace for details");
-                    return instance;
-                }
-            }
-#else
-        public static readonly NoOpDisposable Instance = new NoOpDisposable();
-#endif
-
-            public void Dispose() { }
+            ));
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Writership;
 
 namespace Examples.TodoList
 {
-    public class State : IDisposable
+    public class State
     {
         public readonly IEl<int> NextId;
         public readonly IOp<string> CreateNewItem;
@@ -18,9 +17,7 @@ namespace Examples.TodoList
         public readonly IOp<string> FinishEditItem;
         public readonly ITodoItemFactory ItemFactory;
 
-        private readonly CompositeDisposable cd;
-
-        public State(IEngine engine)
+        public State(CompositeDisposable cd, IEngine engine)
         {
             NextId = engine.El(1);
             CreateNewItem = engine.Op<string>();
@@ -33,8 +30,6 @@ namespace Examples.TodoList
             EditingItemId = engine.El<string>(null);
             FinishEditItem = engine.Op<string>();
             ItemFactory = new TodoItem.Factory(engine, ToggleItemComplete, EditingItemId, FinishEditItem);
-
-            cd = new CompositeDisposable();
 
             cd.Add(engine.RegisterComputer(
                 new object[] {
@@ -77,14 +72,9 @@ namespace Examples.TodoList
                 )
             ));
         }
-
-        public void Dispose()
-        {
-            cd.Dispose();
-        }
     }
 
-    public interface ITodoItem : IDisposable
+    public interface ITodoItem
     {
         string Id { get; }
         IEl<string> Content { get; }
@@ -94,6 +84,7 @@ namespace Examples.TodoList
     public interface ITodoItemFactory
     {
         ITodoItem Create(string id, string content);
+        void Dispose(ITodoItem item);
     }
 
     public class TodoItem : ITodoItem
@@ -102,9 +93,8 @@ namespace Examples.TodoList
         public readonly IEl<string> content;
         public readonly IEl<bool> isCompleted;
 
-        private readonly CompositeDisposable cd;
-
         public TodoItem(
+            CompositeDisposable cd,
             IEngine engine,
             IOp<string> toggleComplete,
             IEl<string> editingItemId,
@@ -143,16 +133,11 @@ namespace Examples.TodoList
             ));
         }
 
-        public void Dispose()
-        {
-            cd.Dispose();
-        }
-
         public string Id { get { return id; } }
         public IEl<string> Content { get { return content; } }
         public IEl<bool> IsCompleted { get { return isCompleted; } }
 
-        public class Factory : ITodoItemFactory
+        public class Factory : CompositeDisposableFactory<ITodoItem>, ITodoItemFactory
         {
             private readonly IEngine engine;
             private readonly IOp<string> toggleComplete;
@@ -174,7 +159,16 @@ namespace Examples.TodoList
 
             public ITodoItem Create(string id, string content)
             {
-                return new TodoItem(engine, toggleComplete, editingItemId, finishEdit, id, content);
+                var cd = new CompositeDisposable();
+                var item = new TodoItem(cd, engine,
+                    toggleComplete, editingItemId, finishEdit, id, content);
+                Add(item, cd);
+                return item;
+            }
+
+            public void Dispose(ITodoItem item)
+            {
+                Remove(item).Dispose();
             }
         }
     }

@@ -14,6 +14,11 @@ namespace Writership
             return cd;
         }
 
+        protected void Add(T item, CompositeDisposable cd)
+        {
+            map.Add(item, cd);
+        }
+
         protected CompositeDisposable Remove(T item)
         {
             CompositeDisposable cd = null;

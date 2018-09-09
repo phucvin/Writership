@@ -51,7 +51,7 @@ namespace Examples.TodoList
                 {
                     if (it.IsCompleted.Read())
                     {
-                        it.Dispose();
+                        factory.Dispose(it);
                         return true;
                     }
                     return false;
@@ -64,7 +64,7 @@ namespace Examples.TodoList
                 {
                     if (deleteItem.Contains(it.Id))
                     {
-                        it.Dispose();
+                        factory.Dispose(it);
                         return true;
                     }
                     return false;
