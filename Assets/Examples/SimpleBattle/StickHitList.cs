@@ -17,9 +17,44 @@ namespace Examples.SimpleBattle
             Items = engine.Li(new List<IStickHitItem>());
         }
 
-        public void Setup(IEngine engine)
+        public void Setup(IEngine engine, IWorld world)
         {
-            // TODO
+            cd.Add(engine.RegisterComputer(
+                new object[] { world.Ops.Hit, world.Ops.EndHit },
+                () => ComputeItems(Items,
+                    world.Ops.Hit.Read(), world.Ops.EndHit.Read(),
+                    world.StickHitItemFactory)
+            ));
+        }
+
+        public static void ComputeItems(ILi<IStickHitItem> target,
+            IList<Ops.Hit> hit, IList<Ops.EndHit> endHit,
+            IStickHitItemFactory itemFactory)
+        {
+            if (hit.Count <= 0 && endHit.Count <= 0) return;
+
+            var items = target.AsWrite();
+
+            for (int i = 0, n = hit.Count; i < n; ++i)
+            {
+                items.Add(itemFactory.Create(hit[i]));
+            }
+
+            if (endHit.Count > 0)
+            {
+                for (int i = items.Count - 1; i >= 0; --i)
+                {
+                    for (int j = 0, m = endHit.Count; j < m; ++j)
+                    {
+                        var start = items[i].Hit;
+                        var end = endHit[j];
+                        if (start.From == end.From && start.To == end.To)
+                        {
+                            items.RemoveAt(i);
+                        }
+                    }
+                }
+            }
         }
     }
 }

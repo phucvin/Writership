@@ -19,23 +19,23 @@ namespace Examples.SimpleBattle
         {
             if (info.Damage.HasValue)
             {
-                Damage = new DamageHitter(engine, info.Damage.Value);
+                Damage = cd.Add(new DamageHitter(engine, info.Damage.Value));
             }
             if (info.AddModifier.HasValue)
             {
-                AddModifier = new AddModifierHitter(engine, info.AddModifier.Value);
+                AddModifier = cd.Add(new AddModifierHitter(info.AddModifier.Value));
             }
         }
 
-        public void Setup(IEngine engine)
+        public void Setup(IEngine engine, IEntity entity)
         {
             if (Damage != null)
             {
-                ((DamageHitter)Damage).Setup(engine);
+                ((DamageHitter)Damage).Setup(engine, entity);
             }
             else if (AddModifier != null)
             {
-                ((AddModifierHitter)AddModifier).Setup(engine);
+                ((AddModifierHitter)AddModifier).Setup();
             }
         }
 
@@ -44,11 +44,11 @@ namespace Examples.SimpleBattle
             var l = new HitterList();
             if (Damage != null)
             {
-                l.Damage = ((DamageHitter)Damage).Instantiate(engine);
+                l.Damage = l.cd.Add(((DamageHitter)Damage).Instantiate(engine));
             }
             else if (AddModifier != null)
             {
-                l.AddModifier = ((AddModifierHitter)AddModifier).Instantiate();
+                l.AddModifier = l.cd.Add(((AddModifierHitter)AddModifier).Instantiate());
             }
             return l;
         }

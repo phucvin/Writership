@@ -55,6 +55,7 @@ namespace Examples.SimpleBattle
                 ticks += tick[i].Dt;
             }
 
+            // TODO Incorrect way to implement health regen
             for (int i = 0, n = modifiers.Count; i < n; ++i)
             {
                 var m = modifiers[i];

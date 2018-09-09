@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Writership;
 
 namespace Examples.SimpleBattle
@@ -7,6 +8,11 @@ namespace Examples.SimpleBattle
     {
         Ops.Hit Hit { get; }
         IEl<int> Elapsed { get; }
+    }
+
+    public interface IStickHitItemFactory
+    {
+        IStickHitItem Create(Ops.Hit hit);
     }
 
     public class StickHitItem : Disposable, IStickHitItem
@@ -39,6 +45,29 @@ namespace Examples.SimpleBattle
             }
 
             if (elapsed != target.Read()) target.Write(elapsed);
+        }
+
+        public class Factory : IStickHitItemFactory, IDisposable
+        {
+            private IEngine engine;
+            private IWorld world;
+
+            public void Setup(IEngine engine, IWorld world)
+            {
+                this.engine = engine;
+                this.world = world;
+            }
+
+            public void Dispose()
+            {
+            }
+
+            public IStickHitItem Create(Ops.Hit hit)
+            {
+                var item = new StickHitItem(engine, hit);
+                item.Setup(engine, world);
+                return item;
+            }
         }
     }
 }

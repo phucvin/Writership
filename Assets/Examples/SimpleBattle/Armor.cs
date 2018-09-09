@@ -1,4 +1,5 @@
-﻿using Writership;
+﻿using System.Collections.Generic;
+using Writership;
 
 namespace Examples.SimpleBattle
 {
@@ -9,16 +10,43 @@ namespace Examples.SimpleBattle
 
     public class Armor : Disposable, IArmor
     {
+        private readonly int baseValue;
         public IEl<int> Value { get; private set; }
 
         public Armor(IEngine engine, Info.Armor info)
         {
-            Value = engine.El(info.Value);
+            baseValue = info.Value;
+            Value = engine.El(baseValue);
         }
 
-        public void Setup(IEngine engine)
+        public void Setup(IEngine engine, IEntity entity)
         {
-            // TODO
+            cd.Add(engine.RegisterComputer(
+                new object[] { entity.Modifiers.Items },
+                () => ComputeValue(Value, baseValue,
+                    entity.Modifiers.Items.Read())
+            ));
+        }
+
+        public static void ComputeValue(IEl<int> target, int baseValue,
+            IList<IModifierItem> modifiers)
+        {
+            int add = 0;
+            int multiply = 0;
+
+            for (int i = 0, n = modifiers.Count; i < n; ++i)
+            {
+                var m = modifiers[i];
+                if (!(m.Info is Info.ArmorModifier)) continue;
+                var a = (Info.ArmorModifier)m.Info;
+                add += a.Add;
+                multiply += a.Multiply;
+            }
+
+            int value = baseValue;
+            if (multiply != 0) value *= multiply;
+            value += add;
+            if (value != target.Read()) target.Write(value);
         }
     }
 }

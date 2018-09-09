@@ -30,21 +30,27 @@ namespace Examples.SimpleBattle.Info
 
     public struct HealthCurrentModifier : IModifier
     {
-        public int Add;
         public int Duration { get; set; }
+        public int Add;
     }
 
     public struct DamageReflectorModifier : IModifier
     {
-        public int Add;
         public int Duration { get; set; }
+        public int AddPercent;
     }
 
     public struct ArmorModifier : IModifier
     {
+        public int Duration { get; set; }
         public int Add;
         public int Multiply;
+    }
+
+    public struct DamageCriticalChanceModifier : IModifier
+    {
         public int Duration { get; set; }
+        public int Add;
     }
 
     public enum HitTo

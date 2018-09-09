@@ -1,6 +1,4 @@
-﻿using Writership;
-
-namespace Examples.SimpleBattle
+﻿namespace Examples.SimpleBattle
 {
     public interface IHasOwner
     {
@@ -11,12 +9,12 @@ namespace Examples.SimpleBattle
     {
         public IEntity Owner { get; private set; }
 
-        public HasOwner(IEngine engine, IEntity owner)
+        public HasOwner(IEntity owner)
         {
             Owner = owner;
         }
 
-        public void Setup(IEngine engine)
+        public void Setup()
         {
         }
     }

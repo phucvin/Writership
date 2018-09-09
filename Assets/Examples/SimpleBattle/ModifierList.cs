@@ -56,7 +56,15 @@ namespace Examples.SimpleBattle
 
             if (tick.Count > 0)
             {
-                items.RemoveAll(it => it.Remain.Read() == 0);
+                items.RemoveAll(it =>
+                {
+                    if (it.Remain.Read() == 0)
+                    {
+                        ((ModifierItem)it).Dispose();
+                        return true;
+                    }
+                    return false;
+                });
             }
         }
     }
