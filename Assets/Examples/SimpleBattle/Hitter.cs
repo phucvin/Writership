@@ -4,22 +4,12 @@ namespace Examples.SimpleBattle
 {
     public interface IHitter
     {
-        Info.HitTo HitTo { get; }
-        bool CanHit(IEntity from, IEntity to);
     }
 
     public abstract class Hitter : Disposable, IHitter
     {
-        public Info.HitTo HitTo { get; private set; }
-
         public Hitter(Info.IHitter info)
         {
-            HitTo = info.HitTo;
-        }
-
-        public bool CanHit(IEntity from, IEntity to)
-        {
-            return CanHit(from, to, HitTo);
         }
 
         public static bool CanHit(IEntity from, IEntity to, Info.HitTo hitTo)

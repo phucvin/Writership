@@ -69,7 +69,7 @@ namespace Examples.SimpleBattle
                 if (h.From.HasOwner.Owner != me) continue;
 
                 var hitters = h.From.Hitters;
-                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
+                if (hitters.Damage == null) continue;
 
                 int lifeStealPercent = hitters.Damage.LifeStealPercent.Read();
                 if (lifeStealPercent <= 0) continue;
@@ -87,8 +87,8 @@ namespace Examples.SimpleBattle
                 if (h.From.HasOwner.Owner != me) continue;
 
                 var hitters = h.From.Hitters;
-                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
-
+                if (hitters.Damage == null) continue;
+                
                 int lifeStealPercent = hitters.Damage.LifeStealPercent.Read();
                 if (lifeStealPercent <= 0) continue;
 
@@ -104,7 +104,7 @@ namespace Examples.SimpleBattle
                 if (h.To != me) continue;
 
                 var hitters = h.From.Hitters;
-                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
+                if (hitters.Damage == null) continue;
 
                 sub += CalcDealtDamage(hitters.Damage, armorValue, randomSeed);
             }
@@ -118,7 +118,7 @@ namespace Examples.SimpleBattle
                 if (reflectDamagePercent <= 0) continue;
 
                 var hitters = h.From.Hitters;
-                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
+                if (hitters.Damage == null) continue;
 
                 int dealtDamage = CalcDealtDamage(hitters.Damage,
                     h.To.Armor.Value.Read(), randomSeed);
@@ -132,7 +132,7 @@ namespace Examples.SimpleBattle
                 if (h.To != me) continue;
 
                 var hitters = h.From.Hitters;
-                if (hitters.Damage == null || !hitters.Damage.CanHit(h.From, h.To)) continue;
+                if (hitters.Damage == null) continue;
 
                 sub += CalcDealtDot(ticks, s, hitters.Damage,
                     armorValue, randomSeed);

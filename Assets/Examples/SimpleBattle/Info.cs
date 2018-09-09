@@ -56,7 +56,6 @@ namespace Examples.SimpleBattle.Info
 
     public interface IHitter
     {
-        HitTo HitTo { get; }
     }
 
     public struct HitterList

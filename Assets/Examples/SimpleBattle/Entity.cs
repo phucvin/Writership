@@ -7,6 +7,7 @@
         IArmor Armor { get; }
         IDamageReflector DamageReflector { get; }
         IModifierList Modifiers { get; }
+        Info.HitTo? HitTo { get; }
         IHitterList Hitters { get; }
         IHasOwner HasOwner { get; }
     }
@@ -18,6 +19,7 @@
         public IArmor Armor { get; private set; }
         public IDamageReflector DamageReflector { get; private set; }
         public IModifierList Modifiers { get; private set; }
+        public Info.HitTo? HitTo { get; private set; }
         public IHitterList Hitters { get; private set; }
         public IHasOwner HasOwner { get; private set; }
     }
