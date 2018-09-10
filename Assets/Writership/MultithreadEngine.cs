@@ -14,6 +14,7 @@ namespace Writership
 
         private readonly List<Dirty>[] dirties;
         private readonly Dictionary<object, List<Action>>[] listeners;
+        private readonly List<Action>[] pendingListeners;
 
         private readonly int mainThreadId;
         private bool isComputeDone;
@@ -25,11 +26,13 @@ namespace Writership
             TotalCells = 3;
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
+            pendingListeners = new List<Action>[TotalCells];
 
             for (int i = 0, n = TotalCells; i < n; ++i)
             {
                 dirties[i] = new List<Dirty>();
                 listeners[i] = new Dictionary<object, List<Action>>();
+                pendingListeners[i] = new List<Action>();
             }
 
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
@@ -61,28 +64,22 @@ namespace Writership
 
         public void MarkDirty(IHaveCells target, bool allowMultiple = false)
         {
-            MarkDirty(target, allowMultiple, phase: 1);
-        }
-
-        public void MarkDirty(IHaveCells target, bool allowMultiple, int phase)
-        {
             var dirties = this.dirties[CurrentCellIndex];
             var dirty = dirties.Find(it => ReferenceEquals(it.Inner, target));
             if (dirty == null)
             {
                 dirty = new Dirty
                 {
-                    Phase = 0,
+                    Phase = 1,
                     Inner = target,
                 };
                 dirties.Add(dirty);
             }
-            else if (dirty.Phase == 1 && !allowMultiple)
+            else if (dirty.Phase == 1)
             {
-                throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
+                if (!allowMultiple) throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
             }
-
-            dirty.Phase = phase;
+            else throw new NotImplementedException(dirty.Phase.ToString());
         }
 
         public IDisposable RegisterListener(object[] targets, Action job)
@@ -161,7 +158,16 @@ namespace Writership
         {
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
+            var pendingListeners = this.pendingListeners[at];
             var calledJobs = new List<Action>();
+
+            for (int i = 0, n = pendingListeners.Count; i < n; ++i)
+            {
+                var job = pendingListeners[i];
+                if (calledJobs.Contains(job)) continue;
+                calledJobs.Add(job);
+                job();
+            }
 
             // TODO Parallel notify, but have to use thread-safe collections for calledJobs
             for (int i = 0, n = dirties.Count; i < n; ++i)
@@ -270,7 +276,7 @@ namespace Writership
             }
 
             if (at == CurrentCellIndex) job();
-            else MarkDirty((IHaveCells)targets[0], allowMultiple: true, phase: 11);
+            else pendingListeners[at].Add(job); // TODO Also need thread-safe here
         }
     }
 }
