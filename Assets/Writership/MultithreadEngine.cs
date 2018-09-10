@@ -138,9 +138,10 @@ namespace Writership
             dirties[ReadCellIndex].Clear();
         }
 
-        private void CopyCells(int from, int to)
+        private int CopyCells(int from, int to)
         {
             var dirties = this.dirties[to];
+            int copied = 0;
             // TODO Parallel
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
@@ -149,10 +150,13 @@ namespace Writership
                 dirty.Phase = 2;
 
                 dirty.Inner.CopyCell(from, to);
+                ++copied;
             }
+
+            return copied;
         }
 
-        private bool Notify(int at)
+        private int Notify(int at)
         {
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
@@ -189,7 +193,7 @@ namespace Writership
                 dirty.Inner.ClearCell(CurrentCellIndex);
             }
 
-            return calledJobs.Count > 0;
+            return calledJobs.Count;
         }
 
         private void Process(int at)
@@ -198,8 +202,8 @@ namespace Writership
             int ran = 0;
             while (stillDirty)
             {
-                CopyCells(WriteCellIndex, at);
-                stillDirty = Notify(at);
+                Notify(at);
+                stillDirty = CopyCells(WriteCellIndex, at) > 0;
                 if (++ran > 1000) throw new StackOverflowException("Engine overflow");
             }
         }
