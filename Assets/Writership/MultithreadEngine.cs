@@ -115,6 +115,7 @@ namespace Writership
             }
         }
 
+        // Should call after all writes done in a frame
         public void Update()
         {
             while (!isComputeDone)
