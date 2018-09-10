@@ -34,8 +34,9 @@ namespace Examples.TodoList
                 state.Items,
                 (cd, map, item) =>
                 {
-                    Common.Binders.Label(cd, engine, map.GetComponent<Text>("content"),
-                        item.Content, s => s
+                    Common.Binders.Label(cd, engine,
+                        map.GetComponent<Text>("content"), item.Content,
+                        s => s
                     );
                 }
             );
