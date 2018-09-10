@@ -87,10 +87,13 @@ namespace Examples.SimpleBattle.Info
         public IList<IModifier> Modifers;
     }
 
-
     public struct Character
     {
+        // For external
         public object Prototype;
+        public object InitialPositionDescription;
+
+        public int SpatialFace;
         public Team Team;
         public Health Health;
         public Armor Armor;

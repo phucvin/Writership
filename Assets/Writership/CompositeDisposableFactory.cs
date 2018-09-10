@@ -1,11 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Writership
 {
-    public abstract class CompositeDisposableFactory<T>
+    public abstract class CompositeDisposableFactory<T> : IDisposable
     {
         private readonly Dictionary<T, CompositeDisposable> map =
             new Dictionary<T, CompositeDisposable>();
+
+        public void Dispose()
+        {
+            if (map.Count > 0)
+            {
+                foreach (var cd in map.Values)
+                {
+                    cd.Dispose();
+                }
+                map.Clear();
+            }
+        }
 
         protected CompositeDisposable Add(T item)
         {

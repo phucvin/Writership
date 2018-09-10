@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using Writership;
+﻿using Writership;
 
 namespace Examples.SimpleBattle
 {
@@ -15,37 +14,29 @@ namespace Examples.SimpleBattle
         {
             private IEngine engine;
             private IWorld world;
-            private Common.Map map;
 
-            public void Setup(IEngine engine, IWorld world, Common.Map map)
+            public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
             {
                 this.engine = engine;
                 this.world = world;
-                this.map = map;
+
+                cd.Add(this);
             }
 
             public IEntity Create(Info.Character info)
             {
                 var e = new Entity();
                 var cd = Add(e);
-
-                // TODO Can only call this in Unity thread, not compute thread
-                var gameObject = Object.Instantiate((GameObject)info.Prototype,
-                    map.GetComponent<Transform>("characterParent"));
-                cd.Add(new DestroyOnDispose(gameObject));
-
-                // TODO Use this in bullet create position
-                // var gameObjectMap = gameObject.GetComponent<Common.Map>();
                 
                 // TODO Create
                 var health = new Health(engine, info.Health);
-                var spatial = gameObject.AddComponent<Spatial>().Ctor(engine);
+                var spatial = new Spatial(engine, info.SpatialFace);
 
                 // TODO Setup and assign
                 health.Setup(cd, engine, e, world);
                 e.Health = health;
                 //
-                spatial.Setup();
+                spatial.Setup(cd, engine);
                 e.Spatial = spatial;
 
                 return e;

@@ -5,26 +5,26 @@ namespace Examples.SimpleBattle
 {
     public interface ISpatial
     {
-        IEl<Vector3> Position { get; }
+        IEl<Vector3?> Position { get; }
+        IEl<int> Face { get; }
     }
 
-    public class Spatial : MonoBehaviour, ISpatial
+    public class Spatial : ISpatial
     {
-        public IEl<Vector3> Position { get; private set; }
+        public IEl<Vector3?> Position { get; private set; }
+        public IEl<int> Face { get; private set; }
 
-        public Spatial Ctor(IEngine engine)
+        public Spatial(IEngine engine, int face)
         {
-            Position = engine.El(transform.position);
-            return this;
+            Position = engine.El<Vector3?>(null);
+            Face = engine.El(face);
         }
 
-        public void Setup()
+        public void Setup(CompositeDisposable cd, IEngine engine)
         {
-        }
+            // Position is external, no need compute here
 
-        public void Update()
-        {
-            Position.Write(transform.position);
+            // TODO Compute Face
         }
     }
 }

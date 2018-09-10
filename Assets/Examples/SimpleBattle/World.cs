@@ -32,14 +32,14 @@ namespace Examples.SimpleBattle
             RandomSeed = new RandomSeed(engine, new Random().Next());
         }
 
-        public void Setup(CompositeDisposable cd, IEngine engine, Common.Map map)
+        public void Setup(CompositeDisposable cd, IEngine engine)
         {
             var world = this;
 
             ((Ops_)Ops).Setup();
-            ((Entity.CharacterFactory)CharacterFactory).Setup(engine, world, map);
-            ((ModifierItem.Factory)ModifierItemFactory).Setup(engine, world);
-            ((StickHitItem.Factory)StickHitItemFactory).Setup(engine, world);
+            ((Entity.CharacterFactory)CharacterFactory).Setup(cd, engine, world);
+            ((ModifierItem.Factory)ModifierItemFactory).Setup(cd, engine, world);
+            ((StickHitItem.Factory)StickHitItemFactory).Setup(cd, engine, world);
             ((StickHitList)StickHits).Setup(cd, engine, world);
             ((RandomSeed)RandomSeed).Setup(cd, engine, world);
 

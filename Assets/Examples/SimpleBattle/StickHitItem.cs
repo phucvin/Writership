@@ -52,10 +52,12 @@ namespace Examples.SimpleBattle
             private IEngine engine;
             private IWorld world;
 
-            public void Setup(IEngine engine, IWorld world)
+            public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
             {
                 this.engine = engine;
                 this.world = world;
+
+                cd.Add(this);
             }
 
             public IStickHitItem Create(Ops.Hit hit)

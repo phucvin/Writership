@@ -29,7 +29,8 @@ namespace Examples.TodoList
             EditItem = engine.Op<string>();
             EditingItemId = engine.El<string>(null);
             FinishEditItem = engine.Op<string>();
-            ItemFactory = new TodoItem.Factory(engine, ToggleItemComplete, EditingItemId, FinishEditItem);
+            ItemFactory = new TodoItem.Factory(cd, engine,
+                ToggleItemComplete, EditingItemId, FinishEditItem);
 
             cd.Add(engine.RegisterComputer(
                 new object[] {
@@ -145,6 +146,7 @@ namespace Examples.TodoList
             private readonly IOp<string> finishEdit;
 
             public Factory(
+                CompositeDisposable cd,
                 IEngine engine,
                 IOp<string> toggleComplete,
                 IEl<string> editingItemId,
@@ -155,6 +157,8 @@ namespace Examples.TodoList
                 this.toggleComplete = toggleComplete;
                 this.editingItemId = editingItemId;
                 this.finishEdit = finishEdit;
+
+                cd.Add(this);
             }
 
             public ITodoItem Create(string id, string content)
