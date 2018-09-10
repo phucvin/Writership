@@ -9,34 +9,36 @@ namespace Examples.Common
 {
     public static class Binders
     {
-        public static void Label<T>(CompositeDisposable cd, IEngine engine,
+        public static bool Label<T>(CompositeDisposable cd, IEngine engine,
             Text dst, IEl<T> src,
             Func<T, string> converter)
         {
-            if (!dst) return;
+            if (!dst) return NotBinded();
 
             cd.Add(engine.RegisterListener(
                 new object[] { src },
                 () => dst.text = converter(src.Read())
             ));
+            return true;
         }
 
-        public static void ButtonClick<T>(CompositeDisposable cd, IEngine engine,
+        public static bool ButtonClick<T>(CompositeDisposable cd, IEngine engine,
             Button src, IOp<T> dst,
             Func<T> valueGetter)
         {
-            if (!src) return;
+            if (!src) return NotBinded();
 
             UnityAction action = () => dst.Fire(valueGetter());
             src.onClick.AddListener(action);
             cd.Add(new RemoveOnClickListener(src, action));
+            return true;
         }
 
-        public static void List<T>(CompositeDisposable cd, IEngine engine,
+        public static bool List<T>(CompositeDisposable cd, IEngine engine,
             Transform dst, Map prefab, ILi<T> src,
             Action<CompositeDisposable, Map, T> itemBinder)
         {
-            if (!dst || !prefab) return;
+            if (!dst || !prefab) return NotBinded();
 
             var createdGameObjects = new List<GameObject>();
             var createdCd = new CompositeDisposable();
@@ -65,6 +67,13 @@ namespace Examples.Common
                     }
                 }
             ));
+            return true;
+        }
+
+        private static bool NotBinded()
+        {
+            Debug.LogWarning("Something is not binded, check stack trace for details");
+            return false;
         }
     }
 }
