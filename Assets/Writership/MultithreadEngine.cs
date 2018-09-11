@@ -168,6 +168,7 @@ namespace Writership
                 calledJobs.Add(job);
                 job();
             }
+            pendingListeners.Clear();
 
             // TODO Parallel notify, but have to use thread-safe collections for calledJobs
             for (int i = 0, n = dirties.Count; i < n; ++i)
