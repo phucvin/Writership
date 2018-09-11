@@ -281,8 +281,7 @@ namespace Writership
                 jobs.Add(job);
             }
 
-            if (at == CurrentCellIndex) job();
-            else pendingListeners[at].Add(job); // TODO Also need thread-safe here
+            pendingListeners[at].Add(job); // TODO Also need thread-safe here
         }
     }
 }
