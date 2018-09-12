@@ -135,19 +135,7 @@ namespace Writership
             CopyDirties(ComputeCellIndex, ReadCellIndex);
             dirties[ComputeCellIndex].Clear();
 
-            CopyCells(WriteCellIndex, ReadCellIndex);
-            {
-                int at = ReadCellIndex;
-                bool stillDirty = true;
-                int ran = 0;
-                while (stillDirty)
-                {
-                    Notify(at);
-                    stillDirty = CopyCells(WriteCellIndex, at) > 0 ||
-                        pendingListeners[at].Count > 0;
-                    if (++ran > 1000) throw new StackOverflowException("Engine overflow");
-                }
-            }
+            Process(ReadCellIndex);
 
             CopyDirties(ReadCellIndex, ComputeCellIndex);
             // TODO Skip compute if not dirty
@@ -171,7 +159,6 @@ namespace Writership
                 dirty.Inner.CopyCell(from, to);
                 ++copied;
             }
-
             return copied;
         }
 

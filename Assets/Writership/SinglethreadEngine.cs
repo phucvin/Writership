@@ -14,6 +14,7 @@ namespace Writership
         private readonly List<Dirty>[] dirties;
         private readonly Dictionary<object, List<Action>>[] listeners;
         private readonly Dictionary<object, List<Action>>[] pendingRemoveListeners;
+        private readonly List<Action>[] pendingListeners;
 
         public SinglethreadEngine()
         {
@@ -22,12 +23,14 @@ namespace Writership
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
             pendingRemoveListeners = new Dictionary<object, List<Action>>[TotalCells];
+            pendingListeners = new List<Action>[TotalCells];
 
             for (int i = 0, n = TotalCells; i < n; ++i)
             {
                 dirties[i] = new List<Dirty>();
                 listeners[i] = new Dictionary<object, List<Action>>();
                 pendingRemoveListeners[i] = new Dictionary<object, List<Action>>();
+                pendingListeners[i] = new List<Action>();
             }
         }
 
@@ -56,17 +59,16 @@ namespace Writership
             {
                 dirty = new Dirty
                 {
-                    Phase = 0,
+                    Phase = 1,
                     Inner = target,
                 };
                 dirties.Add(dirty);
             }
-            else if (dirty.Phase == 1 && !allowMultiple)
+            else if (dirty.Phase == 1)
             {
-                throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
+                if (!allowMultiple) throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
             }
-
-            dirty.Phase = 1;
+            else throw new NotImplementedException(dirty.Phase.ToString());
         }
 
         public IDisposable RegisterListener(object[] targets, Action job)
@@ -109,9 +111,10 @@ namespace Writership
             dirties[ReadCellIndex].Clear();
         }
 
-        private void CopyCells(int from, int to)
+        private int CopyCells(int from, int to)
         {
             var dirties = this.dirties[to];
+            int copied = 0;
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
@@ -119,13 +122,16 @@ namespace Writership
                 dirty.Phase = 2;
 
                 dirty.Inner.CopyCell(from, to);
+                ++copied;
             }
+            return copied;
         }
 
         private bool Notify(int at)
         {
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
+            var pendingListeners = this.pendingListeners[at];
             var calledJobs = new List<Action>();
 
             // TODO Refactor & move to a method
@@ -142,6 +148,15 @@ namespace Writership
             }
             pendingRemoveListeners[at].Clear();
 
+            for (int i = 0, n = pendingListeners.Count; i < n; ++i)
+            {
+                var job = pendingListeners[i];
+                if (calledJobs.Contains(job)) continue;
+                calledJobs.Add(job);
+                job();
+            }
+            pendingListeners.Clear();
+
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
@@ -157,7 +172,7 @@ namespace Writership
                         var job = jobs[j];
                         if (calledJobs.Contains(job)) continue;
                         calledJobs.Add(job);
-                        jobs[j]();
+                        job();
                     }
                 }
             }
@@ -181,8 +196,9 @@ namespace Writership
             int ran = 0;
             while (stillDirty)
             {
-                CopyCells(WriteCellIndex, at);
-                stillDirty = Notify(at);
+                Notify(at);
+                stillDirty = CopyCells(WriteCellIndex, at) > 0 ||
+                    pendingListeners[at].Count > 0;
                 if (++ran > 1000) throw new StackOverflowException("Engine overflow");
             }
         }
@@ -202,7 +218,7 @@ namespace Writership
                 jobs.Add(job);
             }
 
-            job();
+            pendingListeners[at].Add(job);
         }
     }
 }
