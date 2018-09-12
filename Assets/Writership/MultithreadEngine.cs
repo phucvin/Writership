@@ -14,6 +14,7 @@ namespace Writership
 
         private readonly List<Dirty>[] dirties;
         private readonly Dictionary<object, List<Action>>[] listeners;
+        private readonly Dictionary<object, List<Action>>[] pendingRemoveListeners;
         private readonly List<Action>[] pendingListeners;
 
         private readonly int mainThreadId;
@@ -26,12 +27,14 @@ namespace Writership
             TotalCells = 3;
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
+            pendingRemoveListeners = new Dictionary<object, List<Action>>[TotalCells];
             pendingListeners = new List<Action>[TotalCells];
 
             for (int i = 0, n = TotalCells; i < n; ++i)
             {
                 dirties[i] = new List<Dirty>();
                 listeners[i] = new Dictionary<object, List<Action>>();
+                pendingRemoveListeners[i] = new Dictionary<object, List<Action>>();
                 pendingListeners[i] = new List<Action>();
             }
 
@@ -98,17 +101,17 @@ namespace Writership
         {
             // TODO Lock or use thread-safe collections
             // to avoid multiple threads register at same time
-            var listeners = this.listeners[at];
+            var pendingRemoveListeners = this.pendingRemoveListeners[at];
             for (int i = 0, n = targets.Length; i < n; ++i)
             {
                 var target = targets[i];
                 List<Action> jobs;
-                if (!listeners.TryGetValue(target, out jobs) || !jobs.Remove(job))
+                if (!pendingRemoveListeners.TryGetValue(target, out jobs))
                 {
-                    throw new InvalidOperationException("Not found on unregister");
+                    jobs = new List<Action>();
                 }
 
-                if (jobs.Count <= 0) listeners.Remove(target);
+                jobs.Add(job);
             }
         }
 
@@ -172,6 +175,20 @@ namespace Writership
             var pendingListeners = this.pendingListeners[at];
             var calledJobs = new List<Action>();
 
+            // TODO Refactor & move to a method
+            var toRemoveKeys = new List<object>();
+            foreach (var pair in pendingRemoveListeners[at])
+            {
+                List<Action> jobs = listeners[pair.Key];
+                jobs.RemoveAll(it => pair.Value.Contains(it));
+                if (jobs.Count <= 0) toRemoveKeys.Add(pair.Key);
+            }
+            for (int i = 0, n = toRemoveKeys.Count; i < n; ++i)
+            {
+                listeners.Remove(toRemoveKeys[i]);
+            }
+            pendingRemoveListeners[at].Clear();
+
             for (int i = 0, n = pendingListeners.Count; i < n; ++i)
             {
                 var job = pendingListeners[i];
@@ -197,7 +214,7 @@ namespace Writership
                         var job = jobs[j];
                         if (calledJobs.Contains(job)) continue;
                         calledJobs.Add(job);
-                        jobs[j]();
+                        job();
                     }
                 }
             }
