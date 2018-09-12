@@ -102,13 +102,19 @@ namespace Writership
             // TODO Lock or use thread-safe collections
             // to avoid multiple threads register at same time
             var pendingRemoveListeners = this.pendingRemoveListeners[at];
+            var listeners = this.listeners[at];
             for (int i = 0, n = targets.Length; i < n; ++i)
             {
                 var target = targets[i];
                 List<Action> jobs;
+                if (!listeners.TryGetValue(target, out jobs) || !jobs.Contains(job))
+                {
+                    throw new InvalidOperationException("Not found on unregister");
+                }
                 if (!pendingRemoveListeners.TryGetValue(target, out jobs))
                 {
                     jobs = new List<Action>();
+                    pendingRemoveListeners.Add(target, jobs);
                 }
 
                 jobs.Add(job);
