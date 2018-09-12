@@ -79,10 +79,6 @@ namespace Writership
             {
                 if (!allowMultiple) throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
             }
-            else if (dirty.Phase == 2)
-            {
-                dirty.Phase = 1;
-            }
             else throw new NotImplementedException(dirty.Phase.ToString());
         }
 
@@ -130,14 +126,25 @@ namespace Writership
             CopyDirties(ComputeCellIndex, ReadCellIndex);
             dirties[ComputeCellIndex].Clear();
 
-            Notify(ReadCellIndex);
-            dirties[ReadCellIndex].RemoveAll(it => it.Phase == 4 || it.Phase == 13);
-
             CopyCells(WriteCellIndex, ReadCellIndex);
+            {
+                int at = ReadCellIndex;
+                bool stillDirty = true;
+                int ran = 0;
+                while (stillDirty)
+                {
+                    Notify(at);
+                    stillDirty = CopyCells(WriteCellIndex, at) > 0;
+                    if (++ran > 1000) throw new StackOverflowException("Engine overflow");
+                }
+            }
+
             CopyDirties(ReadCellIndex, ComputeCellIndex);
             // TODO Skip compute if not dirty
             isComputeDone = false;
             ThreadPool.QueueUserWorkItem(computeWorkItem);
+
+            dirties[ReadCellIndex].Clear();
         }
 
         private int CopyCells(int from, int to)
@@ -178,8 +185,7 @@ namespace Writership
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
-                if (dirty.Phase == 1) dirty.Phase = 1;
-                else if (dirty.Phase == 2) dirty.Phase = 3;
+                if (dirty.Phase == 2) dirty.Phase = 3;
                 else if (dirty.Phase == 11) dirty.Phase = 12;
                 else continue;
 
@@ -245,7 +251,7 @@ namespace Writership
                 if (dirty.Phase < 2) throw new NotImplementedException();
                 else if (dirty.Phase > 10) continue;
 
-                dirty.Inner.CopyCell(from, to);
+                dirty.Inner.CopyCell(WriteCellIndex, to);
 
                 var existing = toDirties.Find(it => ReferenceEquals(it.Inner, dirty.Inner));
                 if (existing == null)

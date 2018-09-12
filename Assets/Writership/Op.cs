@@ -12,11 +12,18 @@ namespace Writership
 
     internal class Op<T> : IOp<T>, IHaveCells
     {
+        private class WithFlag
+        {
+            public int Flag;
+            public T Value;
+        }
+
         // TODO Maybe not a good solution, should compute by changed values (of dynamic children)
         private readonly Op<Empty> applied;
 
         private readonly IEngine engine;
         private readonly List<T>[] cells;
+        private readonly List<WithFlag> writeCell;
 
         public Op(IEngine engine, bool needApplied = true)
         {
@@ -28,6 +35,7 @@ namespace Writership
                 var l = new List<T>();
                 cells[i] = l;
             }
+            writeCell = new List<WithFlag>();
 
             if (needApplied)
             {
@@ -64,19 +72,38 @@ namespace Writership
         public void Fire(T value)
         {
             MarkSelfDirty();
-            cells[engine.WriteCellIndex].Add(value);
+            writeCell.Add(new WithFlag { Flag = 0, Value = value });
         }
 
         public void CopyCell(int from, int to)
         {
-            cells[to].Clear();
-            cells[to].AddRange(cells[from]);
+            if (from == engine.WriteCellIndex)
+            {
+                var toCell = cells[to];
+                toCell.Clear();
+
+                for (int i = 0, n = writeCell.Count; i < n; ++i)
+                {
+                    var withFlag = writeCell[i];
+                    if (withFlag.Flag == 0 || withFlag.Flag == (engine.TotalCells - (to + 1)))
+                    {
+                        withFlag.Flag += (to + 1);
+                        toCell.Add(withFlag.Value);
+                    }
+                }
+                if (engine.TotalCells > 2) writeCell.RemoveAll(it => it.Flag == engine.TotalCells);
+            }
+            else
+            {
+                cells[to].Clear();
+                cells[to].AddRange(cells[from]);
+            }
         }
 
         public void ClearCell(int at)
         {
             cells[at].Clear();
-            cells[engine.WriteCellIndex].Clear();
+            if (engine.TotalCells <= 2) writeCell.Clear();
         }
 
         private void MarkSelfDirty()
