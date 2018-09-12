@@ -137,7 +137,8 @@ namespace Writership
                 while (stillDirty)
                 {
                     Notify(at);
-                    stillDirty = CopyCells(WriteCellIndex, at) > 0;
+                    stillDirty = CopyCells(WriteCellIndex, at) > 0 ||
+                        pendingListeners[at].Count > 0;
                     if (++ran > 1000) throw new StackOverflowException("Engine overflow");
                 }
             }
@@ -239,7 +240,8 @@ namespace Writership
             while (stillDirty)
             {
                 Notify(at);
-                stillDirty = CopyCells(WriteCellIndex, at) > 0;
+                stillDirty = CopyCells(WriteCellIndex, at) > 0 ||
+                    pendingListeners[at].Count > 0;
                 if (++ran > 1000) throw new StackOverflowException("Engine overflow");
             }
         }
