@@ -71,6 +71,7 @@ public class Others
         engine.Update();
         Assert.AreEqual(7, total);
 
+        cd.Dispose();
         engine.Dispose();
     }
 }

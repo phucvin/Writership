@@ -39,8 +39,10 @@ namespace Writership
                             targets.ToArray(),
                             () =>
                             {
+                                // Work around to ensure different instance of action is registerd
+                                l.GetHashCode();
                                 inner.Fire(Empty.Instance);
-                                engine.MarkDirty(this, allowMultiple: true);
+                                engine.MarkDirty(this);
                             }
                         );
                     }
