@@ -82,6 +82,10 @@ namespace Writership
             {
                 if (!allowMultiple) throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
             }
+            else if (dirty.Phase >= 2 && dirty.Phase <= 4)
+            {
+                dirty.Phase = 1;
+            }
             else throw new NotImplementedException(dirty.Phase.ToString());
         }
 
@@ -216,7 +220,8 @@ namespace Writership
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
-                if (dirty.Phase == 3) dirty.Phase = 4;
+                if (dirty.Phase == 1) dirty.Phase = 1;
+                else if (dirty.Phase == 3) dirty.Phase = 4;
                 else if (dirty.Phase == 12) dirty.Phase = 13;
                 else continue;
 

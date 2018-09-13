@@ -92,6 +92,7 @@ namespace Writership
                     }
                 }
                 if (engine.TotalCells > 2) writeCell.RemoveAll(it => it.Flag == engine.TotalCells);
+                else writeCell.RemoveAll(it => it.Flag > 0);
             }
             else
             {
@@ -103,7 +104,6 @@ namespace Writership
         public void ClearCell(int at)
         {
             cells[at].Clear();
-            if (engine.TotalCells <= 2) writeCell.Clear();
         }
 
         private void MarkSelfDirty()
