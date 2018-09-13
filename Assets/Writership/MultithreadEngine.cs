@@ -237,24 +237,32 @@ namespace Writership
             int ran = 0;
             while (stillDirty)
             {
+                UnityEngine.Profiling.Profiler.BeginSample("Notify");
                 Notify(at);
+                UnityEngine.Profiling.Profiler.EndSample();
+                UnityEngine.Profiling.Profiler.BeginSample("CopyCells");
                 stillDirty = CopyCells(WriteCellIndex, at) > 0 ||
                     pendingListeners[at].Count > 0;
+                UnityEngine.Profiling.Profiler.EndSample();
                 if (++ran > 1000) throw new StackOverflowException("Engine overflow");
             }
         }
 
         private void Compute(object _)
         {
+            UnityEngine.Profiling.Profiler.BeginThreadProfiling("Writership", "Compute");
             try
             {
+                UnityEngine.Profiling.Profiler.BeginSample("Process");
                 Process(1);
+                UnityEngine.Profiling.Profiler.EndSample();
                 isComputeDone = true;
             }
             catch (Exception e)
             {
                 computeException = e;
             }
+            UnityEngine.Profiling.Profiler.EndThreadProfiling();
         }
 
         private void CopyDirties(int from, int to)
