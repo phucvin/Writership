@@ -17,7 +17,17 @@ namespace Writership
 
         public Watcher Setup<T>(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extract)
         {
-            IDisposable last = null;
+            IDisposable lastComputer = null;
+            var lastTargets = new List<object>();
+            Action disposeLast = () =>
+            {
+                if (lastComputer != null)
+                {
+                    lastComputer.Dispose();
+                    lastComputer = null;
+                }
+            };
+            cd.Add(new DisposableAction(disposeLast));
             cd.Add(engine.RegisterComputer(
                 new object[] { li },
                 () =>
@@ -28,14 +38,27 @@ namespace Writership
                     {
                         targets.Add(extract(l[i]));
                     }
-                    if (last != null)
+
+                    if (targets.Count == lastTargets.Count)
                     {
-                        last.Dispose();
-                        last = null;
+                        bool isSame = true;
+                        for (int i = 0, n = targets.Count; i < n; ++i)
+                        {
+                            if (!ReferenceEquals(targets[i], lastTargets[i]))
+                            {
+                                isSame = false;
+                                break;
+                            }
+                        }
+                        if (isSame) return;
                     }
+                    lastTargets.Clear();
+                    lastTargets.AddRange(targets);
+
+                    disposeLast();
                     if (targets.Count > 0)
                     {
-                        last = engine.RegisterComputer(
+                        lastComputer = engine.RegisterComputer(
                             targets.ToArray(),
                             () =>
                             {
