@@ -22,12 +22,18 @@ namespace Writership
         private readonly Op<Empty> applied;
 
         private readonly IEngine engine;
+        private readonly bool allowMultiple;
         private readonly List<T>[] cells;
         private readonly List<WithFlag> writeCell;
 
-        public Op(IEngine engine, bool needApplied = true)
+#if DEBUG
+        private readonly Writership writership = new Writership();
+#endif
+
+        public Op(IEngine engine, bool allowMultiple = false, bool needApplied = false)
         {
             this.engine = engine;
+            this.allowMultiple = allowMultiple;
 
             cells = new List<T>[engine.TotalCells];
             for (int i = 0, n = cells.Length; i < n; ++i)
@@ -39,7 +45,7 @@ namespace Writership
 
             if (needApplied)
             {
-                applied = new Op<Empty>(engine, needApplied: false);
+                applied = new Op<Empty>(engine, allowMultiple: false, needApplied: false);
 
                 engine.RegisterComputer(new object[] { this }, () =>
                 {
@@ -71,6 +77,9 @@ namespace Writership
 
         public void Fire(T value)
         {
+#if DEBUG
+            if (!allowMultiple) writership.Mark();
+#endif
             MarkSelfDirty();
             writeCell.Add(new WithFlag { Flag = 0, Value = value });
         }
@@ -108,7 +117,7 @@ namespace Writership
 
         private void MarkSelfDirty()
         {
-            engine.MarkDirty(this, allowMultiple: true);
+            engine.MarkDirty(this, allowMultiple);
         }
     }
 }

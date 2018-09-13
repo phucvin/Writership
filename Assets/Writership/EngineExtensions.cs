@@ -14,9 +14,9 @@ namespace Writership
             return new Li<T>(engine, list);
         }
 
-        public static IOp<T> Op<T>(this IEngine engine)
+        public static IOp<T> Op<T>(this IEngine engine, bool allowMultiple = false, bool needApplied = false)
         {
-            return new Op<T>(engine);
+            return new Op<T>(engine, allowMultiple, needApplied);
         }
     }
 }

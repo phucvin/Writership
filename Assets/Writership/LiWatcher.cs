@@ -11,7 +11,7 @@ namespace Writership
 
         public LiWatcher(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extract)
         {
-            inner = engine.Op<Empty>();
+            inner = engine.Op<Empty>(allowMultiple: true);
             Applied = null;
 
             IDisposable last = null;
@@ -20,7 +20,7 @@ namespace Writership
                 () =>
                 {
                     inner.Fire(Empty.Instance);
-                    engine.MarkDirty(this);
+                    engine.MarkDirty(this, allowMultiple: true);
 
                     var l = li.Read();
                     var targets = new List<object>();
@@ -40,7 +40,7 @@ namespace Writership
                             () =>
                             {
                                 inner.Fire(Empty.Instance);
-                                engine.MarkDirty(this);
+                                engine.MarkDirty(this, allowMultiple: true);
                             }
                         );
                     }

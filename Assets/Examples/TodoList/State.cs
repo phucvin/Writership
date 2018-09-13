@@ -22,7 +22,7 @@ namespace Examples.TodoList
             NextId = engine.El(1);
             CreateNewItem = engine.Op<string>();
             Items = engine.Li(new List<ITodoItem>());
-            ToggleItemComplete = engine.Op<string>();
+            ToggleItemComplete = engine.Op<string>(needApplied: true);
             UncompletedCount = engine.El(0);
             DeleteCompletedItems = engine.Op<Empty>();
             DeleteItem = engine.Op<string>();
