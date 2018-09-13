@@ -20,13 +20,16 @@ public class Others
         var cd = new CompositeDisposable();
         var engine = new SinglethreadEngine();
         var li = engine.Li(new List<Item>());
-        var liOp = new LiWatcher<Item>(cd, engine, li, it => it.Value);
+        var liValueWatcher = engine.Watcher().Setup(
+            cd, engine,
+            li, item => item.Value
+        );
         var op1 = engine.Op<Empty>();
         var op2 = engine.Op<Empty>();
 
         int total = 0;
         cd.Add(engine.RegisterComputer(
-            new object[] { liOp },
+            new object[] { li, liValueWatcher },
             () =>
             {
                 var l = li.Read();

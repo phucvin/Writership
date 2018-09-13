@@ -18,5 +18,10 @@ namespace Writership
         {
             return new Op<T>(engine, allowWriters, needApplied);
         }
+
+        public static Watcher Watcher(this IEngine engine)
+        {
+            return new Watcher(engine);
+        }
     }
 }
