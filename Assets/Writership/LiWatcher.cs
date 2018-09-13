@@ -11,7 +11,7 @@ namespace Writership
 
         public LiWatcher(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extract)
         {
-            inner = engine.Op<Empty>(allowMultiple: true);
+            inner = engine.Op<Empty>(allowWriters: true);
             Applied = null;
 
             IDisposable last = null;
