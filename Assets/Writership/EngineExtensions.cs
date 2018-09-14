@@ -42,7 +42,7 @@ namespace Writership
             engine.Listen(engine.MainCellIndex, cd, targets, job);
         }
 
-        public static void Transformer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        public static void Firer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
             engine.Listen(engine.MainCellIndex, cd, targets, job);
         }
