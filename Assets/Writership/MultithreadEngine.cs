@@ -52,15 +52,15 @@ namespace Writership
         }
 
         public int TotalCells { get; private set; }
-        public int ReadCellIndex { get { return 0; } }
-        public int ComputeCellIndex { get { return WriteCellIndex - 1; } }
-        public int WriteCellIndex { get { return TotalCells - 1; } }
+        public int MainCellIndex { get { return 0; } }
+        public int ComputeCellIndex { get { return 1; } }
+        public int WriteCellIndex { get { return 2; } }
 
         public int CurrentCellIndex
         {
             get
             {
-                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return ReadCellIndex;
+                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return MainCellIndex;
                 else return ComputeCellIndex;
             }
         }
@@ -89,16 +89,26 @@ namespace Writership
             else throw new NotImplementedException(dirty.Phase.ToString());
         }
 
-        public IDisposable RegisterListener(object[] targets, Action job)
+        public void Listen(int atCellIndex, CompositeDisposable cd, object[] targets, Action job)
         {
-            RegisterListener(ReadCellIndex, targets, job);
-            return new Unregisterer(this, ReadCellIndex, targets, job);
-        }
+            // TODO Lock or use thread-safe collections
+            // to avoid multiple threads register at same time
+            var listeners = this.listeners[atCellIndex];
+            for (int i = 0, n = targets.Length; i < n; ++i)
+            {
+                var target = targets[i];
+                List<Action> jobs;
+                if (!listeners.TryGetValue(target, out jobs))
+                {
+                    jobs = new List<Action>();
+                    listeners.Add(target, jobs);
+                }
+                jobs.Add(job);
+            }
 
-        public IDisposable RegisterComputer(object[] targets, Action job)
-        {
-            RegisterListener(ComputeCellIndex, targets, job);
-            return new Unregisterer(this, ComputeCellIndex, targets, job);
+            pendingListeners[atCellIndex].Add(job); // TODO Also need thread-safe here
+
+            if (cd != null) cd.Add(new Unregisterer(this, atCellIndex, targets, job));
         }
 
         public void UnregisterListener(int at, object[] targets, Action job)
@@ -136,17 +146,17 @@ namespace Writership
                     throw computeException;
                 }
             }
-            CopyDirties(ComputeCellIndex, ReadCellIndex);
+            CopyDirties(ComputeCellIndex, MainCellIndex);
             dirties[ComputeCellIndex].Clear();
 
-            Process(ReadCellIndex);
+            Process(MainCellIndex);
 
-            CopyDirties(ReadCellIndex, ComputeCellIndex);
+            CopyDirties(MainCellIndex, ComputeCellIndex);
             // TODO Skip compute if not dirty
             isComputeDone = false;
             ThreadPool.QueueUserWorkItem(computeWorkItem);
 
-            dirties[ReadCellIndex].Clear();
+            dirties[MainCellIndex].Clear();
         }
 
         private int CopyCells(int from, int to)
@@ -293,26 +303,6 @@ namespace Writership
                     throw new NotImplementedException();
                 }
             }
-        }
-
-        private void RegisterListener(int at, object[] targets, Action job)
-        {
-            // TODO Lock or use thread-safe collections
-            // to avoid multiple threads register at same time
-            var listeners = this.listeners[at];
-            for (int i = 0, n = targets.Length; i < n; ++i)
-            {
-                var target = targets[i];
-                List<Action> jobs;
-                if (!listeners.TryGetValue(target, out jobs))
-                {
-                    jobs = new List<Action>();
-                    listeners.Add(target, jobs);
-                }
-                jobs.Add(job);
-            }
-
-            pendingListeners[at].Add(job); // TODO Also need thread-safe here
         }
     }
 }

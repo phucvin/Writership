@@ -26,7 +26,7 @@ namespace Examples.SimpleBattle
 
         public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity, IWorld world)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] {
                     world.Ops.Tick,
                     world.Ops.Hit,
@@ -37,7 +37,7 @@ namespace Examples.SimpleBattle
                     world.Ops.Tick.Read(), world.Ops.Hit.Read(),
                     world.StickHits.Items.Read(),
                     world.RandomSeed.Value.Read())
-            ));
+            );
         }
 
         public static void ComputeCurrent(IEl<int> target,

@@ -32,7 +32,7 @@ namespace Examples.TodoList
             ItemFactory = new TodoItem.Factory(cd, engine,
                 ToggleItemComplete, EditingItemId, FinishEditItem);
 
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] {
                     Items,
                     ToggleItemComplete.Applied,
@@ -41,9 +41,9 @@ namespace Examples.TodoList
                     UncompletedCount,
                     Items
                 )
-            ));
+            );
 
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[]
                 {
                     CreateNewItem,
@@ -58,9 +58,9 @@ namespace Examples.TodoList
                     DeleteItem,
                     ItemFactory
                 )
-            ));
+            );
 
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[]
                 {
                     EditItem,
@@ -71,7 +71,7 @@ namespace Examples.TodoList
                     EditItem,
                     FinishEditItem
                 )
-            ));
+            );
         }
     }
 
@@ -109,7 +109,7 @@ namespace Examples.TodoList
 
             cd = new CompositeDisposable();
 
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] {
                     toggleComplete
                 },
@@ -118,9 +118,9 @@ namespace Examples.TodoList
                     toggleComplete,
                     this.id
                 )
-            ));
+            );
 
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] {
                     editingItemId,
                     finishEdit
@@ -131,7 +131,7 @@ namespace Examples.TodoList
                     finishEdit,
                     this.id
                 )
-            ));
+            );
         }
 
         public string Id { get { return id; } }

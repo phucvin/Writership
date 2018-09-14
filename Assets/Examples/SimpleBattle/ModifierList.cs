@@ -24,12 +24,12 @@ namespace Examples.SimpleBattle
 
         public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity, IWorld world)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] { world.Ops.Tick, world.Ops.Hit },
                 () => ComputeList(Items, entity,
                     world.Ops.Tick.Read(), world.Ops.Hit.Read(),
                     world.ModifierItemFactory)
-            ));
+            );
         }
 
         public static void ComputeList(ILi<IModifierItem> target,

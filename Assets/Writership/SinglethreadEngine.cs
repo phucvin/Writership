@@ -39,15 +39,15 @@ namespace Writership
         }
 
         public int TotalCells { get; private set; }
-        public int ReadCellIndex { get { return 0; } }
-        public int ComputeCellIndex { get { return WriteCellIndex - 1; } }
-        public int WriteCellIndex { get { return TotalCells - 1; } }
+        public int MainCellIndex { get { return 0; } }
+        public int ComputeCellIndex { get { return 0; } }
+        public int WriteCellIndex { get { return 1; } }
 
         public int CurrentCellIndex
         {
             get
             {
-                return ReadCellIndex;
+                return MainCellIndex;
             }
         }
 
@@ -75,16 +75,24 @@ namespace Writership
             else throw new NotImplementedException(dirty.Phase.ToString());
         }
 
-        public IDisposable RegisterListener(object[] targets, Action job)
+        public void Listen(int atCellIndex, CompositeDisposable cd, object[] targets, Action job)
         {
-            RegisterListener(ReadCellIndex, targets, job);
-            return new Unregisterer(this, ReadCellIndex, targets, job);
-        }
+            var listeners = this.listeners[atCellIndex];
+            for (int i = 0, n = targets.Length; i < n; ++i)
+            {
+                var target = targets[i];
+                List<Action> jobs;
+                if (!listeners.TryGetValue(target, out jobs))
+                {
+                    jobs = new List<Action>();
+                    listeners.Add(target, jobs);
+                }
+                jobs.Add(job);
+            }
 
-        public IDisposable RegisterComputer(object[] targets, Action job)
-        {
-            RegisterListener(ComputeCellIndex, targets, job);
-            return new Unregisterer(this, ReadCellIndex, targets, job);
+            pendingListeners[atCellIndex].Add(job);
+
+            if (cd != null) cd.Add(new Unregisterer(this, atCellIndex, targets, job));
         }
 
         public void UnregisterListener(int at, object[] targets, Action job)
@@ -111,8 +119,8 @@ namespace Writership
 
         public void Update()
         {
-            Process(ReadCellIndex);
-            dirties[ReadCellIndex].Clear();
+            Process(MainCellIndex);
+            dirties[MainCellIndex].Clear();
         }
 
         private int CopyCells(int from, int to)
@@ -206,24 +214,6 @@ namespace Writership
                     pendingListeners[at].Count > 0;
                 if (++ran > 1000) throw new StackOverflowException("Engine overflow");
             }
-        }
-
-        private void RegisterListener(int at, object[] targets, Action job)
-        {
-            var listeners = this.listeners[at];
-            for (int i = 0, n = targets.Length; i < n; ++i)
-            {
-                var target = targets[i];
-                List<Action> jobs;
-                if (!listeners.TryGetValue(target, out jobs))
-                {
-                    jobs = new List<Action>();
-                    listeners.Add(target, jobs);
-                }
-                jobs.Add(job);
-            }
-
-            pendingListeners[at].Add(job);
         }
     }
 }

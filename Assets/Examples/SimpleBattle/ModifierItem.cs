@@ -28,10 +28,10 @@ namespace Examples.SimpleBattle
 
         public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] { world.Ops.Tick },
                 () => ComputeRemain(Remain, world.Ops.Tick.Read())
-            ));
+            );
         }
 
         public static void ComputeRemain(IEl<int> target,

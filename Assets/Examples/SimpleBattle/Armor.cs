@@ -21,11 +21,11 @@ namespace Examples.SimpleBattle
 
         public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] { entity.Modifiers.Items },
                 () => ComputeValue(Value, baseValue,
                     entity.Modifiers.Items.Read())
-            ));
+            );
         }
 
         public static void ComputeValue(IEl<int> target, int baseValue,

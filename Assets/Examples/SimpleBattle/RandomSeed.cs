@@ -23,7 +23,7 @@ namespace Examples.SimpleBattle
 
         public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] { world.Ops.Tick },
                 () =>
                 {
@@ -32,7 +32,7 @@ namespace Examples.SimpleBattle
                         Value.Write(rand.Next());
                     }
                 }
-            ));
+            );
         }
     }
 }

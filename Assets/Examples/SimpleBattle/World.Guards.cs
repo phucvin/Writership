@@ -9,10 +9,10 @@ namespace Examples.SimpleBattle
 #if DEBUG
         private void SetupGuards(CompositeDisposable cd, IEngine engine)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Guarder(cd,
                 new object[] { Ops.Hit },
                 () => CheckHit(Ops.Hit.Read())
-            ));
+            );
         }
 
         public static void CheckHit(IList<Ops.Hit> hit)

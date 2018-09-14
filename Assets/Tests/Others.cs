@@ -28,7 +28,7 @@ public class Others
         var op2 = engine.Op<Empty>();
 
         int total = 0;
-        cd.Add(engine.RegisterComputer(
+        engine.Computer(cd,
             new object[] { li, liValueWatcher },
             () =>
             {
@@ -39,9 +39,9 @@ public class Others
                     total += l[i].Value.Read();
                 }
             }
-        ));
+        );
 
-        cd.Add(engine.RegisterComputer(
+        engine.Computer(cd,
             new object[] { op1, op2 },
             () =>
             {
@@ -60,7 +60,7 @@ public class Others
                     }
                 }
             }
-        ));
+        );
 
         engine.Update();
         Assert.AreEqual(0, total);

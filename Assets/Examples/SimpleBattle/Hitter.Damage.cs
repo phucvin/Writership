@@ -50,11 +50,11 @@ namespace Examples.SimpleBattle
 
         public void Setup(CompositeDisposable cd, IEngine engine, IEntity entity)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] { entity.Modifiers.Items },
                 () => ComputeCriticalChance(CriticalChance, info.CriticalChance,
                     entity.Modifiers.Items.Read())
-            ));
+            );
 
             // Can do the same for Subtract, PureChance, ...
         }

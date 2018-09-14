@@ -19,12 +19,12 @@ namespace Examples.SimpleBattle
 
         public void Setup(CompositeDisposable cd, IEngine engine, IWorld world)
         {
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] { world.Ops.Hit, world.Ops.EndHit },
                 () => ComputeItems(Items,
                     world.Ops.Hit.Read(), world.Ops.EndHit.Read(),
                     world.StickHitItemFactory)
-            ));
+            );
         }
 
         public static void ComputeItems(ILi<IStickHitItem> target,

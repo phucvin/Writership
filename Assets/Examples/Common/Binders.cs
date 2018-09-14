@@ -15,10 +15,10 @@ namespace Examples.Common
         {
             if (!dst) return NotBinded();
 
-            cd.Add(engine.RegisterListener(
+            engine.Reader(cd,
                 new object[] { src },
                 () => dst.text = converter(src.Read())
-            ));
+            );
             return true;
         }
 
@@ -44,7 +44,7 @@ namespace Examples.Common
             var createdCd = new CompositeDisposable();
 
             cd.Add(createdCd);
-            cd.Add(engine.RegisterListener(
+            engine.Reader(cd,
                 new object[] { src },
                 () =>
                 {
@@ -66,7 +66,7 @@ namespace Examples.Common
                         createdGameObjects.Add(itemMap.gameObject);
                     }
                 }
-            ));
+            );
             return true;
         }
 

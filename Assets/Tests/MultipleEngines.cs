@@ -101,7 +101,7 @@ public class MultipleEngines
                 Tick = engine.Op<int>();
                 Add = engine.Op<Rigidbody>();
 
-                cd.Add(engine.RegisterComputer(
+                engine.Computer(cd,
                     new object[] { Tick, Add },
                     () =>
                     {
@@ -139,9 +139,9 @@ public class MultipleEngines
                             }
                         }
                     }
-                ));
+                );
 
-                cd.Add(engine.RegisterComputer(
+                engine.Computer(cd,
                     new object[] { Add },
                     () =>
                     {
@@ -161,7 +161,7 @@ public class MultipleEngines
                             vys.Add(r.Vy);
                         }
                     }
-                ));
+                );
             }
 
             public void Dispose()
@@ -267,7 +267,7 @@ public class MultipleEngines
                 Tick = engine.Op<int>();
                 Add = engine.Op<Sprite>();
 
-                cd.Add(engine.RegisterComputer(
+                engine.Computer(cd,
                     new object[] { Tick, Add },
                     () =>
                     {
@@ -304,9 +304,9 @@ public class MultipleEngines
                             }
                         }
                     }
-                ));
+                );
 
-                cd.Add(engine.RegisterComputer(
+                engine.Computer(cd,
                     new object[] { Add },
                     () =>
                     {
@@ -328,7 +328,7 @@ public class MultipleEngines
                             speeds.Add(s.Speed);
                         }
                     }
-                ));
+                );
             }
 
             public void Dispose()

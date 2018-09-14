@@ -47,7 +47,7 @@ namespace Writership
             {
                 applied = new Op<Empty>(engine, allowWriters: false, needApplied: false);
 
-                engine.RegisterComputer(new object[] { this }, () =>
+                engine.Computer(null, new object[] { this }, () =>
                 {
                     if (Read().Count > 0)
                     {

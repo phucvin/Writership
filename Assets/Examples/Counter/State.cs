@@ -14,7 +14,7 @@ namespace Examples.Counter
             Increase = engine.Op<Empty>();
             Decrease = engine.Op<Empty>();
 
-            cd.Add(engine.RegisterComputer(
+            engine.Computer(cd,
                 new object[] {
                     Increase,
                     Decrease
@@ -24,7 +24,7 @@ namespace Examples.Counter
                     Increase,
                     Decrease
                 )
-            ));
+            );
         }
     }
 }

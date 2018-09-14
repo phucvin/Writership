@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Writership
 {
@@ -22,6 +23,26 @@ namespace Writership
         public static Watcher Watcher(this IEngine engine)
         {
             return new Watcher(engine);
+        }
+
+        public static void Reader(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.MainCellIndex, cd, targets, job);
+        }
+
+        public static void Computer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.ComputeCellIndex, cd, targets, job);
+        }
+
+        public static void Writer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.MainCellIndex, cd, targets, job);
+        }
+
+        public static void Guarder(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.ComputeCellIndex, cd, targets, job);
         }
     }
 }
