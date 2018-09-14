@@ -40,7 +40,7 @@ namespace Writership
 
         public int TotalCells { get; private set; }
         public int MainCellIndex { get { return 0; } }
-        public int ComputeCellIndex { get { return 0; } }
+        public int WorkerCellIndex { get { return 0; } }
         public int WriteCellIndex { get { return 1; } }
 
         public int CurrentCellIndex

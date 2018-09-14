@@ -3,7 +3,11 @@ using System.Collections.Generic;
 
 namespace Writership
 {
-    public class LiWa : IOp<Empty>, IHaveCells
+    public interface ILiWa : IOp<Empty>
+    {
+    }
+
+    public class LiWa : ILiWa, IHaveCells
     {
         private readonly IOp<Empty> inner;
 
@@ -15,7 +19,7 @@ namespace Writership
             Applied = null;
         }
 
-        public LiWa Setup<T>(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extract)
+        internal void Setup<T>(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extractor)
         {
             var lastCd = new CompositeDisposable();
             var lastTargets = new List<object>();
@@ -28,7 +32,7 @@ namespace Writership
                     var targets = new List<object>();
                     for (int i = 0, n = l.Count; i < n; ++i)
                     {
-                        targets.Add(extract(l[i]));
+                        targets.Add(extractor(l[i]));
                     }
 
                     if (targets.Count == lastTargets.Count)
@@ -63,8 +67,6 @@ namespace Writership
                     }
                 }
             );
-
-            return this;
         }
 
         public void Fire(Empty value)

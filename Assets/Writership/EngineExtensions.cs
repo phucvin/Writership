@@ -20,19 +20,21 @@ namespace Writership
             return new Op<T>(engine, allowWriters, needApplied);
         }
 
-        public static LiWa LiWa(this IEngine engine)
+        public static ILiWa LiWa<T>(this IEngine engine, CompositeDisposable cd, ILi<T> li, Func<T, object> extractor)
         {
-            return new LiWa(engine);
+            var liwa = new LiWa(engine);
+            liwa.Setup(cd, engine, li, extractor);
+            return liwa;
+        }
+
+        public static void Computer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.WorkerCellIndex, cd, targets, job);
         }
 
         public static void Reader(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
             engine.Listen(engine.MainCellIndex, cd, targets, job);
-        }
-
-        public static void Computer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
-        {
-            engine.Listen(engine.ComputeCellIndex, cd, targets, job);
         }
 
         public static void Writer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
@@ -42,7 +44,7 @@ namespace Writership
 
         public static void Guarder(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
-            engine.Listen(engine.ComputeCellIndex, cd, targets, job);
+            engine.Listen(engine.MainCellIndex, cd, targets, job);
         }
     }
 }

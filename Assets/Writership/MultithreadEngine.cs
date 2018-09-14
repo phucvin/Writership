@@ -53,7 +53,7 @@ namespace Writership
 
         public int TotalCells { get; private set; }
         public int MainCellIndex { get { return 0; } }
-        public int ComputeCellIndex { get { return 1; } }
+        public int WorkerCellIndex { get { return 1; } }
         public int WriteCellIndex { get { return 2; } }
 
         public int CurrentCellIndex
@@ -61,7 +61,7 @@ namespace Writership
             get
             {
                 if (Thread.CurrentThread.ManagedThreadId == mainThreadId) return MainCellIndex;
-                else return ComputeCellIndex;
+                else return WorkerCellIndex;
             }
         }
 
@@ -146,12 +146,12 @@ namespace Writership
                     throw computeException;
                 }
             }
-            CopyDirties(ComputeCellIndex, MainCellIndex);
-            dirties[ComputeCellIndex].Clear();
+            CopyDirties(WorkerCellIndex, MainCellIndex);
+            dirties[WorkerCellIndex].Clear();
 
             Process(MainCellIndex);
 
-            CopyDirties(MainCellIndex, ComputeCellIndex);
+            CopyDirties(MainCellIndex, WorkerCellIndex);
             // TODO Skip compute if not dirty
             isComputeDone = false;
             ThreadPool.QueueUserWorkItem(computeWorkItem);
