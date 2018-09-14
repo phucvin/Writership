@@ -20,7 +20,7 @@ public class Others
         var cd = new CompositeDisposable();
         var engine = new SinglethreadEngine();
         var li = engine.Li(new List<Item>());
-        var liValueWatcher = engine.Watcher().Setup(
+        var liValueWatcher = engine.LiWa().Setup(
             cd, engine,
             li, item => item.Value
         );

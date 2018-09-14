@@ -20,9 +20,9 @@ namespace Writership
             return new Op<T>(engine, allowWriters, needApplied);
         }
 
-        public static Watcher Watcher(this IEngine engine)
+        public static LiWa LiWa(this IEngine engine)
         {
-            return new Watcher(engine);
+            return new LiWa(engine);
         }
 
         public static void Reader(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)

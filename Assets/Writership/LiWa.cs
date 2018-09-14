@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace Writership
 {
-    public class Watcher : IOp<Empty>, IHaveCells
+    public class LiWa : IOp<Empty>, IHaveCells
     {
         private readonly IOp<Empty> inner;
 
         public IOp<Empty> Applied { get; private set; }
 
-        public Watcher(IEngine engine)
+        public LiWa(IEngine engine)
         {
             inner = engine.Op<Empty>();
             Applied = null;
         }
 
-        public Watcher Setup<T>(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extract)
+        public LiWa Setup<T>(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extract)
         {
             var lastCd = new CompositeDisposable();
             var lastTargets = new List<object>();
