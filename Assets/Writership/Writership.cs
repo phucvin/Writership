@@ -1,29 +1,41 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Writership
 {
     internal class Writership
     {
-        private string fileName;
-        private int lineNumber;
+        private StackTrace last;
 
         public void Mark()
         {
-            var frame = new System.Diagnostics.StackFrame(2, true);
-            string nowFileName = frame.GetFileName();
-            int nowLineNumber = frame.GetFileLineNumber();
+            var now = new StackTrace(2, true);
 
-            if (fileName == null)
+            if (last == null)
             {
-                fileName = nowFileName;
-                lineNumber = nowLineNumber;
+                last = now;
             }
-            else if (fileName != nowFileName || lineNumber != nowLineNumber)
+            else if (!IsSame(last, now))
             {
-                UnityEngine.Debug.Log("Now write: " + nowFileName + ":" + nowLineNumber);
-                UnityEngine.Debug.Log("Org write: " + fileName + ":" + lineNumber);
+                UnityEngine.Debug.LogWarning("Last write: \n" + last.ToString());
+                UnityEngine.Debug.LogWarning("Now write: \n" + now.ToString());
                 throw new InvalidOperationException("Cannot write to same at different places");
             }
+        }
+
+        private static bool IsSame(StackTrace a, StackTrace b)
+        {
+            if (a.FrameCount != b.FrameCount) return false;
+            for (int i = 0, n = a.FrameCount; i < n; ++i)
+            {
+                var af = a.GetFrame(i);
+                var bf = b.GetFrame(i);
+                if (af.GetMethod() != bf.GetMethod())
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

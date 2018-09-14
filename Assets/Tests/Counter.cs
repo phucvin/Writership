@@ -30,6 +30,8 @@ public class Counter
         var state = new State(cd, engine);
 
         state.Increase.Fire(Empty.Instance);
+        state.Increase.Fire(Empty.Instance);
+        state.Decrease.Fire(Empty.Instance);
         engine.Update();
 
         engine.Update();
