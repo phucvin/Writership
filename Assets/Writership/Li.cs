@@ -8,7 +8,7 @@ namespace Writership
         List<T> AsWrite();
     }
 
-    internal class Li<T> : ILi<T>, IHaveCells
+    public class Li<T> : ILi<T>, IHaveCells
     {
         private readonly IEngine engine;
         private readonly List<T>[] cells;

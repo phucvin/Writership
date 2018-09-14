@@ -10,7 +10,7 @@ namespace Writership
         IOp<Empty> Applied { get; }
     }
 
-    internal class Op<T> : IOp<T>, IHaveCells
+    public class Op<T> : IOp<T>, IHaveCells
     {
         private class WithFlag
         {
@@ -23,7 +23,10 @@ namespace Writership
 
         private readonly IEngine engine;
         private readonly bool allowWriters;
+        private Func<T, T, T> reducer;
         private readonly List<T>[] cells;
+        private readonly IList<T>[] readonlyCells;
+        private readonly T[] reducedCells;
         private readonly List<WithFlag> writeCell;
 
 #if DEBUG
@@ -32,22 +35,27 @@ namespace Writership
 
         private int lastCellIndex;
 
-        public Op(IEngine engine, bool allowWriters = false, bool needApplied = false)
+        public Op(IEngine engine, bool allowWriters = false, bool needApplied = false, Func<T, T, T> reducer = null)
         {
             this.engine = engine;
             this.allowWriters = allowWriters;
+            this.reducer = reducer;
 
-            cells = new List<T>[engine.TotalCells];
+            cells = new List<T>[engine.TotalCells - 1];
+            readonlyCells = new IList<T>[engine.TotalCells - 1];
+            reducedCells = reducer != null ? new T[engine.TotalCells - 1] : null;
             for (int i = 0, n = cells.Length; i < n; ++i)
             {
                 var l = new List<T>();
                 cells[i] = l;
+                readonlyCells[i] = l.AsReadOnly();
+                if (reducedCells != null) reducedCells[i] = default(T);
             }
             writeCell = new List<WithFlag>();
 
             if (needApplied)
             {
-                applied = new Op<Empty>(engine, allowWriters: false, needApplied: false);
+                applied = new Op<Empty>(engine);
 
                 engine.Computer(null, new object[] { this }, () =>
                 {
@@ -74,9 +82,17 @@ namespace Writership
             }
         }
 
+        public int Count { get { return Read().Count; } }
+        public T Reduced { get { return reducedCells[engine.CurrentCellIndex]; } }
+
+        public T this[int i]
+        {
+            get { return Read()[i]; }
+        }
+
         public IList<T> Read()
         {
-            return cells[engine.CurrentCellIndex].AsReadOnly();
+            return readonlyCells[engine.CurrentCellIndex];
         }
 
         public void Fire(T value)
@@ -99,6 +115,7 @@ namespace Writership
             {
                 var toCell = cells[to];
                 toCell.Clear();
+                if (reducedCells != null) reducedCells[to] = default(T);
 
                 for (int i = 0, n = writeCell.Count; i < n; ++i)
                 {
@@ -107,8 +124,10 @@ namespace Writership
                     {
                         withFlag.Flag += (to + 1);
                         toCell.Add(withFlag.Value);
+                        if (reducedCells != null) reducedCells[to] = reducer(reducedCells[to], withFlag.Value);
                     }
                 }
+
                 if (engine.TotalCells > 2) writeCell.RemoveAll(it => it.Flag == engine.TotalCells);
                 else writeCell.RemoveAll(it => it.Flag > 0);
             }
@@ -116,17 +135,24 @@ namespace Writership
             {
                 cells[to].Clear();
                 cells[to].AddRange(cells[from]);
+                if (reducedCells != null) reducedCells[to] = reducedCells[from];
             }
         }
 
         public void ClearCell(int at)
         {
             cells[at].Clear();
+            if (reducedCells != null) reducedCells[at] = default(T);
         }
 
         private void MarkSelfDirty()
         {
             engine.MarkDirty(this, allowMultiple: true);
+        }
+
+        public static implicit operator bool(Op<T> op)
+        {
+            return op.Read().Count > 0;
         }
     }
 }

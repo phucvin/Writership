@@ -7,7 +7,7 @@ namespace Writership
     {
     }
 
-    internal class LiWa : ILiWa, IHaveCells
+    public class LiWa : ILiWa, IHaveCells
     {
         private readonly IOp<Empty> inner;
 

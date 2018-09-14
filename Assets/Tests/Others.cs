@@ -71,4 +71,32 @@ public class Others
         cd.Dispose();
         engine.Dispose();
     }
+
+    [Test]
+    public void Reduced()
+    {
+        var cd = new CompositeDisposable();
+        var engine = new SinglethreadEngine();
+        var tick = engine.Op<float>(reducer: (a, b) => a + b);
+
+        float computerReduced = 0;
+        float readerReduced = 0;
+        engine.Computer(cd,
+            new object[] { tick },
+            () => computerReduced = tick.Reduced
+        );
+        engine.Reader(cd,
+            new object[] { tick },
+            () => readerReduced = tick.Reduced
+        );
+
+        tick.Fire(1f);
+        tick.Fire(0.8f);
+        engine.Update();
+        Assert.AreEqual(1.8f, readerReduced, 0.0001f);
+        Assert.AreEqual(1.8f, computerReduced, 0.0001f);
+        tick.Fire(0.3f);
+        engine.Update();
+        Assert.AreEqual(0.3f, readerReduced, 0.0001f);
+    }
 }

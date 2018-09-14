@@ -6,7 +6,7 @@
         void Write(T value);
     }
 
-    internal class El<T> : IEl<T>, IHaveCells
+    public class El<T> : IEl<T>, IHaveCells
     {
         private readonly IEngine engine;
         private readonly T[] cells;
@@ -36,6 +36,7 @@
 #if DEBUG
             writership.Mark();
 #endif
+            if (Equals(value, Read())) return;
             MarkSelfDirty();
             cells[engine.WriteCellIndex] = value;
         }
@@ -50,6 +51,11 @@
         private void MarkSelfDirty()
         {
             engine.MarkDirty(this);
+        }
+
+        public static implicit operator T(El<T> el)
+        {
+            return el.Read();
         }
     }
 }
