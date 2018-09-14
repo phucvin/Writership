@@ -78,11 +78,12 @@ public class Others
         var cd = new CompositeDisposable();
         var engine = new SinglethreadEngine();
         var tick = engine.Op<float>(reducer: (a, b) => a + b);
+        var dummy = engine.El(10);
 
         float computerReduced = 0;
         float readerReduced = 0;
         engine.Computer(cd,
-            new object[] { tick },
+            new object[] { tick, dummy },
             () => computerReduced = tick.Reduced
         );
         engine.Reader(cd,
@@ -95,8 +96,13 @@ public class Others
         engine.Update();
         Assert.AreEqual(1.8f, readerReduced, 0.0001f);
         Assert.AreEqual(1.8f, computerReduced, 0.0001f);
+
         tick.Fire(0.3f);
         engine.Update();
         Assert.AreEqual(0.3f, readerReduced, 0.0001f);
+
+        dummy.Write(12);
+        engine.Update();
+        Assert.AreEqual(0f, computerReduced);
     }
 }
