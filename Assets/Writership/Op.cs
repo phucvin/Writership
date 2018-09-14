@@ -30,7 +30,7 @@ namespace Writership
         private readonly Writership writership = new Writership();
 #endif
 
-        private int lastCellIndex = -1;
+        private int lastCellIndex;
 
         public Op(IEngine engine, bool allowWriters = false, bool needApplied = false)
         {
@@ -61,6 +61,8 @@ namespace Writership
             {
                 applied = null;
             }
+
+            lastCellIndex = allowWriters ? engine.MainCellIndex : -1;
         }
 
         public IOp<Empty> Applied
