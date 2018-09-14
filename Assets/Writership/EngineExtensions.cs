@@ -42,6 +42,11 @@ namespace Writership
             engine.Listen(engine.MainCellIndex, cd, targets, job);
         }
 
+        public static void Transformer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.MainCellIndex, cd, targets, job);
+        }
+
         public static void Guarder(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
             engine.Listen(engine.MainCellIndex, cd, targets, job);

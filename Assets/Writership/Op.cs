@@ -30,6 +30,8 @@ namespace Writership
         private readonly Writership writership = new Writership();
 #endif
 
+        private int lastCellIndex = -1;
+
         public Op(IEngine engine, bool allowWriters = false, bool needApplied = false)
         {
             this.engine = engine;
@@ -80,6 +82,11 @@ namespace Writership
 #if DEBUG
             if (!allowWriters) writership.Mark();
 #endif
+            if (lastCellIndex >= 0 && engine.CurrentCellIndex != lastCellIndex)
+            {
+                throw new InvalidOperationException("Op.Fire must be in same thread");
+            }
+            lastCellIndex = engine.CurrentCellIndex;
             MarkSelfDirty();
             writeCell.Add(new WithFlag { Flag = 0, Value = value });
         }
