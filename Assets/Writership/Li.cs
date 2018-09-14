@@ -44,6 +44,11 @@ namespace Writership
             return cells[engine.WriteCellIndex];
         }
 
+        public WriteProxy AsWriteProxy()
+        {
+            return new WriteProxy(this);
+        }
+
         public void CopyCell(int from, int to)
         {
             cells[to].Clear();
@@ -55,6 +60,43 @@ namespace Writership
         private void MarkSelfDirty()
         {
             engine.MarkDirty(this);
+        }
+
+        public class WriteProxy : List<T>
+        {
+            private readonly Li<T> li;
+
+            public WriteProxy(Li<T> li)
+                : base(li.Read())
+            {
+                this.li = li;
+            }
+
+            public bool Commit()
+            {
+                bool isDirty = false;
+                var org = li.Read();
+                if (Count != org.Count) isDirty = true;
+                else
+                {
+                    for (int i = 0, n = Count; i < n; ++i)
+                    {
+                        if (!Equals(this[i], org[i]))
+                        {
+                            isDirty = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isDirty)
+                {
+                    var write = li.AsWrite();
+                    write.Clear();
+                    write.AddRange(this);
+                }
+                return isDirty;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using Writership;
 
@@ -104,5 +105,63 @@ public class Others
         dummy.Write(12);
         engine.Update();
         Assert.AreEqual(0f, computerReduced);
+    }
+
+    [Test]
+    public void Writership()
+    {
+        var engine = new SinglethreadEngine();
+        var dummy = engine.El(0);
+        
+        Action a1 = () => dummy.Write(3);
+        Action a2 = () => dummy.Write(4);
+
+        Assert.Throws<InvalidOperationException>(() =>
+        {
+            a1();
+            engine.Update();
+            a2();
+        });
+    }
+
+    [Test]
+    public void LiWriteProxy()
+    {
+        var cd = new CompositeDisposable();
+        var engine = new SinglethreadEngine();
+        var li = engine.Li(new List<int> { 1, 2, 3, 4 });
+
+        int calledCount = 0;
+        engine.Computer(cd, new object[] { li }, () =>
+        {
+            ++calledCount;
+        });
+
+        engine.Update();
+        Assert.AreEqual(1, calledCount);
+
+        {
+            var proxy = li.AsWriteProxy();
+            proxy.Commit();
+        }
+        engine.Update();
+        Assert.AreEqual(1, calledCount);
+
+        {
+            var proxy = li.AsWriteProxy();
+            proxy.RemoveAll(_ => false);
+            proxy.Commit();
+        }
+        engine.Update();
+        Assert.AreEqual(1, calledCount);
+
+        {
+            var proxy = li.AsWriteProxy();
+            proxy.RemoveAt(0);
+            proxy.Commit();
+        }
+        engine.Update();
+        Assert.AreEqual(2, calledCount);
+        Assert.AreEqual(new List<int> { 2, 3, 4 }, li.Read());
     }
 }
