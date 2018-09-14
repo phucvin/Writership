@@ -3,20 +3,18 @@ using System.Collections.Generic;
 
 namespace Writership
 {
-    public interface ILiWa : IOp<Empty>
+    public interface IWa
     {
+        int Read();
     }
 
-    public class LiWa : ILiWa, IHaveCells
+    public class Wa : IWa, IHaveCells
     {
-        private readonly IOp<Empty> inner;
+        private readonly Op<Empty> inner;
 
-        public IOp<Empty> Applied { get; private set; }
-
-        public LiWa(IEngine engine)
+        public Wa(IEngine engine)
         {
             inner = engine.Op<Empty>();
-            Applied = null;
         }
 
         internal void Setup<T>(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extractor)
@@ -69,14 +67,9 @@ namespace Writership
             );
         }
 
-        public void Fire(Empty value)
+        public int Read()
         {
-            throw new NotSupportedException();
-        }
-
-        public IList<Empty> Read()
-        {
-            return inner.Read();
+            return inner.Read().Count;
         }
 
         public void CopyCell(int from, int to)
@@ -87,6 +80,11 @@ namespace Writership
         public void ClearCell(int at)
         {
             // Ingore
+        }
+
+        public static implicit operator bool(Wa wa)
+        {
+            return wa.Read() > 0;
         }
     }
 }

@@ -20,9 +20,9 @@ namespace Writership
             return new Op<T>(engine, allowWriters, needApplied, reducer);
         }
 
-        public static LiWa LiWa<T>(this IEngine engine, CompositeDisposable cd, ILi<T> li, Func<T, object> extractor)
+        public static Wa Wa<T>(this IEngine engine, CompositeDisposable cd, ILi<T> li, Func<T, object> extractor)
         {
-            var liwa = new LiWa(engine);
+            var liwa = new Wa(engine);
             liwa.Setup(cd, engine, li, extractor);
             return liwa;
         }
