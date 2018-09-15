@@ -53,6 +53,11 @@
             engine.MarkDirty(this);
         }
 
+        public override string ToString()
+        {
+            return Read().ToString();
+        }
+
         public static implicit operator T(El<T> el)
         {
             return el.Read();
