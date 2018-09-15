@@ -12,6 +12,7 @@ namespace Writership
     {
         private readonly IEngine engine;
         private readonly List<T>[] cells;
+        private readonly IList<T>[] readonlyCells;
 
 #if DEBUG
         private readonly Writership writership = new Writership();
@@ -22,17 +23,26 @@ namespace Writership
             this.engine = engine;
 
             cells = new List<T>[engine.TotalCells];
+            readonlyCells = new IList<T>[engine.TotalCells - 1];
             for (int i = 0, n = cells.Length; i < n; ++i)
             {
                 var l = new List<T>();
                 l.AddRange(list);
                 cells[i] = l;
+                if (i < n - 1) readonlyCells[i] = l.AsReadOnly();
             }
+        }
+
+        public int Count { get { return Read().Count; } }
+
+        public T this[int i]
+        {
+            get { return Read()[i]; }
         }
 
         public IList<T> Read()
         {
-            return cells[engine.CurrentCellIndex].AsReadOnly();
+            return readonlyCells[engine.CurrentCellIndex];
         }
 
         public List<T> AsWrite()
