@@ -164,4 +164,42 @@ public class Others
         Assert.AreEqual(2, calledCount);
         Assert.AreEqual(new List<int> { 2, 3, 4 }, li.Read());
     }
+
+    [Test]
+    public void IsChanged()
+    {
+        var cd = new CompositeDisposable();
+        var engine = new SinglethreadEngine();
+        var i1 = engine.El(1);
+        var i2 = engine.El(2);
+
+        bool i1Changed = false;
+        bool i2Changed = false;
+        engine.Computer(cd, new object[] { i1, i2 }, () =>
+        {
+#pragma warning disable CS0612 // Type or member is obsolete
+            i1Changed = i1.IsChanged;
+            i2Changed = i2.IsChanged;
+#pragma warning restore CS0612 // Type or member is obsolete
+        });
+
+        Assert.AreEqual(false, i1Changed);
+        Assert.AreEqual(false, i2Changed);
+
+        i1.Write(11);
+        engine.Update();
+        Assert.AreEqual(true, i1Changed);
+        Assert.AreEqual(false, i2Changed);
+
+        i2.Write(22);
+        engine.Update();
+        Assert.AreEqual(false, i1Changed);
+        Assert.AreEqual(true, i2Changed);
+
+        i1.Write(111);
+        i2.Write(222);
+        engine.Update();
+        Assert.AreEqual(true, i1Changed);
+        Assert.AreEqual(true, i2Changed);
+    }
 }
