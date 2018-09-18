@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace Writership
@@ -67,26 +68,31 @@ namespace Writership
 
         public void MarkDirty(IHaveCells target, bool allowMultiple = false)
         {
+            // TODO Lock or use thread-safe collections
+            // Because notify can be parallel
             var dirties = this.dirties[CurrentCellIndex];
-            var dirty = dirties.Find(it => ReferenceEquals(it.Inner, target));
-            if (dirty == null)
+            lock (dirties) // TODO Better use a thread-safe collection to reduce blocking
             {
-                dirty = new Dirty
+                var dirty = dirties.Find(it => ReferenceEquals(it.Inner, target));
+                if (dirty == null)
                 {
-                    Phase = 1,
-                    Inner = target,
-                };
-                dirties.Add(dirty);
+                    dirty = new Dirty
+                    {
+                        Phase = 1,
+                        Inner = target,
+                    };
+                    dirties.Add(dirty);
+                }
+                else if (dirty.Phase == 1)
+                {
+                    if (!allowMultiple) throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
+                }
+                else if (dirty.Phase >= 2 && dirty.Phase <= 4)
+                {
+                    dirty.Phase = 1;
+                }
+                else throw new NotImplementedException(dirty.Phase.ToString());
             }
-            else if (dirty.Phase == 1)
-            {
-                if (!allowMultiple) throw new InvalidOperationException("Cannot mark dirty for same target twice in same run");
-            }
-            else if (dirty.Phase >= 2 && dirty.Phase <= 4)
-            {
-                dirty.Phase = 1;
-            }
-            else throw new NotImplementedException(dirty.Phase.ToString());
         }
 
         public void Listen(int atCellIndex, CompositeDisposable cd, object[] targets, Action job)
@@ -202,7 +208,7 @@ namespace Writership
                 var job = pendingListeners[i];
                 if (calledJobs.Contains(job)) continue;
                 calledJobs.Add(job);
-                job();
+                //job();
             }
             pendingListeners.Clear();
 
@@ -222,8 +228,17 @@ namespace Writership
                         var job = jobs[j];
                         if (calledJobs.Contains(job)) continue;
                         calledJobs.Add(job);
-                        job();
+                        //job();
                     }
+                }
+            }
+
+            if (at == WorkerCellIndex) Parallel(calledJobs, it => it());
+            else
+            {
+                for (int i = 0, n = calledJobs.Count; i < n; ++i)
+                {
+                    calledJobs[i]();
                 }
             }
 
@@ -301,6 +316,65 @@ namespace Writership
                 else
                 {
                     throw new NotImplementedException();
+                }
+            }
+        }
+
+        public static void Parallel<T>(IEnumerable<T> list, Action<T> action)
+        {
+            var count = list.Count();
+
+            if (count == 0)
+            {
+                return;
+            }
+            else
+            {
+                // Launch each method in it's own thread
+                const int MaxHandles = 64;
+                for (var offset = 0; offset <= count / MaxHandles; offset++)
+                {
+                    // break up the list into 64-item chunks because of a limitiation in WaitHandle
+                    var chunk = list.Skip(offset * MaxHandles).Take(MaxHandles);
+
+                    // Initialize the reset events to keep track of completed threads
+                    var resetEvents = new ManualResetEvent[chunk.Count()];
+
+                    // spawn a thread for each item in the chunk
+                    int i = 0;
+                    Exception ex = null;
+                    foreach (var item in chunk)
+                    {
+                        resetEvents[i] = new ManualResetEvent(false);
+                        ThreadPool.QueueUserWorkItem(new WaitCallback((object data) =>
+                        {
+                            UnityEngine.Profiling.Profiler.BeginThreadProfiling("Writership", "Compute");
+                            UnityEngine.Profiling.Profiler.BeginSample("Notify");
+                            int methodIndex = (int)((object[])data)[0];
+
+                            // Execute the method and pass in the enumerated item
+                            try
+                            {
+                                action((T)((object[])data)[1]);
+                            }
+                            catch (Exception e)
+                            {
+                                ex = e;
+                            }
+                            finally
+                            {
+                                // Tell the calling thread that we're done
+                                resetEvents[methodIndex].Set();
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                UnityEngine.Profiling.Profiler.EndThreadProfiling();
+                            }
+                        }), new object[] { i, item });
+                        i++;
+                    }
+
+                    // Wait for all threads to execute
+                    WaitHandle.WaitAll(resetEvents);
+                    if (ex != null) throw ex;
                 }
             }
         }
