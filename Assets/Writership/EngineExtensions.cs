@@ -15,6 +15,12 @@ namespace Writership
             return new Li<T>(engine, list);
         }
 
+        public static Ar<T> Ar<T>(this IEngine engine, T[] array)
+            where T : struct
+        {
+            return new Ar<T>(engine, array);
+        }
+
         public static Op<T> Op<T>(this IEngine engine, bool allowWriters = false, bool needApplied = false, Func<T, T, T> reducer = null)
         {
             return new Op<T>(engine, allowWriters, needApplied, reducer);
