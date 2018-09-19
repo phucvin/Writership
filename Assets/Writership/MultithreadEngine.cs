@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Writership
@@ -13,6 +12,8 @@ namespace Writership
             public IHaveCells Inner;
         }
 
+        private readonly int workerMaxThreads;
+
         private readonly List<Dirty>[] dirties;
         private readonly Dictionary<object, List<Action>>[] listeners;
         private readonly Dictionary<object, List<Action>>[] pendingRemoveListeners;
@@ -23,8 +24,10 @@ namespace Writership
         private Exception computeException;
         private WaitCallback computeWorkItem;
 
-        public MultithreadEngine()
+        public MultithreadEngine(int workerMaxThreads = 2)
         {
+            this.workerMaxThreads = workerMaxThreads;
+
             TotalCells = 3;
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
@@ -146,7 +149,6 @@ namespace Writership
         {
             while (!isComputeDone)
             {
-                Thread.Sleep(1);
                 if (computeException != null)
                 {
                     throw computeException;
@@ -208,7 +210,6 @@ namespace Writership
                 var job = pendingListeners[i];
                 if (toCallJobs.Contains(job)) continue;
                 toCallJobs.Add(job);
-                //job();
             }
             pendingListeners.Clear();
 
@@ -227,12 +228,11 @@ namespace Writership
                         var job = jobs[j];
                         if (toCallJobs.Contains(job)) continue;
                         toCallJobs.Add(job);
-                        //job();
                     }
                 }
             }
 
-            if (at == WorkerCellIndex) Parallel(toCallJobs, it => it());
+            if (at == WorkerCellIndex) Parallel(workerMaxThreads, toCallJobs, it => it());
             else
             {
                 for (int i = 0, n = toCallJobs.Count; i < n; ++i)
@@ -318,65 +318,46 @@ namespace Writership
                 }
             }
         }
-
-        // TODO Rewrite
-        public static void Parallel<T>(IEnumerable<T> list, Action<T> action)
+        
+        private static void Parallel<T>(int maxThreads, IList<T> list, Action<T> action)
         {
-            var count = list.Count();
+            int count = list.Count;
+            if (count <= 0) return;
+            else if (count < maxThreads) maxThreads = count;
 
-            if (count == 0)
+            int i = -1;
+            var resetEvents = new ManualResetEvent[maxThreads];
+            Exception ex = null;
+
+            for (int t = 0; t < maxThreads; ++t)
             {
-                return;
-            }
-            else
-            {
-                // Launch each method in it's own thread
-                const int MaxHandles = 64;
-                for (var offset = 0; offset <= count / MaxHandles; offset++)
+                var resetEvent = new ManualResetEvent(false);
+                resetEvents[t] = resetEvent;
+                ThreadPool.QueueUserWorkItem(_ =>
                 {
-                    // break up the list into 64-item chunks because of a limitiation in WaitHandle
-                    var chunk = list.Skip(offset * MaxHandles).Take(MaxHandles);
-
-                    // Initialize the reset events to keep track of completed threads
-                    var resetEvents = new ManualResetEvent[chunk.Count()];
-
-                    // spawn a thread for each item in the chunk
-                    int i = 0;
-                    Exception ex = null;
-                    foreach (var item in chunk)
+                    UnityEngine.Profiling.Profiler.BeginThreadProfiling("Writership", "Parallel");
+                    UnityEngine.Profiling.Profiler.BeginSample("Notify");
+                    int j = Interlocked.Increment(ref i);
+                    while (j < count)
                     {
-                        resetEvents[i] = new ManualResetEvent(false);
-                        ThreadPool.QueueUserWorkItem(new WaitCallback((object data) =>
+                        try
                         {
-                            UnityEngine.Profiling.Profiler.BeginThreadProfiling("Writership", "Compute");
-                            UnityEngine.Profiling.Profiler.BeginSample("Notify");
-                            int methodIndex = (int)((object[])data)[0];
-
-                            // Execute the method and pass in the enumerated item
-                            try
-                            {
-                                action((T)((object[])data)[1]);
-                            }
-                            catch (Exception e)
-                            {
-                                ex = e;
-                            }
-                            finally
-                            {
-                                // Tell the calling thread that we're done
-                                resetEvents[methodIndex].Set();
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                UnityEngine.Profiling.Profiler.EndThreadProfiling();
-                            }
-                        }), new object[] { i, item });
-                        i++;
+                            action(list[j]);
+                        }
+                        catch (Exception e)
+                        {
+                            ex = e;
+                        }
+                        j = Interlocked.Increment(ref i);
                     }
-
-                    // Wait for all threads to execute
-                    WaitHandle.WaitAll(resetEvents);
-                    if (ex != null) throw ex;
-                }
+                    resetEvent.Set();
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    UnityEngine.Profiling.Profiler.EndThreadProfiling();
+                });
             }
+
+            WaitHandle.WaitAll(resetEvents);
+            if (ex != null) throw ex;
         }
     }
 }
