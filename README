@@ -1,0 +1,17 @@
+Writership
+===
+*HEAVILY UNDER DEVELOPMENT*
+
+A state management library, mostly. For UI, game, stateful applications (and servers, hopefully).
+
+Attempt to have:
+- A field should only have one mutation/write/change place in code (Writership)
+- Easy multithreading without data race thanks to Writership
+- Reactive while still imperative (for performance)
+- Uni-directional flow
+- ...
+
+References:
+- https://github.com/rust-lang/rust
+- https://github.com/reduxjs/redux
+- https://github.com/Microsoft/satcheljs
