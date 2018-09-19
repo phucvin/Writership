@@ -336,7 +336,7 @@ namespace Writership
                 ThreadPool.QueueUserWorkItem(_ =>
                 {
                     UnityEngine.Profiling.Profiler.BeginThreadProfiling("Writership", "Parallel");
-                    UnityEngine.Profiling.Profiler.BeginSample("Notify");
+                    UnityEngine.Profiling.Profiler.BeginSample("Loop");
                     int j = Interlocked.Increment(ref i);
                     while (j < count)
                     {
