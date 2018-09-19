@@ -187,7 +187,7 @@ namespace Writership
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
             var pendingListeners = this.pendingListeners[at];
-            var calledJobs = new List<Action>();
+            var toCallJobs = new List<Action>();
 
             // TODO Refactor & move to a method
             var toRemoveKeys = new List<object>();
@@ -206,13 +206,12 @@ namespace Writership
             for (int i = 0, n = pendingListeners.Count; i < n; ++i)
             {
                 var job = pendingListeners[i];
-                if (calledJobs.Contains(job)) continue;
-                calledJobs.Add(job);
+                if (toCallJobs.Contains(job)) continue;
+                toCallJobs.Add(job);
                 //job();
             }
             pendingListeners.Clear();
 
-            // TODO Parallel notify, but have to use thread-safe collections for calledJobs
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
@@ -226,19 +225,19 @@ namespace Writership
                     for (int j = 0, m = jobs.Count; j < m; ++j)
                     {
                         var job = jobs[j];
-                        if (calledJobs.Contains(job)) continue;
-                        calledJobs.Add(job);
+                        if (toCallJobs.Contains(job)) continue;
+                        toCallJobs.Add(job);
                         //job();
                     }
                 }
             }
 
-            if (at == WorkerCellIndex) Parallel(calledJobs, it => it());
+            if (at == WorkerCellIndex) Parallel(toCallJobs, it => it());
             else
             {
-                for (int i = 0, n = calledJobs.Count; i < n; ++i)
+                for (int i = 0, n = toCallJobs.Count; i < n; ++i)
                 {
-                    calledJobs[i]();
+                    toCallJobs[i]();
                 }
             }
 
@@ -253,7 +252,7 @@ namespace Writership
                 dirty.Inner.ClearCell(CurrentCellIndex);
             }
 
-            return calledJobs.Count;
+            return toCallJobs.Count;
         }
 
         private void Process(int at)
@@ -320,6 +319,7 @@ namespace Writership
             }
         }
 
+        // TODO Rewrite
         public static void Parallel<T>(IEnumerable<T> list, Action<T> action)
         {
             var count = list.Count();

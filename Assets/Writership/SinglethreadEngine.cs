@@ -144,6 +144,9 @@ namespace Writership
             var dirties = this.dirties[at];
             var listeners = this.listeners[at];
             var pendingListeners = this.pendingListeners[at];
+            // TODO Parallel call if at compute,
+            // need to separate from main, not in data (cells),
+            // but in dirties and listeners
             var calledJobs = new List<Action>();
 
             // TODO Refactor & move to a method
