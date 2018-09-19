@@ -171,7 +171,7 @@ namespace Writership
         {
             var dirties = this.dirties[to];
             int copied = 0;
-            // TODO Parallel
+            // TODO Parallel if profiler tell it's slow
             for (int i = 0, n = dirties.Count; i < n; ++i)
             {
                 var dirty = dirties[i];
@@ -293,13 +293,13 @@ namespace Writership
         {
             var fromDirties = dirties[from];
             var toDirties = dirties[to];
-            // TODO Parallel
             for (int i = 0, n = fromDirties.Count; i < n; ++i)
             {
                 var dirty = fromDirties[i];
                 if (dirty.Phase < 2) throw new NotImplementedException();
                 else if (dirty.Phase > 10) continue;
 
+                // TODO Parallel if profiler tell it's slow
                 dirty.Inner.CopyCell(WriteCellIndex, to);
 
                 var existing = toDirties.Find(it => ReferenceEquals(it.Inner, dirty.Inner));
