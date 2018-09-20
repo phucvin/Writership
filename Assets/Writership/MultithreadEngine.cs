@@ -29,6 +29,7 @@ namespace Writership
             this.workerMaxThreads = workerMaxThreads;
 
             TotalCells = 3;
+            // TODO Can reduce to TotalCells - 1
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
             pendingRemoveListeners = new Dictionary<object, List<Action>>[TotalCells];
@@ -120,6 +121,7 @@ namespace Writership
             if (cd != null) cd.Add(new Unregisterer(this, atCellIndex, targets, job));
         }
 
+        // TODO Rename
         public void UnregisterListener(int at, object[] targets, Action job)
         {
             // TODO Lock or use thread-safe collections
