@@ -15,6 +15,62 @@ public class Others
         }
     }
 
+    private struct HttpError
+    {
+        public bool DidSent;
+        public int StatusCode;
+        public bool IsSuccess;
+    }
+
+    private class HttpOp<TReq, TRes>
+    {
+        private readonly bool isSingle;
+        private readonly string url;
+
+        public readonly Op<TReq> Request;
+        public readonly Op<TRes> Response;
+        public readonly Op<HttpError> Error;
+
+        private readonly El<int> requesting;
+
+        public HttpOp(IEngine engine, string url, bool isSingle = false, bool allowWriters = false)
+        {
+            this.isSingle = isSingle;
+            this.url = url;
+
+            Request = engine.Op<TReq>(allowWriters);
+            Response = engine.Op<TRes>();
+            Error = engine.Op<HttpError>();
+            requesting = engine.El(0);
+        }
+
+        public void Setup(CompositeDisposable cd, IEngine engine)
+        {
+            engine.Computer(cd, Dep.On(Request, Response, Error), () =>
+            {
+                if (requesting > 0 && isSingle) return;
+                int result = requesting + (isSingle ? Math.Min(1, Request.Count) : Request.Count) - Response.Count - Error.Count;
+                if (result < 0) throw new InvalidOperationException();
+                requesting.Write(result);
+            });
+
+            engine.Reader(cd, Dep.On(Request), () =>
+            {
+                // TODO Fix unsync requesting
+                if (requesting > 0 && isSingle)
+                {
+                    // TODO Warning or fire another op to tell missed http request
+                    return;
+                }
+
+                for (int i = 0, n = isSingle ? Math.Min(1, Request.Count) : Request.Count; i < n; ++i)
+                {
+                    Error.Fire(new HttpError { DidSent = false });
+                }
+            });
+        }
+    }
+
     [Test]
     public void LiOpSimple()
     {
