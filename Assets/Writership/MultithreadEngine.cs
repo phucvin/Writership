@@ -4,6 +4,7 @@ using System.Threading;
 
 namespace Writership
 {
+    [Obsolete("Unresolved unsync when reader read a field write in computer")]
     public class MultithreadEngine : IEngine, IDisposable
     {
         private class Dirty
