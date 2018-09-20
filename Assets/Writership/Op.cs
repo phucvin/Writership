@@ -18,7 +18,8 @@ namespace Writership
             public T Value;
         }
 
-        // TODO Maybe not a good solution, should compute by changed values (of dynamic children)
+        // TODO Remove because maybe not a good solution,
+        // should compute by changed values (of dynamic children), use Wa instead
         private readonly Op<Empty> applied;
 
         private readonly IEngine engine;
@@ -73,6 +74,7 @@ namespace Writership
             lastCellIndex = allowWriters ? engine.MainCellIndex : -1;
         }
 
+        [Obsolete]
         public IOp<Empty> Applied
         {
             get
