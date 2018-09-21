@@ -33,6 +33,16 @@ namespace Writership
             return liwa;
         }
 
+        public static void Mainer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.MainCellIndex, cd, targets, job);
+        }
+
+        public static void Worker(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(engine.WorkerCellIndex, cd, targets, job);
+        }
+
         public static void Computer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
             engine.Listen(engine.WorkerCellIndex, cd, targets, job);

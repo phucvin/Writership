@@ -85,6 +85,8 @@ namespace Writership
         }
 
         public int Count { get { return Read().Count; } }
+        public T First { get { return this[0]; } }
+        public T Last { get { return this[Count - 1]; } }
         public T Reduced { get { return reducedCells[engine.CurrentCellIndex]; } }
 
         public T this[int i]
