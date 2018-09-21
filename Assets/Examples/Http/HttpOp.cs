@@ -12,9 +12,32 @@ namespace Examples.Http
         public bool IsSuccess;
     }
 
+    public enum HttpPipe
+    {
+        Multiple,
+        SingleFirst,
+        SingleLast
+    }
+
+    public static class HttpPipeExtensions
+    {
+        public static bool IsSingle(this HttpPipe pipe)
+        {
+            switch (pipe)
+            {
+                case HttpPipe.SingleFirst:
+                case HttpPipe.SingleLast:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
     public class HttpOp<TReq, TRes>
     {
-        private readonly bool isSingle;
+        private readonly HttpPipe pipe;
         private readonly string url;
 
         public readonly Op<TReq> Request;
@@ -22,10 +45,11 @@ namespace Examples.Http
         public readonly Op<HttpError> Error;
 
         private readonly El<int> requesting;
+        private UnityEngine.Coroutine lastExec;
 
-        public HttpOp(IEngine engine, string url, bool isSingle = false, bool allowWriters = false)
+        public HttpOp(IEngine engine, string url, HttpPipe pipe = HttpPipe.Multiple, bool allowWriters = false)
         {
-            this.isSingle = isSingle;
+            this.pipe = pipe;
             this.url = url;
 
             Request = engine.Op<TReq>(allowWriters);
@@ -52,8 +76,20 @@ namespace Examples.Http
         {
             engine.Worker(cd, Dep.On(Request, Response, Error), () =>
             {
-                int result = requesting + (isSingle ? (requesting > 0 ? 0 : Math.Min(1, Request.Count)) : Request.Count) - Response.Count - Error.Count;
+                int result = requesting - Response.Count - Error.Count;
+                switch (pipe)
+                {
+                    case HttpPipe.Multiple:
+                        result += Request.Count;
+                        break;
+
+                    case HttpPipe.SingleFirst:
+                    case HttpPipe.SingleLast:
+                        result += requesting > 0 ? 0 : Math.Min(1, Request.Count);
+                        break;
+                }
                 if (result < 0) throw new NotImplementedException();
+                else if (pipe.IsSingle() && result > 1) throw new NotImplementedException();
                 requesting.Write(result);
             });
 
@@ -61,12 +97,23 @@ namespace Examples.Http
             {
                 for (int i = 0, n = Request.Count; i < n; ++i)
                 {
-                    if ((requesting > 0 || i > 0) && isSingle)
+                    if (pipe.IsSingle() && (
+                        (pipe == HttpPipe.SingleFirst && (i > 0 || requesting > 0)) ||
+                        (pipe == HttpPipe.SingleLast && i < n - 1)))
                     {
                         UnityEngine.Debug.LogWarning("Skip a HTTP request, because of single on: " + url);
                         UnityEngine.Debug.LogWarning("Request: " + Request[i]);
                     }
-                    else HttpMain.Instance.StartCoroutine(Exec(Request[i]));
+                    else
+                    {
+                        if (pipe == HttpPipe.SingleLast && lastExec != null)
+                        {
+                            UnityEngine.Debug.LogWarning("Stop previous HTTP request, because of single on: " + url);
+                            UnityEngine.Debug.LogWarning("New request: " + Request[i]);
+                            HttpMain.Instance.StopCoroutine(lastExec);
+                        }
+                        lastExec = HttpMain.Instance.StartCoroutine(Exec(Request[i]));
+                    }
                 }
             });
         }

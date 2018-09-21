@@ -15,7 +15,7 @@ namespace Examples.Http
             UserId = engine.El<int?>(null);
             HttpUserId = new HttpOp<string, int>(engine,
                 "https://api.github.com/users/__USER_NAME__",
-                isSingle: true
+                pipe: HttpPipe.SingleLast
             ).WithUrlTransformer((url, name) => url.Replace("__USER_NAME__", name)
             ).WithResponseParser(json => JsonUtility.FromJson<GitHubUser>(json).id
             );
