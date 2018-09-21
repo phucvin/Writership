@@ -2,60 +2,10 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using Writership;
 
 namespace Examples.Scenes
 {
-    public class CoroutineExecutor : MonoBehaviour
-    {
-        public static CoroutineExecutor Instance { get; private set; }
-
-        public void Awake()
-        {
-            Instance = this;
-        }
-    }
-
-    public class State
-    {
-        public readonly El<int> Gold;
-        public readonly Home Home;
-        public readonly Inventory Inventory;
-        public readonly Op<Empty> Back;
-
-        public void Setup(CompositeDisposable cd, IEngine engine)
-        {
-        }
-
-        public void SetupUnity(CompositeDisposable cd, IEngine engine)
-        {
-            engine.Mainer(cd, Dep.On(Home.Scene.Root), () =>
-            {
-                var root = Home.Scene.Root.Read();
-                if (!root) return;
-                var map = root.GetComponent<Common.Map>();
-                var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
-
-                Common.Binders.Label(scd, engine,
-                    map.GetComponent<Text>("gold"), Gold,
-                    i => string.Format("Gold: {0}", i)
-                );
-            });
-        }
-    }
-
-    public class SceneStack
-    {
-        public readonly Li<Scene> Scenes;
-        public readonly El<bool> IsBusy;
-
-        public void Setup(CompositeDisposable cd, IEngine engine)
-        {
-
-        }
-    }
-
     public enum SceneState
     {
         Closed,
@@ -74,11 +24,11 @@ namespace Examples.Scenes
         public readonly Op<Empty> Open;
         public readonly Op<Empty> Close;
 
-        public void Setup(CompositeDisposable cd, IEngine engine)
+        public void Setup(CompositeDisposable cd, IEngine engine, SceneStack stack)
         {
         }
 
-        public void SetupUnity(CompositeDisposable cd, IEngine engine)
+        public void SetupUnity(CompositeDisposable cd, IEngine engine, SceneStack stack)
         {
             engine.Mainer(cd, Dep.On(Open, Close, Root), () =>
             {
@@ -141,21 +91,5 @@ namespace Examples.Scenes
             while (root) yield return null;
             Root.Write(null);
         }
-    }
-
-    public class Home
-    {
-        public readonly Scene Scene;
-        public readonly Op<Empty> OpenInventory;
-    }
-
-    public class Inventory
-    {
-        public readonly Scene Scene;
-    }
-
-    public class YesNoDialog
-    {
-        public readonly Scene Scene;
     }
 }
