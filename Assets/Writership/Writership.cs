@@ -25,13 +25,20 @@ namespace Writership
 
         private static bool IsSame(StackTrace a, StackTrace b)
         {
-            if (a.FrameCount != b.FrameCount) return false;
-            for (int i = 0, n = a.FrameCount; i < n; ++i)
+            for (int i = 0, n = Math.Min(a.FrameCount, b.FrameCount); i < n; ++i)
             {
                 var af = a.GetFrame(i);
                 var bf = b.GetFrame(i);
                 if (af.GetMethod() != bf.GetMethod())
                 {
+                    string assemblyName = af.GetMethod().DeclaringType.Assembly.GetName().Name;
+                    // Exeception
+                    switch (assemblyName)
+                    {
+                        case "UnityEngine.UI":
+                            return true;
+                    }
+
                     return false;
                 }
             }
