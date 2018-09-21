@@ -29,7 +29,6 @@ namespace Writership
         {
             this.workerMaxThreads = workerMaxThreads;
 
-            TotalCells = 3;
             // TODO Can reduce to TotalCells - 1
             dirties = new List<Dirty>[TotalCells];
             listeners = new Dictionary<object, List<Action>>[TotalCells];
@@ -57,7 +56,7 @@ namespace Writership
         {
         }
 
-        public int TotalCells { get; private set; }
+        public int TotalCells { get { return 3; } }
         public int MainCellIndex { get { return 0; } }
         public int WorkerCellIndex { get { return 1; } }
         public int WriteCellIndex { get { return 2; } }
