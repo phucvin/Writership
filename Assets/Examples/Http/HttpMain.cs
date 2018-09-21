@@ -33,6 +33,10 @@ namespace Examples.Http
                 map.GetComponent<Text>("user_id"), state.UserId,
                 i => string.Format("User ID: {0}", i.HasValue ? i.Value.ToString() : "<none>")
             );
+            Common.Binders.Label(cd, engine,
+                map.GetComponent<Text>("repo_count"), state.RepoCount,
+                i => string.Format("{0} repositories", i.HasValue ? i.Value.ToString() : "<none>")
+            );
             Common.Binders.InputField(cd, engine,
                 map.GetComponent<InputField>("user_name"), state.UserName,
                 s => s
@@ -40,6 +44,11 @@ namespace Examples.Http
             Common.Binders.Enabled(cd, engine,
                 state.IsBusy, map.Get("is_busy")
             );
+
+            engine.Mainer(cd, Dep.On(state.HttpUserId.Error), () =>
+            {
+                if (state.HttpUserId.Error) Debug.Log(state.HttpUserId.Error.First);
+            });
         }
 
         public void Dispose()
