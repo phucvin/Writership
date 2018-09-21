@@ -41,6 +41,7 @@ namespace Examples.Http
         private readonly string url;
 
         public readonly Op<TReq> Request;
+        private readonly Op<string> rawResponse;
         public readonly Op<TRes> Response;
         public readonly Op<HttpError> Error;
 
@@ -53,6 +54,7 @@ namespace Examples.Http
             this.url = url;
 
             Request = engine.Op<TReq>(allowWriters);
+            rawResponse = engine.Op<string>();
             Response = engine.Op<TRes>();
             Error = engine.Op<HttpError>();
             requesting = engine.El(0);
@@ -74,6 +76,15 @@ namespace Examples.Http
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
+            engine.Worker(cd, Dep.On(rawResponse), () =>
+            {
+                for (int i = 0, n = rawResponse.Count; i < n; ++i)
+                {
+                    var res = default(TRes);
+                    if (responseParser != null) res = responseParser(rawResponse[i]);
+                    Response.Fire(res);
+                }
+            });
             engine.Worker(cd, Dep.On(Request, Response, Error), () =>
             {
                 int result = requesting - Response.Count - Error.Count;
@@ -135,12 +146,7 @@ namespace Examples.Http
                     IsSuccess = false,
                 });
             }
-            else
-            {
-                var res = default(TRes);
-                if (responseParser != null) res = responseParser(wr.downloadHandler.text);
-                Response.Fire(res);
-            }
+            else rawResponse.Fire(wr.downloadHandler.text);
         }
     }
 }
