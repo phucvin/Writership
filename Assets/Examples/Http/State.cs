@@ -19,7 +19,7 @@ namespace Examples.Http
                 "https://api.github.com/users/__USER_NAME__",
                 pipe: HttpPipe.SingleLast
             ).WithUrlTransformer((url, name) => url.Replace("__USER_NAME__", name)
-            ).WithResponseParser(json => JsonUtility.FromJson<GitHubUser>(json).id
+            ).WithWorkerResponseParser(json => JsonUtility.FromJson<GitHubUser>(json).id
             );
 
             IsBusy = engine.El(false);
