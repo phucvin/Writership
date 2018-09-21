@@ -50,25 +50,23 @@ namespace Examples.Http
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            engine.Computer(cd, Dep.On(Request, Response, Error), () =>
+            engine.Worker(cd, Dep.On(Request, Response, Error), () =>
             {
-                if (requesting > 0 && isSingle) return;
-                int result = requesting + (isSingle ? Math.Min(1, Request.Count) : Request.Count) - Response.Count - Error.Count;
-                if (result < 0) throw new InvalidOperationException();
+                int result = requesting + (isSingle ? (requesting > 0 ? 0 : Math.Min(1, Request.Count)) : Request.Count) - Response.Count - Error.Count;
+                if (result < 0) throw new NotImplementedException();
                 requesting.Write(result);
             });
 
-            engine.Reader(cd, Dep.On(Request), () =>
+            engine.Mainer(cd, Dep.On(Request), () =>
             {
-                if (requesting > 0 && isSingle)
+                for (int i = 0, n = Request.Count; i < n; ++i)
                 {
-                    // TODO Warning or fire another op to tell missed http request
-                    return;
-                }
-
-                for (int i = 0, n = isSingle ? Math.Min(1, Request.Count) : Request.Count; i < n; ++i)
-                {
-                    HttpMain.Instance.StartCoroutine(Exec(Request[i]));
+                    if ((requesting > 0 || i > 0) && isSingle)
+                    {
+                        UnityEngine.Debug.LogWarning("Skip a HTTP request, because of single on: " + url);
+                        UnityEngine.Debug.LogWarning("Request: " + Request[i]);
+                    }
+                    else HttpMain.Instance.StartCoroutine(Exec(Request[i]));
                 }
             });
         }

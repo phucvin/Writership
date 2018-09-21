@@ -22,6 +22,18 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool InputField<T>(CompositeDisposable cd, IEngine engine,
+            InputField src, IEl<T> dst,
+            Func<string, T> converter)
+        {
+            if (!src) return NotBinded();
+
+            UnityAction<string> action = text => dst.Write(converter(text));
+            src.onValueChanged.AddListener(action);
+            cd.Add(new RemoveOnValueChangedListener(src, action));
+            return true;
+        }
+
         public static bool ButtonClick<T>(CompositeDisposable cd, IEngine engine,
             Button src, IOp<T> dst,
             Func<T> valueGetter)
