@@ -24,6 +24,17 @@ namespace Examples.Scenes
         public readonly Op<Empty> Open;
         public readonly Op<Empty> Close;
 
+        public Scene(IEngine engine, string name, LoadSceneMode mode = LoadSceneMode.Additive)
+        {
+            Name = name;
+            Mode = mode;
+            State = engine.El(SceneState.Closed);
+            Root = engine.El<GameObject>(null);
+            LoadingProgress = engine.El(0f);
+            Open = engine.Op<Empty>();
+            Close = engine.Op<Empty>();
+        }
+
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
         }
@@ -48,7 +59,6 @@ namespace Examples.Scenes
                 {
                     State.Write(SceneState.Closing);
                 }
-                else throw new NotImplementedException();
             });
             engine.Mainer(cd, Dep.On(State), () =>
             {

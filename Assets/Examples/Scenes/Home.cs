@@ -1,4 +1,5 @@
-﻿using UnityEngine.UI;
+﻿using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Writership;
 
 namespace Examples.Scenes
@@ -7,6 +8,12 @@ namespace Examples.Scenes
     {
         public readonly Scene Scene;
         public readonly Op<Empty> OpenInventory;
+
+        public Home(IEngine engine)
+        {
+            Scene = new Scene(engine, "Home", LoadSceneMode.Single);
+            OpenInventory = engine.Op<Empty>();
+        }
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
         {

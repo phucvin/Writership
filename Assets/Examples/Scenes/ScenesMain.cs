@@ -19,7 +19,7 @@ namespace Examples.Scenes
         public void Setup()
         {
             engine = new SinglethreadEngine();
-            state = new State();
+            state = new State(engine);
 
             state.Setup(cd, engine);
             state.SetupUnity(cd, engine);
