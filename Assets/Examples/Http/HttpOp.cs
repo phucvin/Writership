@@ -142,6 +142,8 @@ namespace Examples.Http
 
         private IEnumerator Exec(TReq req)
         {
+            yield return new UnityEngine.WaitForSecondsRealtime(0.2f);
+
             string url = this.url;
             if (urlTransformer != null) url = urlTransformer(url, req);
 
