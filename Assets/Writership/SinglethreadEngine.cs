@@ -151,6 +151,7 @@ namespace Writership
             return copied;
         }
 
+        // TODO Refactor
         private bool Notify(int at)
         {
             var dirties = this.dirties[at];
