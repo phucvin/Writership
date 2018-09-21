@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -8,21 +7,6 @@ using Writership;
 
 namespace Examples.Scenes
 {
-    public static class ListExtensions
-    {
-        public static void RemoveExact<T>(this List<T> list, T item)
-        {
-            if (!list.Remove(item)) throw new NotImplementedException();
-        }
-
-        public static void RemoveExact<T>(this List<T> list, IList<T> items)
-        {
-            int oldCount = list.Count;
-            list.RemoveAll(it => items.Contains(it));
-            if (list.Count - oldCount != items.Count) throw new NotImplementedException();
-        }
-    }
-
     public class CoroutineExecutor : MonoBehaviour
     {
         public static CoroutineExecutor Instance { get; private set; }
@@ -35,33 +19,13 @@ namespace Examples.Scenes
 
     public class State
     {
-        public readonly Data Data;
-        public readonly Profile Profile;
-
+        public readonly El<int> Gold;
         public readonly Home Home;
         public readonly Inventory Inventory;
+        public readonly Op<Empty> Back;
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            engine.Worker(cd, Dep.On(
-                Inventory.SellItem.Yes, Inventory.SellItems.Yes,
-                Inventory.FuseItem.Yes), () =>
-            {
-                var items = Profile.Items.AsWriteProxy();
-                if (Inventory.SellItem.Yes)
-                {
-                    items.RemoveExact(Inventory.ViewingItem);
-                }
-                if (Inventory.SellItems.Yes)
-                {
-                    items.RemoveExact(Inventory.SellingItems.Read());
-                }
-                if (Inventory.FuseItem.Yes)
-                {
-                    items.Add(Inventory.FuseItemResult);
-                }
-                items.Commit();
-            });
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine)
@@ -74,29 +38,22 @@ namespace Examples.Scenes
                 var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
 
                 Common.Binders.Label(scd, engine,
-                    map.GetComponent<Text>("gold"), Profile.Gold,
+                    map.GetComponent<Text>("gold"), Gold,
                     i => string.Format("Gold: {0}", i)
                 );
             });
         }
     }
 
-    public class Data
+    public class SceneStack
     {
-        public readonly IList<int> ItemUpgradeRequiredGoldByLevel;
-    }
+        public readonly Li<Scene> Scenes;
+        public readonly El<bool> IsBusy;
 
-    public class Profile
-    {
-        public readonly El<int> Gold;
-        public readonly Li<Item> Items;
-    }
+        public void Setup(CompositeDisposable cd, IEngine engine)
+        {
 
-    public class Item
-    {
-        public readonly El<int> Id;
-        public readonly string Name;
-        public readonly El<int> Level;
+        }
     }
 
     public enum SceneState
@@ -119,7 +76,11 @@ namespace Examples.Scenes
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            engine.Worker(cd, Dep.On(Open, Close, Root), () =>
+        }
+
+        public void SetupUnity(CompositeDisposable cd, IEngine engine)
+        {
+            engine.Mainer(cd, Dep.On(Open, Close, Root), () =>
             {
                 if (State == SceneState.Opening && Root.Read())
                 {
@@ -139,10 +100,6 @@ namespace Examples.Scenes
                 }
                 else throw new NotImplementedException();
             });
-        }
-
-        public void SetupUnity(CompositeDisposable cd, IEngine engine)
-        {
             engine.Mainer(cd, Dep.On(State), () =>
             {
                 if (State == SceneState.Opening)
@@ -168,6 +125,7 @@ namespace Examples.Scenes
             }
 
             var load = SceneManager.LoadSceneAsync(Name, Mode);
+            //load.allowSceneActivation = false; // TODO Use this
             while (!load.isDone)
             {
                 LoadingProgress.Write(load.progress);
@@ -194,44 +152,10 @@ namespace Examples.Scenes
     public class Inventory
     {
         public readonly Scene Scene;
-
-        public readonly Li<Item> SortedItems;
-        public readonly Op<int> ChangeSort;
-
-        public readonly El<Item> ViewingItem;
-        public readonly VerifyOp<Empty> UpgradeItem;
-        public readonly ConfirmOp<Empty> SellItem;
-
-        public readonly El<Item> FuseItemA;
-        public readonly El<Item> FuseItemB;
-        public readonly El<Item> FuseItemResult;
-        public readonly VerifyConfirmOp<Empty> FuseItem;
-
-        public readonly Li<Item> SellingItems;
-        public readonly ConfirmOp<Empty> SellItems;
     }
 
-    public class ConfirmOp<T>
+    public class YesNoDialog
     {
-        public readonly Op<T> Trigger;
-        public readonly Op<T> Yes;
-        public readonly Op<T> No;
-    }
-
-    public class VerifyOp<T>
-    {
-        public readonly El<bool> Status;
-        public readonly Op<T> Trigger;
-        public readonly Op<T> Verified;
-        public readonly Op<T> Rejected;
-    }
-
-    public class VerifyConfirmOp<T>
-    {
-        public readonly El<bool> Status;
-        public readonly Op<T> Trigger;
-        public readonly Op<T> Yes;
-        public readonly Op<T> No;
-        public readonly Op<T> Rejected;
+        public readonly Scene Scene;
     }
 }
