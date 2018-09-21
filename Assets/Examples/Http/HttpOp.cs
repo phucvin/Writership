@@ -37,24 +37,26 @@ namespace Examples.Http
 
     public class HttpOp<TReq, TRes>
     {
+        private readonly IEngine engine;
         private readonly HttpPipe pipe;
         private readonly string url;
 
         public readonly Op<TReq> Request;
-        private readonly Op<string> rawResponse;
         public readonly Op<TRes> Response;
         public readonly Op<HttpError> Error;
 
         private readonly El<int> requesting;
+        private Op<string> rawResponse;
         private UnityEngine.Coroutine lastExec;
 
-        public HttpOp(IEngine engine, string url, HttpPipe pipe = HttpPipe.Multiple, bool allowWriters = false)
+        public HttpOp(IEngine engine, string url,
+            HttpPipe pipe = HttpPipe.Multiple, bool allowWriters = false)
         {
+            this.engine = engine;
             this.pipe = pipe;
             this.url = url;
 
             Request = engine.Op<TReq>(allowWriters);
-            rawResponse = engine.Op<string>();
             Response = engine.Op<TRes>();
             Error = engine.Op<HttpError>();
             requesting = engine.El(0);
@@ -73,18 +75,27 @@ namespace Examples.Http
             responseParser = f;
             return this;
         }
+        public HttpOp<TReq, TRes> WithWorkerResponseParser(Func<string, TRes> f)
+        {
+            responseParser = f;
+            rawResponse = engine.Op<string>();
+            return this;
+        }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            engine.Worker(cd, Dep.On(rawResponse), () =>
+            if (rawResponse != null)
             {
-                for (int i = 0, n = rawResponse.Count; i < n; ++i)
+                engine.Worker(cd, Dep.On(rawResponse), () =>
                 {
-                    var res = default(TRes);
-                    if (responseParser != null) res = responseParser(rawResponse[i]);
-                    Response.Fire(res);
-                }
-            });
+                    for (int i = 0, n = rawResponse.Count; i < n; ++i)
+                    {
+                        var res = default(TRes);
+                        if (responseParser != null) res = responseParser(rawResponse[i]);
+                        Response.Fire(res);
+                    }
+                });
+            }
             engine.Worker(cd, Dep.On(Request, Response, Error), () =>
             {
                 int result = requesting - Response.Count - Error.Count;
@@ -146,7 +157,16 @@ namespace Examples.Http
                     IsSuccess = false,
                 });
             }
-            else rawResponse.Fire(wr.downloadHandler.text);
+            else if (rawResponse != null)
+            {
+                rawResponse.Fire(wr.downloadHandler.text);
+            }
+            else
+            {
+                var res = default(TRes);
+                if (responseParser != null) res = responseParser(wr.downloadHandler.text);
+                Response.Fire(res);
+            }
         }
     }
 }
