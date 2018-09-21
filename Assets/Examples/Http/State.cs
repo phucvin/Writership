@@ -23,8 +23,12 @@ namespace Examples.Http
                 "https://api.github.com/users/__USER_NAME__",
                 pipe: HttpPipe.SingleLast
             ).WithUrlTransformer((url, name) => url.Replace("__USER_NAME__", name)
-            ).WithWorkerResponseParser(json => JsonUtility.FromJson<GitHubUser>(json).id
-            );
+            ).WithResponseParser(json => {
+                UnityEngine.Profiling.Profiler.BeginSample("JsonUtility");
+                var user = JsonUtility.FromJson<GitHubUser>(json);
+                UnityEngine.Profiling.Profiler.EndSample();
+                return user.id;
+            });
             HttpRepoCount = new HttpOp<string, int?>(engine,
                 "https://api.github.com/users/__USER_NAME__/repos",
                 pipe: HttpPipe.SingleLast
@@ -94,8 +98,10 @@ namespace Examples.Http
         {
             public static T[] GetJsonArray<T>(string json)
             {
+                UnityEngine.Profiling.Profiler.BeginSample("GetJsonArray");
                 string newJson = "{\"array\":" + json + "}";
                 Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(newJson);
+                UnityEngine.Profiling.Profiler.EndSample();
                 return wrapper.array;
             }
 
