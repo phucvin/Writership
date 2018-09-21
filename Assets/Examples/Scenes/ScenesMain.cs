@@ -6,13 +6,15 @@ namespace Examples.Scenes
 {
     public class ScenesMain : MonoBehaviour, IDisposable
     {
-        [SerializeField]
-        private Common.Map map = null;
-
         private IEngine engine;
         private State state;
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
+
+        public void Awake()
+        {
+            DontDestroyOnLoad(gameObject);
+        }
 
         public void Setup()
         {

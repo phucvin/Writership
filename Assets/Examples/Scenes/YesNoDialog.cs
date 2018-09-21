@@ -8,12 +8,12 @@ namespace Examples.Scenes
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
         {
-            Scene.Setup(cd, engine, state.SceneStack);
+            Scene.Setup(cd, engine);
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine, State state)
         {
-            Scene.SetupUnity(cd, engine, state.SceneStack);
+            Scene.SetupUnity(cd, engine);
         }
     }
 }

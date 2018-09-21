@@ -24,11 +24,11 @@ namespace Examples.Scenes
         public readonly Op<Empty> Open;
         public readonly Op<Empty> Close;
 
-        public void Setup(CompositeDisposable cd, IEngine engine, SceneStack stack)
+        public void Setup(CompositeDisposable cd, IEngine engine)
         {
         }
 
-        public void SetupUnity(CompositeDisposable cd, IEngine engine, SceneStack stack)
+        public void SetupUnity(CompositeDisposable cd, IEngine engine)
         {
             engine.Mainer(cd, Dep.On(Open, Close, Root), () =>
             {

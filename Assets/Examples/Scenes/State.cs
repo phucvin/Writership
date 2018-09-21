@@ -5,7 +5,6 @@ namespace Examples.Scenes
     public class State
     {
         public readonly El<int> Gold;
-        public readonly SceneStack SceneStack;
         public readonly Home Home;
         public readonly Inventory Inventory;
 
@@ -13,7 +12,6 @@ namespace Examples.Scenes
         {
             var state = this;
 
-            SceneStack.Setup(cd, engine);
             Home.Setup(cd, engine, state);
         }
 
@@ -21,7 +19,6 @@ namespace Examples.Scenes
         {
             var state = this;
 
-            SceneStack.SetupUnity(cd, engine);
             Home.SetupUnity(cd, engine, state);
         }
     }
