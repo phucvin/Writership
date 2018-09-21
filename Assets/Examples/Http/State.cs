@@ -28,9 +28,9 @@ namespace Examples.Http
             engine.Computer(cd, Dep.On(UserName, HttpUserId.Request, HttpUserId.Error, HttpUserId.Response), () =>
             {
                 if (string.IsNullOrEmpty(UserName)) UserId.Write(null);
-                else if (HttpUserId.Response) UserId.Write(HttpUserId.Response.First);
-                else if (HttpUserId.Error) UserId.Write(null);
                 else if (HttpUserId.Request) UserId.Write(null);
+                else if (HttpUserId.Error) UserId.Write(null);
+                else if (HttpUserId.Response) UserId.Write(HttpUserId.Response.First);
             });
 
             engine.Computer(cd, Dep.On(UserName), () =>
