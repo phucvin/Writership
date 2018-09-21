@@ -37,6 +37,9 @@ namespace Examples.Http
                 map.GetComponent<InputField>("user_name"), state.UserName,
                 s => s
             );
+            Common.Binders.Enabled(cd, engine,
+                state.IsBusy, map.Get("is_busy")
+            );
         }
 
         public void Dispose()

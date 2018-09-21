@@ -9,6 +9,18 @@ namespace Examples.Common
 {
     public static class Binders
     {
+        public static bool Enabled(CompositeDisposable cd, IEngine engine,
+            IEl<bool> src, GameObject dst)
+        {
+            if (!dst) return NotBinded();
+
+            engine.Reader(cd,
+                new object[] { src },
+                () => dst.SetActive(src.Read())
+            );
+            return true;
+        }
+
         public static bool Label<T>(CompositeDisposable cd, IEngine engine,
             Text dst, IEl<T> src,
             Func<T, string> converter)

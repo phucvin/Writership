@@ -9,6 +9,8 @@ namespace Examples.Http
         public readonly El<int?> UserId;
         public readonly HttpOp<string, int> HttpUserId;
 
+        public readonly El<bool> IsBusy;
+
         public State(IEngine engine)
         {
             UserName = engine.El(string.Empty);
@@ -19,13 +21,15 @@ namespace Examples.Http
             ).WithUrlTransformer((url, name) => url.Replace("__USER_NAME__", name)
             ).WithResponseParser(json => JsonUtility.FromJson<GitHubUser>(json).id
             );
+
+            IsBusy = engine.El(false);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
             HttpUserId.Setup(cd, engine);
 
-            engine.Computer(cd, Dep.On(UserName, HttpUserId.Request, HttpUserId.Error, HttpUserId.Response), () =>
+            engine.Worker(cd, Dep.On(UserName, HttpUserId.Request, HttpUserId.Error, HttpUserId.Response), () =>
             {
                 if (string.IsNullOrEmpty(UserName) || HttpUserId.Request || HttpUserId.Error)
                 {
@@ -36,13 +40,16 @@ namespace Examples.Http
                     UserId.Write(HttpUserId.Response.First);
                 }
             });
-
-            engine.Computer(cd, Dep.On(UserName), () =>
+            engine.Worker(cd, Dep.On(UserName), () =>
             {
                 if (!string.IsNullOrEmpty(UserName))
                 {
                     HttpUserId.Request.Fire(UserName);
                 }
+            });
+            engine.Worker(cd, Dep.On(HttpUserId.Requesting), () =>
+            {
+                IsBusy.Write(HttpUserId.Requesting > 0);
             });
         }
 
