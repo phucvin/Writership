@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Writership;
 
 namespace Examples.Scenes
@@ -14,6 +16,11 @@ namespace Examples.Scenes
         public void Awake()
         {
             DontDestroyOnLoad(gameObject);
+        }
+
+        public void OnDestroy()
+        {
+            Dispose();
         }
 
         public void Setup()
@@ -31,19 +38,24 @@ namespace Examples.Scenes
             engine.Dispose();
         }
 
-        public void Start()
+        public IEnumerator Start()
         {
+            var activeScene = SceneManager.GetActiveScene();
+            for (int i = 0, n = SceneManager.sceneCount; i < n; ++i)
+            {
+                var scene = SceneManager.GetSceneAt(i);
+                if (scene == activeScene) continue;
+                yield return SceneManager.UnloadSceneAsync(scene);
+                --i;
+                --n;
+            }
+
             Setup();
-        }
-
-        public void OnDestroy()
-        {
-            Dispose();
-        }
-
-        public void Update()
-        {
-            engine.Update();
+            while (true)
+            {
+                engine.Update();
+                yield return null;
+            }
         }
     }
 }
