@@ -82,9 +82,7 @@ namespace Examples.Scenes
             if (!open)
             {
                 // TODO Trigger closing transition, wait for done
-                UnityEngine.Object.Destroy(Root.Read());
-                Root.Write(null);
-
+                yield return SceneManager.UnloadSceneAsync(Root.Read().scene);
                 yield break;
             }
 
