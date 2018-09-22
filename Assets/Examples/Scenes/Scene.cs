@@ -103,7 +103,7 @@ namespace Examples.Scenes
             var scene = SceneManager.GetSceneByName(Name);
             root = scene.GetRootGameObjects()[0];
             transitioner = root.GetComponent<Transitioner>();
-            if (transitioner) yield return transitioner.In();
+            if (transitioner) transitioner.In();
             Root.Write(root);
 
             // Watch
