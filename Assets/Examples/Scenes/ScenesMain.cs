@@ -33,7 +33,30 @@ namespace Examples.Scenes
 
             // Test
             state.Home.Scene.Open.Fire(Empty.Instance);
-            state.Inventory.UpgradeItem.Status.Write(true);
+            StartCoroutine(testUpgradeItemStatus());
+            engine.Mainer(cd, Dep.On(state.Inventory.UpgradeItem.Yes), () =>
+            {
+                if (!state.Inventory.UpgradeItem.Yes) return;
+                Debug.LogFormat("UpgradeItem {0}, Yes",
+                    state.Inventory.UpgradeItem.Yes.First);
+            });
+            engine.Mainer(cd, Dep.On(state.Inventory.UpgradeItem.Rejected), () =>
+            {
+                if (!state.Inventory.UpgradeItem.Rejected) return;
+                Debug.LogFormat("UpgradeItem {0}, Rejected",
+                    state.Inventory.UpgradeItem.Rejected.First);
+            });
+        }
+
+        private IEnumerator testUpgradeItemStatus()
+        {
+            bool b = true;
+            while (true)
+            {
+                state.Inventory.UpgradeItem.Status.Write(b);
+                b = !b;
+                yield return new WaitForSeconds(3f);
+            }
         }
 
         public void Dispose()

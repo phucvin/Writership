@@ -39,9 +39,13 @@ namespace Examples.Scenes
             {
                 if (Trigger && Status)
                 {
-                    current.Write(Trigger.First);
                     Dialog.Open.Fire(Empty.Instance);
                 }
+            });
+            engine.Worker(cd, Dep.On(Status, Trigger, Yes, No), () =>
+            {
+                if (!Status || Yes || No) current.Write(default(T));
+                else if (Trigger) current.Write(Trigger.First);
             });
             engine.Worker(cd, Dep.On(Status, Trigger), () =>
             {
@@ -78,7 +82,7 @@ namespace Examples.Scenes
 
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("yes"), Yes,
-                    () => current
+                    () => current, checker: () => Status
                 );
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("no"), No,

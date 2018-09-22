@@ -49,11 +49,15 @@ namespace Examples.Common
 
         public static bool ButtonClick<T>(CompositeDisposable cd, IEngine engine,
             Button src, IOp<T> dst,
-            Func<T> valueGetter)
+            Func<T> valueGetter, Func<bool> checker = null)
         {
             if (!src) return NotBinded();
 
-            UnityAction action = () => dst.Fire(valueGetter());
+            UnityAction action = () =>
+            {
+                if (checker != null && !checker()) return;
+                dst.Fire(valueGetter());
+            };
             src.onClick.AddListener(action);
             cd.Add(new RemoveOnClickListener(src, action));
             return true;

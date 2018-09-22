@@ -63,6 +63,10 @@ namespace Examples.Scenes
                 {
                     State.Write(SceneState.Closed);
                 }
+                else if (State == SceneState.Closing && Close)
+                {
+                    // Ignore
+                }
                 else if (Open || Close)
                 {
                     throw new NotImplementedException();
