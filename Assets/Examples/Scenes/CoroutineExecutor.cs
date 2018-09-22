@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using Writership;
 
 namespace Examples.Scenes
 {
@@ -9,6 +11,12 @@ namespace Examples.Scenes
         public void Awake()
         {
             Instance = this;
+        }
+
+        public void StartCoroutine(CompositeDisposable cd, IEnumerator routine)
+        {
+            var co = StartCoroutine(routine);
+            cd.Add(new DisposableAction(() => StopCoroutine(co)));
         }
     }
 }

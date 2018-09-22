@@ -88,13 +88,11 @@ namespace Examples.Scenes
             {
                 if (State == SceneState.Opening)
                 {
-                    // TODO Have to add coroutine to cd
-                    CoroutineExecutor.Instance.StartCoroutine(Exec(true));
+                    CoroutineExecutor.Instance.StartCoroutine(cd, Exec(true));
                 }
                 else if (State == SceneState.Closing)
                 {
-                    // TODO Have to add coroutine to cd
-                    CoroutineExecutor.Instance.StartCoroutine(Exec(false));
+                    CoroutineExecutor.Instance.StartCoroutine(cd, Exec(false));
                 }
             });
         }

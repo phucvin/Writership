@@ -73,8 +73,7 @@ namespace Examples.Scenes
 #endif
             });
 
-            // TODO Have to add coroutine to cd
-            CoroutineExecutor.Instance.StartCoroutine(CheckBack());
+            CoroutineExecutor.Instance.StartCoroutine(cd, CheckBack());
         }
 
         private IEnumerator CheckBack()
