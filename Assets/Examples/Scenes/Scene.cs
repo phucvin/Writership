@@ -31,8 +31,8 @@ namespace Examples.Scenes
             State = engine.El(SceneState.Closed);
             Root = engine.El<GameObject>(null);
             LoadingProgress = engine.El(1f);
-            Open = engine.Op<Empty>();
-            Close = engine.Op<Empty>();
+            Open = engine.Op<Empty>(allowWriters: true);
+            Close = engine.Op<Empty>(allowWriters: true);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
@@ -76,10 +76,12 @@ namespace Examples.Scenes
             {
                 if (State == SceneState.Opening)
                 {
+                    // TODO Have to add coroutine to cd
                     CoroutineExecutor.Instance.StartCoroutine(Exec(true));
                 }
                 else if (State == SceneState.Closing)
                 {
+                    // TODO Have to add coroutine to cd
                     CoroutineExecutor.Instance.StartCoroutine(Exec(false));
                 }
             });

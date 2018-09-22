@@ -9,6 +9,7 @@ namespace Examples.Scenes
         public readonly Home Home;
         public readonly Inventory Inventory;
         public readonly Scene SimpleLoading;
+        public readonly SceneStack SceneStack;
 
         public State(IEngine engine)
         {
@@ -16,6 +17,7 @@ namespace Examples.Scenes
             Home = new Home(engine);
             Inventory = new Inventory(engine);
             SimpleLoading = new Scene(engine, "SimpleLoading", LoadSceneMode.Additive);
+            SceneStack = new SceneStack(engine);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
@@ -25,6 +27,11 @@ namespace Examples.Scenes
             Home.Setup(cd, engine, state);
             Inventory.Setup(cd, engine, state);
             SimpleLoading.Setup(cd, engine);
+
+            SceneStack.Register(Home.Scene);
+            SceneStack.Register(Inventory.Scene);
+            SceneStack.Register(Inventory.UpgradeItem.Dialog);
+            SceneStack.Setup(cd, engine);
             
             engine.Worker(cd, Dep.On(SimpleLoading.State,
                 Home.Scene.State, Inventory.Scene.State,
@@ -52,6 +59,7 @@ namespace Examples.Scenes
             Home.SetupUnity(cd, engine, state);
             Inventory.SetupUnity(cd, engine, state);
             SimpleLoading.SetupUnity(cd, engine);
+            SceneStack.SetupUnity(cd, engine);
         }
     }
 }

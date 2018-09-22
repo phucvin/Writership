@@ -55,7 +55,7 @@ namespace Examples.Scenes
             {
                 state.Inventory.UpgradeItem.Status.Write(b);
                 b = !b;
-                yield return new WaitForSeconds(3f);
+                yield return new WaitForSeconds(30f);
             }
         }
 
