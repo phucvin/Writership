@@ -12,34 +12,28 @@ namespace Examples.TwoWay
         private Common.Map map = null;
 
         private IEngine engine;
-        private El<string> way1;
-        private El<string> way2;
+        private Tw<string> input;
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
 
         public void Setup()
         {
             engine = new SinglethreadEngine();
-            way1 = engine.El(string.Empty);
-            way2 = engine.El(string.Empty);
+            input = engine.Tw(string.Empty);
 
             var sb = new StringBuilder();
-            engine.Worker(cd, Dep.On(way1), () =>
+            engine.Worker(cd, Dep.On(input.Raw), () =>
             {
                 sb.Length = 0;
-                sb.Append(way1.Read());
+                sb.Append(input.ReadRaw());
                 sb.Replace("hello", "HELLO");
                 sb.Replace("bye", "");
-                way2.Write(sb.ToString());
+                input.Write(sb.ToString());
             });
-
-            Common.Binders.InputField(cd, engine,
-                map.GetComponent<InputField>("input"), way1,
-                i => i.ToString()
-            );
-            Common.Binders.InputField2(cd, engine,
-                map.GetComponent<InputField>("input"), way2,
-                s => s
+            
+            Common.Binders.InputFieldTwoWay(cd, engine,
+                map.GetComponent<InputField>("input"), input,
+                s => s, s => s
             );
         }
 

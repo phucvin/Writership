@@ -4,6 +4,7 @@ namespace Writership
 {
     public interface IEl<T>
     {
+        [Obsolete]
         bool IsChanged { get; }
         T Read();
         void Write(T value);

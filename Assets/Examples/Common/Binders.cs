@@ -47,16 +47,26 @@ namespace Examples.Common
             return true;
         }
 
-        public static bool InputField2<T>(CompositeDisposable cd, IEngine engine,
-            InputField dst, IEl<T> src,
-            Func<T, string> converter)
+        public static bool InputFieldTwoWay<T>(CompositeDisposable cd, IEngine engine,
+            InputField dst, ITw<T> src,
+            Func<T, string> converter1, Func<string, T> converter2)
         {
             if (!dst) return NotBinded();
 
-            engine.Reader(cd,
-                new object[] { src },
-                () => dst.text = converter(src.Read())
-            );
+            engine.Reader(cd, new object[] { src }, () =>
+            {
+                if (Equals(converter2(dst.text), src.Read())) return;
+                dst.text = converter1(src.Read());
+            });
+
+            UnityAction<string> action = text =>
+            {
+                if (converter1(src.Read()) == text) return;
+                src.WriteRaw(converter2(text));
+            };
+            dst.onValueChanged.AddListener(action);
+            cd.Add(new RemoveOnValueChangedListener(dst, action));
+
             return true;
         }
 
