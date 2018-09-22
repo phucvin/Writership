@@ -47,6 +47,13 @@ namespace Writership
 
         public static void Worker(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
+            // TODO Can still use MainCellIndex,
+            // if most task is simple, by reducing overhead of threads
+            engine.Listen(engine.WorkerCellIndex, cd, targets, job);
+        }
+
+        public static void HeavyWorker(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
             engine.Listen(engine.WorkerCellIndex, cd, targets, job);
         }
 
@@ -56,6 +63,13 @@ namespace Writership
         }
 
         public static void OpWorker(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            // TODO Can still use MainCellIndex,
+            // if most task is simple, by reducing overhead of threads
+            engine.Listen(-engine.WorkerCellIndex - 1, cd, targets, job);
+        }
+
+        public static void OpHeavyWorker(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
             engine.Listen(-engine.WorkerCellIndex - 1, cd, targets, job);
         }
