@@ -30,6 +30,10 @@ namespace Examples.Scenes
 
             state.Setup(cd, engine);
             state.SetupUnity(cd, engine);
+
+            // Test
+            state.Home.Scene.Open.Fire(Empty.Instance);
+            state.Inventory.UpgradeItem.Status.Write(true);
         }
 
         public void Dispose()

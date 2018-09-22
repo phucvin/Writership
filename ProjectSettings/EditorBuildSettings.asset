@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Examples/Scenes/SimpleLoading.unity
     guid: bc5205d851db70c45b7f5ae2a6b9e6d1
+  - enabled: 1
+    path: Assets/Examples/Scenes/YesNoDialog.unity
+    guid: d615efa6835b774469f7e451f5cefd0c
   m_configObjects: {}

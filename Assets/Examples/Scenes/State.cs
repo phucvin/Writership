@@ -25,11 +25,15 @@ namespace Examples.Scenes
             Home.Setup(cd, engine, state);
             Inventory.Setup(cd, engine, state);
             SimpleLoading.Setup(cd, engine);
-
-            engine.Worker(cd, Dep.On(SimpleLoading.State, Home.Scene.State, Inventory.Scene.State), () =>
+            
+            engine.Worker(cd, Dep.On(SimpleLoading.State,
+                Home.Scene.State, Inventory.Scene.State,
+                Inventory.UpgradeItem.Dialog.State), () =>
             {
                 bool needLoading = Home.Scene.State == SceneState.Opening ||
-                    Inventory.Scene.State == SceneState.Opening;
+                    Inventory.Scene.State == SceneState.Opening ||
+                    Inventory.UpgradeItem.Dialog.State == SceneState.Opening;
+
                 if (SimpleLoading.State == SceneState.Closed && needLoading)
                 {
                     SimpleLoading.Open.Fire(Empty.Instance);
@@ -39,8 +43,6 @@ namespace Examples.Scenes
                     SimpleLoading.Close.Fire(Empty.Instance);
                 }
             });
-
-            Home.Scene.Open.Fire(Empty.Instance);
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine)
