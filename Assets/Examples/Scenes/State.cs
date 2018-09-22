@@ -34,7 +34,12 @@ namespace Examples.Scenes
             SceneStack.Register(Inventory.Scene);
             SceneStack.Register(Inventory.UpgradeItem.Dialog);
             SceneStack.Setup(cd, engine);
-            
+
+            engine.Worker(cd, Dep.On(Inventory.UpgradeItem.Yes), () =>
+            {
+                if (!Inventory.UpgradeItem.Yes) return;
+                Gold.Write(Gold - 10);
+            });
             engine.Worker(cd, Dep.On(SimpleLoading.State,
                 Home.Scene.State, Inventory.Scene.State,
                 Inventory.UpgradeItem.Dialog.State), () =>
