@@ -63,6 +63,19 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool ButtonInteractable<T>(CompositeDisposable cd, IEngine engine,
+            Button dst, IEl<T> src,
+            Func<T, bool> converter)
+        {
+            if (!dst) return NotBinded();
+
+            engine.Reader(cd,
+                new object[] { src },
+                () => dst.interactable = converter(src.Read())
+            );
+            return true;
+        }
+
         public static bool List<T>(CompositeDisposable cd, IEngine engine,
             Transform dst, Map prefab, ILi<T> src,
             Action<CompositeDisposable, Map, T> itemBinder)

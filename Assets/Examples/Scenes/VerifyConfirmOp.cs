@@ -65,6 +65,11 @@ namespace Examples.Scenes
                     Dialog.Close.Fire(Empty.Instance);
                 }
             });
+
+            engine.Worker(cd, Dep.On(Status, Yes), () =>
+            {
+                if (Yes && !Status) throw new InvalidOperationException();
+            });
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine)
@@ -82,7 +87,11 @@ namespace Examples.Scenes
 
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("yes"), Yes,
-                    () => current, checker: () => Status
+                    () => current
+                );
+                Common.Binders.ButtonInteractable(scd, engine,
+                    map.GetComponent<Button>("yes"), Status,
+                    b => b
                 );
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("no"), No,
