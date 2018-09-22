@@ -30,7 +30,7 @@ namespace Examples.Scenes
             Mode = mode;
             State = engine.El(SceneState.Closed);
             Root = engine.El<GameObject>(null);
-            LoadingProgress = engine.El(0f);
+            LoadingProgress = engine.El(1f);
             Open = engine.Op<Empty>();
             Close = engine.Op<Empty>();
         }
@@ -98,6 +98,7 @@ namespace Examples.Scenes
                 LoadingProgress.Write(load.progress);
                 yield return null;
             }
+            LoadingProgress.Write(1f);
             
             var scene = SceneManager.GetSceneByName(Name);
             root = scene.GetRootGameObjects()[0];

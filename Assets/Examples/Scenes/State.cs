@@ -26,10 +26,10 @@ namespace Examples.Scenes
             Inventory.Setup(cd, engine, state);
             SimpleLoading.Setup(cd, engine);
 
-            engine.Worker(cd, Dep.On(SimpleLoading.State, Home.Scene.State, Inventory.Scene.State), () =>
+            engine.Worker(cd, Dep.On(SimpleLoading.State, Home.Scene.LoadingProgress, Inventory.Scene.LoadingProgress), () =>
             {
-                bool needLoading = Home.Scene.State == SceneState.Opening ||
-                    Inventory.Scene.State == SceneState.Opening;
+                bool needLoading = Home.Scene.LoadingProgress < 1f ||
+                    Inventory.Scene.LoadingProgress < 1f;
                 if (SimpleLoading.State == SceneState.Closed && needLoading)
                 {
                     SimpleLoading.Open.Fire(Empty.Instance);
