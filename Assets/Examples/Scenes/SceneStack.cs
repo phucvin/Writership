@@ -64,7 +64,7 @@ namespace Examples.Scenes
         {
             engine.Mainer(cd, Dep.On(Back), () =>
             {
-                if (!Back || ActiveScenes.Count > 1) return;
+                if (!Back || !Back.First || ActiveScenes.Count > 1) return;
 
 #if UNITY_EDITOR
                 EditorApplication.isPlaying = false;

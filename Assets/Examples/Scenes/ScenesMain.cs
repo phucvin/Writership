@@ -2,12 +2,16 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Writership;
 
 namespace Examples.Scenes
 {
     public class ScenesMain : MonoBehaviour, IDisposable
     {
+        [SerializeField]
+        private Common.Map map = null;
+
         private IEngine engine;
         private State state;
 
@@ -30,6 +34,11 @@ namespace Examples.Scenes
 
             state.Setup(cd, engine);
             state.SetupUnity(cd, engine);
+
+            Common.Binders.ButtonClick(cd, engine,
+                map.GetComponent<Button>("back"), state.SceneStack.Back,
+                () => false
+            );
 
             // Test
             state.Home.Scene.Open.Fire(Empty.Instance);
