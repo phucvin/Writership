@@ -10,6 +10,7 @@ namespace Examples.Scenes
         public readonly Inventory Inventory;
         public readonly Scene SimpleLoading;
         public readonly SceneStack SceneStack;
+        public readonly El<bool> ShouldShowBack;
 
         public State(IEngine engine)
         {
@@ -18,6 +19,7 @@ namespace Examples.Scenes
             Inventory = new Inventory(engine);
             SimpleLoading = new Scene(engine, "SimpleLoading", LoadSceneMode.Additive);
             SceneStack = new SceneStack(engine);
+            ShouldShowBack = engine.El(false);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
@@ -49,6 +51,11 @@ namespace Examples.Scenes
                 {
                     SimpleLoading.Close.Fire(Empty.Instance);
                 }
+            });
+            engine.Worker(cd, Dep.On(SceneStack.ActiveScenes), () =>
+            {
+                var active = SceneStack.ActiveScenes.Read();
+                ShouldShowBack.Write(active.Count > 1 && active[active.Count - 1].BackAutoClose);
             });
         }
 

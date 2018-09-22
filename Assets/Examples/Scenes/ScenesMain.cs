@@ -39,6 +39,9 @@ namespace Examples.Scenes
                 map.GetComponent<Button>("back"), state.SceneStack.Back,
                 () => false
             );
+            Common.Binders.Enabled(cd, engine,
+                state.ShouldShowBack, map.Get("back")
+            );
 
             // Test
             state.Home.Scene.Open.Fire(Empty.Instance);

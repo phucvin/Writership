@@ -18,6 +18,7 @@ namespace Examples.Scenes
     {
         public readonly string Name;
         public readonly LoadSceneMode Mode;
+        public readonly bool BackAutoClose;
         public readonly El<SceneState> State;
         public readonly El<GameObject> Root;
         public readonly El<float> LoadingProgress;
@@ -25,10 +26,12 @@ namespace Examples.Scenes
         public readonly Op<Empty> Close;
         public readonly Op<bool> Back;
 
-        public Scene(IEngine engine, string name, LoadSceneMode mode = LoadSceneMode.Additive)
+        public Scene(IEngine engine, string name, LoadSceneMode mode = LoadSceneMode.Additive,
+            bool backAutoClose = true)
         {
             Name = name;
             Mode = mode;
+            BackAutoClose = backAutoClose;
             State = engine.El(SceneState.Closed);
             Root = engine.El<GameObject>(null);
             LoadingProgress = engine.El(1f);
@@ -37,9 +40,9 @@ namespace Examples.Scenes
             Back = engine.Op<bool>(allowWriters: true);
         }
 
-        public void Setup(CompositeDisposable cd, IEngine engine, bool backAutoClose = true)
+        public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            if (backAutoClose)
+            if (BackAutoClose)
             {
                 engine.Worker(cd, Dep.On(Back), () =>
                 {

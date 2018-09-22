@@ -16,7 +16,7 @@ namespace Examples.Scenes
         public SceneStack(IEngine engine)
         {
             ActiveScenes = engine.Li(new List<Scene>());
-            Back = engine.Op<bool>();
+            Back = engine.Op<bool>(allowWriters: true);
 
             registeredScenes = new List<Scene>();
         }

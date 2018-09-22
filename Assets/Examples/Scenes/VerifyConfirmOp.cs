@@ -27,13 +27,13 @@ namespace Examples.Scenes
             No = engine.Op<T>();
             Rejected = engine.Op<T>();
 
-            Dialog = new Scene(engine, "YesNoDialog");
+            Dialog = new Scene(engine, "YesNoDialog", backAutoClose: false);
             current = engine.El(default(T));
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            Dialog.Setup(cd, engine, backAutoClose: false);
+            Dialog.Setup(cd, engine);
 
             engine.Worker(cd, Dep.On(Status, Trigger), () =>
             {
