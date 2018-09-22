@@ -41,7 +41,11 @@ namespace Examples.Scenes
                 if (!root) return;
                 var map = root.GetComponent<Common.Map>();
                 var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
-                
+
+                Common.Binders.Label(scd, engine,
+                    map.GetComponent<Text>("gold"), state.Gold,
+                    i => string.Format("Gold: {0}", i)
+                );
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("back"), Scene.Back,
                     () => false
