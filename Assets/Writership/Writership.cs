@@ -7,20 +7,31 @@ namespace Writership
     {
         private StackTrace last;
 
+        public bool TryMark()
+        {
+            StackTrace now;
+            return TryMark(out now);
+        }
+
         public void Mark()
         {
-            var now = new StackTrace(2, true);
-
-            if (last == null)
-            {
-                last = now;
-            }
-            else if (!IsSame(last, now))
+            StackTrace now;
+            if (!TryMark(out now))
             {
                 UnityEngine.Debug.LogWarning("Last write: \n" + last.ToString());
                 UnityEngine.Debug.LogWarning("Now write: \n" + now.ToString());
                 throw new InvalidOperationException("Cannot write to same at different places");
             }
+        }
+
+        private bool TryMark(out StackTrace now)
+        {
+            now = new StackTrace(2, true);
+
+            if (last == null) last = now;
+            else if (!IsSame(last, now)) return false;
+
+            return true;
         }
 
         private static bool IsSame(StackTrace a, StackTrace b)

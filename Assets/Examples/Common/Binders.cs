@@ -62,7 +62,7 @@ namespace Examples.Common
             UnityAction<string> action = text =>
             {
                 if (converter1(src.Read()) == text) return;
-                src.WriteRaw(converter2(text));
+                src.Write(converter2(text));
             };
             dst.onValueChanged.AddListener(action);
             cd.Add(new RemoveOnValueChangedListener(dst, action));

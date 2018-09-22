@@ -22,15 +22,15 @@ namespace Examples.TwoWay
             input = engine.Tw(string.Empty);
 
             var sb = new StringBuilder();
-            engine.Worker(cd, Dep.On(input.Raw), () =>
+            engine.Worker(cd, Dep.On(input), () =>
             {
                 sb.Length = 0;
-                sb.Append(input.ReadRaw());
+                sb.Append(input.Read());
                 sb.Replace("hello", "HELLO");
                 sb.Replace("bye", "");
                 input.Write(sb.ToString());
             });
-            
+
             Common.Binders.InputFieldTwoWay(cd, engine,
                 map.GetComponent<InputField>("input"), input,
                 s => s, s => s
