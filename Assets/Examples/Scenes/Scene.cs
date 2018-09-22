@@ -59,6 +59,10 @@ namespace Examples.Scenes
                 {
                     State.Write(SceneState.Closing);
                 }
+                else if (State == SceneState.Opened && !Root.Read())
+                {
+                    State.Write(SceneState.Closed);
+                }
                 else if (Open || Close)
                 {
                     throw new NotImplementedException();
@@ -89,6 +93,11 @@ namespace Examples.Scenes
                 if (transitioner) yield return transitioner.Out();
                 yield return SceneManager.UnloadSceneAsync(Root.Read().scene);
                 yield break;
+            }
+
+            if (Name != "SimpleLoading" && UnityEngine.Random.value < 0.5f)
+            {
+                yield return new WaitForSeconds(UnityEngine.Random.Range(1f, 3f));
             }
 
             var load = SceneManager.LoadSceneAsync(Name, Mode);
