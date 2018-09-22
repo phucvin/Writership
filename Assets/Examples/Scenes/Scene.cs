@@ -93,8 +93,8 @@ namespace Examples.Scenes
                 LoadingProgress.Write(load.progress);
                 yield return null;
             }
-
-            var scene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
+            
+            var scene = SceneManager.GetSceneByName(Name);
             var root = scene.GetRootGameObjects()[0];
             // TODO Trigger opening transition, wait for done
             Root.Write(root);
