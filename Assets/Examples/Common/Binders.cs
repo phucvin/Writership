@@ -40,10 +40,23 @@ namespace Examples.Common
             Func<string, T> converter)
         {
             if (!src) return NotBinded();
-
+            
             UnityAction<string> action = text => dst.Write(converter(text));
             src.onValueChanged.AddListener(action);
             cd.Add(new RemoveOnValueChangedListener(src, action));
+            return true;
+        }
+
+        public static bool InputField2<T>(CompositeDisposable cd, IEngine engine,
+            InputField dst, IEl<T> src,
+            Func<T, string> converter)
+        {
+            if (!dst) return NotBinded();
+
+            engine.Reader(cd,
+                new object[] { src },
+                () => dst.text = converter(src.Read())
+            );
             return true;
         }
 
