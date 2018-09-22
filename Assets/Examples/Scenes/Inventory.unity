@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311947, g: 0.38074005, b: 0.35872722, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -201,6 +201,8 @@ GameObject:
   - component: {fileID: 639436771}
   - component: {fileID: 639436776}
   - component: {fileID: 639436775}
+  - component: {fileID: 639436778}
+  - component: {fileID: 639436777}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -310,6 +312,36 @@ MonoBehaviour:
   list:
   - Name: upgrade
     GameObject: {fileID: 848503707}
+--- !u!95 &639436777
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 639436770}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b3926d515c6d05f43b0e6b849d1b5106, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &639436778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 639436770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1dec08bf152ba4d8f2c55da0ba3ded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 639436777}
 --- !u!1 &848503707
 GameObject:
   m_ObjectHideFlags: 0
@@ -524,7 +556,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 247.3, y: -6}
+  m_AnchoredPosition: {x: 247.30078, y: -5.9999695}
   m_SizeDelta: {x: -546.5, y: -140.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1859810761

@@ -32,7 +32,7 @@ namespace Examples.Scenes
                 var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
 
                 Common.Binders.ButtonClick(scd, engine,
-                    map.GetComponent<Button>("upgrade"), UpgradeItem,
+                    map.GetComponent<Button>("upgrade"), Scene.Close,
                     () => Empty.Instance
                 );
             });

@@ -79,9 +79,14 @@ namespace Examples.Scenes
 
         private IEnumerator Exec(bool open)
         {
+            GameObject root;
+            Transitioner transitioner;
+
             if (!open)
             {
-                // TODO Trigger closing transition, wait for done
+                root = Root.Read();
+                transitioner = root.GetComponent<Transitioner>();
+                if (transitioner) yield return transitioner.Out();
                 yield return SceneManager.UnloadSceneAsync(Root.Read().scene);
                 yield break;
             }
@@ -95,8 +100,9 @@ namespace Examples.Scenes
             }
             
             var scene = SceneManager.GetSceneByName(Name);
-            var root = scene.GetRootGameObjects()[0];
-            // TODO Trigger opening transition, wait for done
+            root = scene.GetRootGameObjects()[0];
+            transitioner = root.GetComponent<Transitioner>();
+            if (transitioner) yield return transitioner.In();
             Root.Write(root);
 
             // Watch
