@@ -20,6 +20,7 @@ namespace Examples.Scenes
             var state = this;
 
             Home.Setup(cd, engine, state);
+            Inventory.Setup(cd, engine, state);
 
             Home.Scene.Open.Fire(Empty.Instance);
         }
@@ -29,6 +30,7 @@ namespace Examples.Scenes
             var state = this;
 
             Home.SetupUnity(cd, engine, state);
+            Inventory.SetupUnity(cd, engine, state);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Examples.Scenes
 
         public Inventory(IEngine engine)
         {
-            Scene = new Scene(engine, "Inventory", LoadSceneMode.Single);
+            Scene = new Scene(engine, "Inventory", LoadSceneMode.Additive);
             UpgradeItem = engine.Op<Empty>();
         }
 
@@ -32,7 +32,7 @@ namespace Examples.Scenes
                 var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
 
                 Common.Binders.ButtonClick(scd, engine,
-                    map.GetComponent<Button>("confirm"), UpgradeItem,
+                    map.GetComponent<Button>("upgrade"), UpgradeItem,
                     () => Empty.Instance
                 );
             });

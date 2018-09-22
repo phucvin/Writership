@@ -59,6 +59,10 @@ namespace Examples.Scenes
                 {
                     State.Write(SceneState.Closing);
                 }
+                else if (Open || Close)
+                {
+                    throw new NotImplementedException();
+                }
             });
             engine.Mainer(cd, Dep.On(State), () =>
             {

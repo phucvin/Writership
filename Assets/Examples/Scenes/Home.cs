@@ -7,12 +7,10 @@ namespace Examples.Scenes
     public class Home
     {
         public readonly Scene Scene;
-        public readonly Op<Empty> OpenInventory;
 
         public Home(IEngine engine)
         {
             Scene = new Scene(engine, "Home", LoadSceneMode.Single);
-            OpenInventory = engine.Op<Empty>();
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
@@ -34,6 +32,10 @@ namespace Examples.Scenes
                 Common.Binders.Label(scd, engine,
                     map.GetComponent<Text>("gold"), state.Gold,
                     i => string.Format("Gold: {0}", i)
+                );
+                Common.Binders.ButtonClick(scd, engine,
+                    map.GetComponent<Button>("inventory"), state.Inventory.Scene.Open,
+                    () => Empty.Instance
                 );
             });
         }
