@@ -33,7 +33,7 @@ namespace Examples.Scenes
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            Dialog.Setup(cd, engine);
+            Dialog.Setup(cd, engine, backAutoClose: false);
 
             engine.Worker(cd, Dep.On(Status, Trigger), () =>
             {
@@ -96,6 +96,10 @@ namespace Examples.Scenes
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("no"), No,
                     () => current
+                );
+                Common.Binders.ButtonClick(scd, engine,
+                    map.GetComponent<Button>("back"), Dialog.Back,
+                    () => false
                 );
             });
         }

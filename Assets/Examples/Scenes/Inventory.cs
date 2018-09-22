@@ -21,6 +21,13 @@ namespace Examples.Scenes
         {
             Scene.Setup(cd, engine);
             UpgradeItem.Setup(cd, engine);
+
+            engine.Worker(cd, Dep.On(UpgradeItem.Dialog.Back), () =>
+            {
+                var back = UpgradeItem.Dialog.Back;
+                if (!back || !back.First) return;
+                UpgradeItem.Dialog.Close.Fire(Empty.Instance);
+            });
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine, State state)
@@ -36,8 +43,8 @@ namespace Examples.Scenes
                 var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
                 
                 Common.Binders.ButtonClick(scd, engine,
-                    map.GetComponent<Button>("close"), Scene.Close,
-                    () => Empty.Instance
+                    map.GetComponent<Button>("back"), Scene.Back,
+                    () => false
                 );
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("upgrade"), UpgradeItem.Trigger,

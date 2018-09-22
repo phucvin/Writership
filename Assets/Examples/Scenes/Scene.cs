@@ -23,6 +23,7 @@ namespace Examples.Scenes
         public readonly El<float> LoadingProgress;
         public readonly Op<Empty> Open;
         public readonly Op<Empty> Close;
+        public readonly Op<bool> Back;
 
         public Scene(IEngine engine, string name, LoadSceneMode mode = LoadSceneMode.Additive)
         {
@@ -33,10 +34,18 @@ namespace Examples.Scenes
             LoadingProgress = engine.El(1f);
             Open = engine.Op<Empty>(allowWriters: true);
             Close = engine.Op<Empty>(allowWriters: true);
+            Back = engine.Op<bool>(allowWriters: true);
         }
 
-        public void Setup(CompositeDisposable cd, IEngine engine)
+        public void Setup(CompositeDisposable cd, IEngine engine, bool backAutoClose = true)
         {
+            if (backAutoClose)
+            {
+                engine.Worker(cd, Dep.On(Back), () =>
+                {
+                    if (Back) Close.Fire(Empty.Instance);
+                });
+            }
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine)

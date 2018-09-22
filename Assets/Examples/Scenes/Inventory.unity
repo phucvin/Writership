@@ -310,7 +310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   list:
-  - Name: close
+  - Name: back
     GameObject: {fileID: 1770418017}
   - Name: upgrade
     GameObject: {fileID: 848503707}

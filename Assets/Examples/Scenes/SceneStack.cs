@@ -56,7 +56,7 @@ namespace Examples.Scenes
             engine.Worker(cd, Dep.On(Back), () =>
             {
                 if (!Back || ActiveScenes.Count <= 1) return;
-                ActiveScenes[ActiveScenes.Count - 1].Close.Fire(Empty.Instance);
+                ActiveScenes[ActiveScenes.Count - 1].Back.Fire(Back.First);
             });
         }
 

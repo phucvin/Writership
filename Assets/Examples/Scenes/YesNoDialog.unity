@@ -503,6 +503,8 @@ MonoBehaviour:
     GameObject: {fileID: 848503707}
   - Name: no
     GameObject: {fileID: 531897617}
+  - Name: back
+    GameObject: {fileID: 1770418017}
 --- !u!95 &639436777
 Animator:
   serializedVersion: 3
