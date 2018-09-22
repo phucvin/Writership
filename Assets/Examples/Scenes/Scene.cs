@@ -59,7 +59,8 @@ namespace Examples.Scenes
                 {
                     State.Write(SceneState.Opened);
                 }
-                else if (State == SceneState.Closing && !Root.Read())
+                else if (!Root.Read() &&
+                    (State == SceneState.Closing || State == SceneState.Opened))
                 {
                     State.Write(SceneState.Closed);
                 }
@@ -70,10 +71,6 @@ namespace Examples.Scenes
                 else if (State == SceneState.Opened && Close)
                 {
                     State.Write(SceneState.Closing);
-                }
-                else if (State == SceneState.Opened && !Root.Read())
-                {
-                    State.Write(SceneState.Closed);
                 }
                 else if (State == SceneState.Closing && Close)
                 {
