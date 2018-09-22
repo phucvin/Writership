@@ -45,6 +45,16 @@ namespace Writership
             engine.Listen(engine.WorkerCellIndex, cd, targets, job);
         }
 
+        public static void OpMainer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(-engine.MainCellIndex -1, cd, targets, job);
+        }
+
+        public static void OpWorker(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
+        {
+            engine.Listen(-engine.WorkerCellIndex - 1, cd, targets, job);
+        }
+
         public static void Computer(this IEngine engine, CompositeDisposable cd, object[] targets, Action job)
         {
             engine.Listen(engine.WorkerCellIndex, cd, targets, job);

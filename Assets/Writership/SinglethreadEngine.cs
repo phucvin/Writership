@@ -83,6 +83,13 @@ namespace Writership
 
         public void Listen(int atCellIndex, CompositeDisposable cd, object[] targets, Action job)
         {
+            bool needPending = true;
+            if (atCellIndex < 0)
+            {
+                atCellIndex = -atCellIndex - 1;
+                needPending = false;
+            }
+
             // TODO Lock or use thread-safe collections
             // to avoid multiple threads register at same time
             var listeners = this.listeners[atCellIndex];
@@ -98,7 +105,7 @@ namespace Writership
                 jobs.Add(job);
             }
 
-            pendingListeners[atCellIndex].Add(job); // TODO Also need thread-safe here
+            if (needPending) pendingListeners[atCellIndex].Add(job); // TODO Also need thread-safe here
 
             if (cd != null) cd.Add(new Unregisterer(this, atCellIndex, targets, job));
         }
