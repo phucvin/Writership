@@ -78,7 +78,10 @@ public class Others
     {
         var cd = new CompositeDisposable();
         var engine = new SinglethreadEngine();
-        var tick = engine.Op<float>(reducer: (a, b) => a + b);
+        var tick = engine.Op<float>(
+            reducer: (a, b) => a + b,
+            allowMulticast: true
+        );
         var dummy = engine.El(10);
 
         float computerReduced = 0;

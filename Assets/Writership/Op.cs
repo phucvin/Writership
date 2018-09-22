@@ -24,7 +24,8 @@ namespace Writership
 
         private readonly IEngine engine;
         private readonly bool allowWriters;
-        private Func<T, T, T> reducer;
+        private readonly Func<T, T, T> reducer;
+        private readonly bool allowMulticast;
         private readonly List<T>[] cells;
         private readonly IList<T>[] readonlyCells;
         private readonly T[] reducedCells;
@@ -36,11 +37,14 @@ namespace Writership
 
         private int lastCellIndex;
 
-        public Op(IEngine engine, bool allowWriters = false, bool needApplied = false, Func<T, T, T> reducer = null)
+        public Op(IEngine engine, bool allowWriters = false,
+            bool needApplied = false, Func<T, T, T> reducer = null,
+            bool allowMulticast = false)
         {
             this.engine = engine;
             this.allowWriters = allowWriters;
             this.reducer = reducer;
+            this.allowMulticast = allowMulticast;
 
             cells = new List<T>[engine.TotalCells - 1];
             readonlyCells = new IList<T>[engine.TotalCells - 1];
@@ -110,6 +114,10 @@ namespace Writership
             }
             lastCellIndex = engine.CurrentCellIndex;
             MarkSelfDirty();
+            if (!allowMulticast && writeCell.Count > 0)
+            {
+                throw new InvalidOperationException("Op is not multicast");
+            }
             writeCell.Add(new WithFlag { Flag = 0, Value = value });
         }
 

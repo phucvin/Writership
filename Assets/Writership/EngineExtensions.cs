@@ -21,9 +21,11 @@ namespace Writership
             return new Ar<T>(engine, array);
         }
 
-        public static Op<T> Op<T>(this IEngine engine, bool allowWriters = false, bool needApplied = false, Func<T, T, T> reducer = null)
+        public static Op<T> Op<T>(this IEngine engine, bool allowWriters = false,
+            bool needApplied = false, Func<T, T, T> reducer = null,
+            bool allowMulticast = false)
         {
-            return new Op<T>(engine, allowWriters, needApplied, reducer);
+            return new Op<T>(engine, allowWriters, needApplied, reducer, allowMulticast);
         }
 
         public static Wa Wa<T>(this IEngine engine, CompositeDisposable cd, ILi<T> li, Func<T, object> extractor)

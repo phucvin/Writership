@@ -11,8 +11,8 @@ namespace Examples.Counter
         public State(CompositeDisposable cd, IEngine engine)
         {
             Value = engine.El(0);
-            Increase = engine.Op<Empty>();
-            Decrease = engine.Op<Empty>();
+            Increase = engine.Op<Empty>(allowMulticast: true);
+            Decrease = engine.Op<Empty>(allowMulticast: true);
 
             engine.Computer(cd,
                 new object[] {
