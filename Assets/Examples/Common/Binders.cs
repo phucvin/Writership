@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Writership;
 
@@ -43,7 +42,7 @@ namespace Examples.Common
             
             UnityAction<string> action = text => dst.Write(converter(text));
             src.onValueChanged.AddListener(action);
-            cd.Add(new RemoveOnValueChangedListener(src, action));
+            cd.Add(new DisposableAction(() => src.onValueChanged.RemoveListener(action)));
             return true;
         }
 
@@ -65,7 +64,7 @@ namespace Examples.Common
                 src.Write(converter2(text));
             };
             dst.onValueChanged.AddListener(action);
-            cd.Add(new RemoveOnValueChangedListener(dst, action));
+            cd.Add(new DisposableAction(() => dst.onValueChanged.RemoveListener(action)));
 
             return true;
         }
@@ -82,7 +81,7 @@ namespace Examples.Common
                 dst.Fire(valueGetter());
             };
             src.onClick.AddListener(action);
-            cd.Add(new RemoveOnClickListener(src, action));
+            cd.Add(new DisposableAction(() => src.onClick.RemoveListener(action)));
             return true;
         }
 
