@@ -6,12 +6,14 @@ namespace Examples.Scenes
 {
     public class Inventory
     {
-        public readonly Scene<Empty> Scene;
+        public readonly Scene<int> Scene;
+        public readonly Tw<int> ChosenTabIndex;
         public readonly VerifyConfirmOp<string> UpgradeItem;
 
         public Inventory(IEngine engine)
         {
             Scene = new MyScene(engine);
+            ChosenTabIndex = engine.Tw(0);
             UpgradeItem = new VerifyConfirmOp<string>(engine,
                 s => string.Format("Do you want to upgrade {0}?", s)
             );
@@ -22,6 +24,10 @@ namespace Examples.Scenes
             Scene.Setup(cd, engine);
             UpgradeItem.Setup(cd, engine);
 
+            engine.OpWorker(cd, Dep.On(Scene.Open), () =>
+            {
+                ChosenTabIndex.Write(Scene.Open.First);
+            });
             engine.Worker(cd, Dep.On(state.Gold), () =>
             {
                 UpgradeItem.Status.Write(state.Gold >= 10);
@@ -65,7 +71,7 @@ namespace Examples.Scenes
             });
         }
 
-        private class MyScene : Scene<Empty>
+        private class MyScene : Scene<int>
         {
             public MyScene(IEngine engine) : base(engine, "Inventory")
             {

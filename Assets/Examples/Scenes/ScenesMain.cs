@@ -40,7 +40,7 @@ namespace Examples.Scenes
                 () => false
             );
             Common.Binders.Enabled(cd, engine,
-                state.ShouldShowBack, map.Get("back")
+                map.Get("back"), state.ShouldShowBack
             );
 
             // Test
