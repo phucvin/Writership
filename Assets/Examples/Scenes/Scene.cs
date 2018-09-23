@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Writership;
@@ -94,6 +95,11 @@ namespace Examples.Scenes
             });
         }
 
+        protected virtual IEnumerator<float> Preload()
+        {
+            return null;
+        }
+
         private IEnumerator Exec(bool open)
         {
             GameObject root;
@@ -108,16 +114,18 @@ namespace Examples.Scenes
                 yield break;
             }
 
-            if (Name != "SimpleLoading" && UnityEngine.Random.value < 0.5f)
+            var preload = Preload();
+            while (preload != null && preload.MoveNext())
             {
-                yield return new WaitForSeconds(UnityEngine.Random.Range(1f, 3f));
+                LoadingProgress.Write(preload.Current / 2f);
+                yield return null;
             }
 
             var load = SceneManager.LoadSceneAsync(Name, Mode);
             //load.allowSceneActivation = false; // TODO Use this
             while (!load.isDone)
             {
-                LoadingProgress.Write(load.progress);
+                LoadingProgress.Write(0.5f + (load.progress / 2f));
                 yield return null;
             }
             LoadingProgress.Write(1f);

@@ -1,4 +1,4 @@
-﻿using UnityEngine.SceneManagement;
+﻿using System.Collections.Generic;
 using UnityEngine.UI;
 using Writership;
 
@@ -11,7 +11,7 @@ namespace Examples.Scenes
 
         public Inventory(IEngine engine)
         {
-            Scene = new Scene(engine, "Inventory", LoadSceneMode.Additive);
+            Scene = new MyScene(engine);
             UpgradeItem = new VerifyConfirmOp<string>(engine,
                 s => string.Format("Do you want to upgrade {0}?", s)
             );
@@ -63,6 +63,18 @@ namespace Examples.Scenes
                     b => b
                 );
             });
+        }
+
+        private class MyScene : Scene
+        {
+            public MyScene(IEngine engine) : base(engine, "Inventory")
+            {
+            }
+
+            protected override IEnumerator<float> Preload()
+            {
+                yield return 1f;
+            }
         }
     }
 }
