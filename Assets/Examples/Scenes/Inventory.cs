@@ -73,7 +73,10 @@ namespace Examples.Scenes
 
             protected override IEnumerator<float> Preload()
             {
-                yield return 1f;
+                for (int i = 0, n = 100; i < n; ++i)
+                {
+                    yield return i * 1f / n;
+                }
             }
         }
     }
