@@ -14,7 +14,7 @@ namespace Examples.Scenes
         public readonly Op<T> No;
         public readonly Op<T> Rejected;
 
-        public readonly Scene Dialog;
+        public readonly Scene<Empty> Dialog;
         private readonly El<T> current;
 
         public VerifyConfirmOp(IEngine engine, Func<T, string> messageFormatter, bool allowWriters = false)
@@ -27,7 +27,7 @@ namespace Examples.Scenes
             No = engine.Op<T>();
             Rejected = engine.Op<T>();
 
-            Dialog = new Scene(engine, "YesNoDialog", backAutoClose: false);
+            Dialog = new Scene<Empty>(engine, "YesNoDialog", backAutoClose: false);
             current = engine.El(default(T));
         }
 

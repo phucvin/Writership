@@ -6,7 +6,7 @@ namespace Examples.Scenes
 {
     public class Inventory
     {
-        public readonly Scene Scene;
+        public readonly Scene<Empty> Scene;
         public readonly VerifyConfirmOp<string> UpgradeItem;
 
         public Inventory(IEngine engine)
@@ -65,7 +65,7 @@ namespace Examples.Scenes
             });
         }
 
-        private class MyScene : Scene
+        private class MyScene : Scene<Empty>
         {
             public MyScene(IEngine engine) : base(engine, "Inventory")
             {

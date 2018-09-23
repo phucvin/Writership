@@ -6,11 +6,11 @@ namespace Examples.Scenes
 {
     public class Home
     {
-        public readonly Scene Scene;
+        public readonly Scene<Empty> Scene;
 
         public Home(IEngine engine)
         {
-            Scene = new Scene(engine, "Home", LoadSceneMode.Single);
+            Scene = new Scene<Empty>(engine, "Home", LoadSceneMode.Single);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)

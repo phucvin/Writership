@@ -15,7 +15,7 @@ namespace Examples.Scenes
         Closing
     }
 
-    public class Scene
+    public abstract class Scene
     {
         public readonly string Name;
         public readonly LoadSceneMode Mode;
@@ -23,12 +23,10 @@ namespace Examples.Scenes
         public readonly El<SceneState> State;
         public readonly El<GameObject> Root;
         public readonly El<float> LoadingProgress;
-        public readonly Op<Empty> Open;
         public readonly Op<Empty> Close;
         public readonly Op<bool> Back;
 
-        public Scene(IEngine engine, string name, LoadSceneMode mode = LoadSceneMode.Additive,
-            bool backAutoClose = true)
+        protected Scene(IEngine engine, string name, LoadSceneMode mode, bool backAutoClose)
         {
             Name = name;
             Mode = mode;
@@ -36,9 +34,20 @@ namespace Examples.Scenes
             State = engine.El(SceneState.Closed);
             Root = engine.El<GameObject>(null);
             LoadingProgress = engine.El(1f);
-            Open = engine.Op<Empty>(allowWriters: true);
             Close = engine.Op<Empty>(allowWriters: true);
             Back = engine.Op<bool>(allowWriters: true);
+        }
+    }
+
+    public class Scene<T> : Scene
+    {
+        public readonly Op<T> Open;
+
+        public Scene(IEngine engine, string name, LoadSceneMode mode = LoadSceneMode.Additive,
+            bool backAutoClose = true)
+            : base(engine, name, mode, backAutoClose)
+        {
+            Open = engine.Op<T>(allowWriters: true);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)

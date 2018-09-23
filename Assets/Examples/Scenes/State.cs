@@ -8,7 +8,7 @@ namespace Examples.Scenes
         public readonly El<int> Gold;
         public readonly Home Home;
         public readonly Inventory Inventory;
-        public readonly Scene SimpleLoading;
+        public readonly Scene<Empty> SimpleLoading;
         public readonly SceneStack SceneStack;
         public readonly El<bool> ShouldShowBack;
 
@@ -17,7 +17,7 @@ namespace Examples.Scenes
             Gold = engine.El(50);
             Home = new Home(engine);
             Inventory = new Inventory(engine);
-            SimpleLoading = new Scene(engine, "SimpleLoading", LoadSceneMode.Additive);
+            SimpleLoading = new Scene<Empty>(engine, "SimpleLoading", LoadSceneMode.Additive);
             SceneStack = new SceneStack(engine);
             ShouldShowBack = engine.El(false);
         }
