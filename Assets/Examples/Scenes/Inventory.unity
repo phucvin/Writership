@@ -316,6 +316,8 @@ MonoBehaviour:
     GameObject: {fileID: 848503707}
   - Name: gold
     GameObject: {fileID: 2139958333}
+  - Name: upgrade_text
+    GameObject: {fileID: 385158585}
 --- !u!95 &639436777
 Animator:
   serializedVersion: 3

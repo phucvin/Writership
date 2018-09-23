@@ -86,6 +86,19 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool TextColor<T>(CompositeDisposable cd, IEngine engine,
+            Text dst, El<T> src,
+            Func<T, Color> converter)
+        {
+            if (!dst) return NotBinded();
+
+            engine.Reader(cd,
+                new object[] { src },
+                () => dst.color = converter(src.Read())
+            );
+            return true;
+        }
+
         public static bool ButtonInteractable<T>(CompositeDisposable cd, IEngine engine,
             Button dst, IEl<T> src,
             Func<T, bool> converter)

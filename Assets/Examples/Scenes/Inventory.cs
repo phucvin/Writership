@@ -58,6 +58,10 @@ namespace Examples.Scenes
                     map.GetComponent<Button>("upgrade"), UpgradeItem.Trigger,
                     () => "Sword"
                 );
+                Common.Binders.TextColor(scd, engine,
+                    map.GetComponent<Text>("upgrade_text"), UpgradeItem.Status,
+                    ok => ok ? Color.black : Color.gray
+                );
             });
         }
     }

@@ -14,7 +14,7 @@ namespace Examples.Scenes
 
         public State(IEngine engine)
         {
-            Gold = engine.El(100);
+            Gold = engine.El(50);
             Home = new Home(engine);
             Inventory = new Inventory(engine);
             SimpleLoading = new Scene(engine, "SimpleLoading", LoadSceneMode.Additive);
