@@ -60,6 +60,7 @@ namespace Examples.Scenes
                 );
                 Common.Binders.TextColor(scd, engine,
                     map.GetComponent<Text>("upgrade_text"), UpgradeItem.Status,
+                    // TODO Read from (global) map too
                     ok => ok ? Color.black : Color.gray
                 );
             });
