@@ -35,7 +35,7 @@ namespace Examples.Scenes
                 );
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("inventory"), state.Inventory.Scene.Open,
-                    () => 0
+                    () => Empty.Instance
                 );
             });
         }
