@@ -50,18 +50,17 @@ namespace Examples.Scenes
                     map.GetComponent<Text>("gold"), state.Gold,
                     i => string.Format("Gold: {0}", i)
                 );
-                Common.Binders.ButtonClick(scd, engine,
-                    map.GetComponent<Button>("back"), Scene.Back,
+                Common.Binders.Click(scd, engine,
+                    map.GetComponent<Common.Clickable>("back"), Scene.Back,
                     () => false
                 );
-                Common.Binders.ButtonClick(scd, engine,
-                    map.GetComponent<Button>("upgrade"), UpgradeItem.Trigger,
+                Common.Binders.Click(scd, engine,
+                    map.GetComponent<Common.Clickable>("upgrade"), UpgradeItem.Trigger,
                     () => "Sword"
                 );
-                Common.Binders.TextColor(scd, engine,
-                    map.GetComponent<Text>("upgrade_text"), UpgradeItem.Status,
-                    // TODO Read from (global) map too
-                    ok => ok ? Color.black : Color.gray
+                Common.Binders.ButtonInteractable(scd, engine,
+                    map.GetComponent<Button>("upgrade"), UpgradeItem.Status,
+                    b => b
                 );
             });
         }

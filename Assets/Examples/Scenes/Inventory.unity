@@ -316,8 +316,6 @@ MonoBehaviour:
     GameObject: {fileID: 848503707}
   - Name: gold
     GameObject: {fileID: 2139958333}
-  - Name: upgrade_text
-    GameObject: {fileID: 385158585}
 --- !u!95 &639436777
 Animator:
   serializedVersion: 3
@@ -359,6 +357,7 @@ GameObject:
   - component: {fileID: 848503711}
   - component: {fileID: 848503710}
   - component: {fileID: 848503709}
+  - component: {fileID: 848503712}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -460,6 +459,22 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 848503707}
   m_CullTransparentMesh: 0
+--- !u!114 &848503712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 848503707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b32785f1adf166040877ce730614437a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onClick:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!1 &1770418017
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,7 +485,7 @@ GameObject:
   - component: {fileID: 1770418018}
   - component: {fileID: 1770418020}
   - component: {fileID: 1770418019}
-  - component: {fileID: 1770418021}
+  - component: {fileID: 1770418022}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -530,7 +545,7 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1770418017}
   m_CullTransparentMesh: 0
---- !u!114 &1770418021
+--- !u!114 &1770418022
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -538,38 +553,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1770418017}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: 11500000, guid: b32785f1adf166040877ce730614437a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 0
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 1770418019}
-  m_OnClick:
+  onClick:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!1 &1859810759
 GameObject:

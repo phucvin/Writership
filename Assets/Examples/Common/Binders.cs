@@ -86,6 +86,22 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool Click<T>(CompositeDisposable cd, IEngine engine,
+            Clickable src, IOp<T> dst,
+            Func<T> valueGetter, Func<bool> checker = null)
+        {
+            if (!src) return NotBinded();
+
+            UnityAction action = () =>
+            {
+                if (checker != null && !checker()) return;
+                dst.Fire(valueGetter());
+            };
+            src.onClick.AddListener(action);
+            cd.Add(new DisposableAction(() => src.onClick.RemoveListener(action)));
+            return true;
+        }
+
         public static bool TextColor<T>(CompositeDisposable cd, IEngine engine,
             Text dst, El<T> src,
             Func<T, Color> converter)

@@ -97,8 +97,8 @@ namespace Examples.Scenes
                     map.GetComponent<Button>("no"), No,
                     () => current
                 );
-                Common.Binders.ButtonClick(scd, engine,
-                    map.GetComponent<Button>("back"), Dialog.Back,
+                Common.Binders.Click(scd, engine,
+                    map.GetComponent<Common.Clickable>("back"), Dialog.Back,
                     () => false
                 );
             });
