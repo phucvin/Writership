@@ -60,6 +60,8 @@ namespace Writership
             lock (dirties) // TODO Better use a thread-safe collection to reduce blocking
             {
                 var dirty = dirties.Find(it => ReferenceEquals(it.Inner, target));
+                // TODO If use thread-safe collection, should lock on dirty too
+                // at least in debug mode, to avoid accidentally using 2 threads to write to same
                 if (dirty == null)
                 {
                     dirty = new Dirty
