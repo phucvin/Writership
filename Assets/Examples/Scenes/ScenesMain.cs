@@ -45,7 +45,6 @@ namespace Examples.Scenes
 
             // Test
             state.Home.Scene.Open.Fire(Empty.Instance);
-            StartCoroutine(testUpgradeItemStatus());
             engine.Mainer(cd, Dep.On(state.Inventory.UpgradeItem.Yes), () =>
             {
                 if (!state.Inventory.UpgradeItem.Yes) return;
@@ -58,17 +57,6 @@ namespace Examples.Scenes
                 Debug.LogFormat("UpgradeItem {0}, Rejected",
                     state.Inventory.UpgradeItem.Rejected.First);
             });
-        }
-
-        private IEnumerator testUpgradeItemStatus()
-        {
-            bool b = true;
-            while (true)
-            {
-                state.Inventory.UpgradeItem.Status.Write(b);
-                b = !b;
-                yield return new WaitForSeconds(30f);
-            }
         }
 
         public void Dispose()

@@ -22,6 +22,10 @@ namespace Examples.Scenes
             Scene.Setup(cd, engine);
             UpgradeItem.Setup(cd, engine);
 
+            engine.Worker(cd, Dep.On(state.Gold), () =>
+            {
+                UpgradeItem.Status.Write(state.Gold >= 10);
+            });
             engine.Worker(cd, Dep.On(UpgradeItem.Dialog.Back), () =>
             {
                 var back = UpgradeItem.Dialog.Back;
