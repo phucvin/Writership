@@ -69,7 +69,7 @@ namespace Examples.Common
         }
 
         public static bool InputFieldTwoWay<T>(CompositeDisposable cd, IEngine engine,
-            InputField dst, ITw<T> src,
+            InputField dst, IEl<T> src,
             Func<T, string> converter1, Func<string, T> converter2)
         {
             if (!dst) return NotBinded();

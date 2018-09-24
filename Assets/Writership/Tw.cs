@@ -1,9 +1,9 @@
-﻿namespace Writership
+﻿using System;
+
+namespace Writership
 {
-    public interface ITw<T>
+    public interface ITw<T> : IEl<T>
     {
-        T Read();
-        void Write(T value);
     }
 
     public class Tw<T> : ITw<T>, IHaveCells
@@ -26,6 +26,9 @@
                 cells[i] = value;
             }
         }
+
+        [Obsolete]
+        public bool IsChanged { get { throw new NotImplementedException(); } }
 
         public T Read()
         {
