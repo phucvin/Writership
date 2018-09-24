@@ -32,9 +32,9 @@ public class TodoList
         var target = Substitute.For<ILi<ITodoItem>>();
         var targetAsWrite = new List<ITodoItem>();
         var nextId = Substitute.For<IEl<int>>();
-        var newItem = Substitute.For<IOp<string>>();
-        var deleteCompletedItems = Substitute.For<IOp<Empty>>();
-        var deleteItem = Substitute.For<IOp<string>>();
+        var newItem = Substitute.For<IMultiOp<string>>();
+        var deleteCompletedItems = Substitute.For<IMultiOp<Empty>>();
+        var deleteItem = Substitute.For<IMultiOp<string>>();
         var itemFactory = Substitute.For<ITodoItemFactory>();
         var newItem1 = Substitute.For<ITodoItem>();
         var newItem2 = Substitute.For<ITodoItem>();
@@ -61,9 +61,9 @@ public class TodoList
         var target = Substitute.For<ILi<ITodoItem>>();
         var targetAsWrite = new List<ITodoItem>();
         var nextId = Substitute.For<IEl<int>>();
-        var newItem = Substitute.For<IOp<string>>();
-        var deleteCompletedItems = Substitute.For<IOp<Empty>>();
-        var deleteItem = Substitute.For<IOp<string>>();
+        var newItem = Substitute.For<IMultiOp<string>>();
+        var deleteCompletedItems = Substitute.For<IMultiOp<Empty>>();
+        var deleteItem = Substitute.For<IMultiOp<string>>();
         var itemFactory = Substitute.For<ITodoItemFactory>();
         var newItem1 = Substitute.For<ITodoItem>();
         var newItem2 = Substitute.For<ITodoItem>();

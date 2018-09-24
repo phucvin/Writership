@@ -22,8 +22,8 @@ public class Others
         var engine = new SinglethreadEngine();
         var li = engine.Li(new List<Item>());
         var liValueWatcher = engine.Wa(cd, li, item => item.Value);
-        var op1 = engine.Op<Empty>();
-        var op2 = engine.Op<Empty>();
+        var op1 = engine.MultiOp<Empty>();
+        var op2 = engine.MultiOp<Empty>();
 
         int total = 0;
         engine.Computer(cd,
@@ -78,9 +78,8 @@ public class Others
     {
         var cd = new CompositeDisposable();
         var engine = new SinglethreadEngine();
-        var tick = engine.Op<float>(
-            reducer: (a, b) => a + b,
-            allowMulticast: true
+        var tick = engine.MultiOp<float>(
+            reducer: (a, b) => a + b
         );
         var dummy = engine.El(10);
 

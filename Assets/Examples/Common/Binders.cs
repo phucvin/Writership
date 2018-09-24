@@ -10,7 +10,7 @@ namespace Examples.Common
     public static class Binders
     {
         public static bool Enabled(CompositeDisposable cd, IEngine engine,
-            GameObject dst, IEl<bool> src)
+            GameObject dst, IReadable<bool> src)
         {
             if (!dst) return NotBinded();
 
@@ -22,7 +22,7 @@ namespace Examples.Common
         }
 
         public static bool Enabled<T>(CompositeDisposable cd, IEngine engine,
-            GameObject dst, IEl<T> src,
+            GameObject dst, IReadable<T> src,
             Func<T, bool> converter)
         {
             if (!dst) return NotBinded();
@@ -35,7 +35,7 @@ namespace Examples.Common
         }
 
         public static bool Label<T>(CompositeDisposable cd, IEngine engine,
-            Text dst, IEl<T> src,
+            Text dst, IReadable<T> src,
             Func<T, string> converter)
         {
             if (!dst) return NotBinded();
@@ -57,7 +57,7 @@ namespace Examples.Common
         }
 
         public static bool InputField<T>(CompositeDisposable cd, IEngine engine,
-            InputField src, IEl<T> dst,
+            InputField src, IWriteable<T> dst,
             Func<string, T> converter)
         {
             if (!src) return NotBinded();
@@ -69,7 +69,7 @@ namespace Examples.Common
         }
 
         public static bool InputFieldTwoWay<T>(CompositeDisposable cd, IEngine engine,
-            InputField dst, IEl<T> src,
+            InputField dst, IReadableWriteable<T> src,
             Func<T, string> converter1, Func<string, T> converter2)
         {
             if (!dst) return NotBinded();
@@ -92,7 +92,7 @@ namespace Examples.Common
         }
 
         public static bool ButtonClick<T>(CompositeDisposable cd, IEngine engine,
-            Button src, IOp<T> dst,
+            Button src, IFireable<T> dst,
             Func<T> valueGetter, Func<bool> checker = null)
         {
             if (!src) return NotBinded();
@@ -118,7 +118,7 @@ namespace Examples.Common
         }
 
         public static bool Click<T>(CompositeDisposable cd, IEngine engine,
-            Clickable src, IOp<T> dst,
+            Clickable src, IFireable<T> dst,
             Func<T> valueGetter, Func<bool> checker = null)
         {
             if (!src) return NotBinded();
@@ -144,7 +144,7 @@ namespace Examples.Common
         }
 
         public static bool TextColor<T>(CompositeDisposable cd, IEngine engine,
-            Text dst, El<T> src,
+            Text dst, IReadable<T> src,
             Func<T, Color> converter)
         {
             if (!dst) return NotBinded();
@@ -157,7 +157,7 @@ namespace Examples.Common
         }
 
         public static bool ButtonInteractable<T>(CompositeDisposable cd, IEngine engine,
-            Button dst, IEl<T> src,
+            Button dst, IReadable<T> src,
             Func<T, bool> converter)
         {
             if (!dst) return NotBinded();
@@ -179,7 +179,7 @@ namespace Examples.Common
         }
 
         public static bool List<T>(CompositeDisposable cd, IEngine engine,
-            Transform dst, Map prefab, ILi<T> src,
+            Transform dst, Map prefab, IReadable<IList<T>> src,
             Action<CompositeDisposable, Map, T> itemBinder)
         {
             if (!dst || !prefab) return NotBinded();

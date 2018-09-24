@@ -8,19 +8,19 @@ namespace Examples.Scenes
 {
     public class SceneStack
     {
-        public readonly Op<Scene> Register;
-        public readonly Op<Scene> Unregister;
+        public readonly MultiOp<Scene> Register;
+        public readonly MultiOp<Scene> Unregister;
         public readonly Li<Scene> ActiveScenes;
-        public readonly Op<bool> Back;
+        public readonly MultiOp<bool> Back;
 
         private readonly Li<Scene> registeredScenes;
 
         public SceneStack(IEngine engine)
         {
-            Register = engine.Op<Scene>(allowWriters: true, allowMulticast: true);
-            Unregister = engine.Op<Scene>(allowWriters: true, allowMulticast: true);
+            Register = engine.MultiOp<Scene>(allowWriters: true);
+            Unregister = engine.MultiOp<Scene>(allowWriters: true);
             ActiveScenes = engine.Li(new List<Scene>());
-            Back = engine.Op<bool>(allowWriters: true);
+            Back = engine.MultiOp<bool>(allowWriters: true);
 
             registeredScenes = engine.Li(new List<Scene>());
         }

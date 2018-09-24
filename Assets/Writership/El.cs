@@ -2,12 +2,10 @@
 
 namespace Writership
 {
-    public interface IEl<T>
+    public interface IEl<T> : IReadableWriteable<T>
     {
         [Obsolete]
         bool IsChanged { get; }
-        T Read();
-        void Write(T value);
     }
 
     public class El<T> : IEl<T>, IHaveCells

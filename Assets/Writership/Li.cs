@@ -2,9 +2,8 @@
 
 namespace Writership
 {
-    public interface ILi<T>
+    public interface ILi<T> : IReadable<IList<T>>
     {
-        IList<T> Read();
         List<T> AsWrite();
     }
 
@@ -54,6 +53,7 @@ namespace Writership
             return cells[engine.WriteCellIndex];
         }
 
+        // TODO Improve by caching, or not creating temporary array unless dirty
         public WriteProxy AsWriteProxy()
         {
             return new WriteProxy(this);

@@ -2,9 +2,8 @@
 
 namespace Writership
 {
-    public interface IAr<T>
+    public interface IAr<T> : IReadable<T[]>
     {
-        T[] Read();
         T[] AsWrite();
     }
 

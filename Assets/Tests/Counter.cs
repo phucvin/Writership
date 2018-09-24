@@ -10,8 +10,8 @@ public class Counter
     public void Value()
     {
         var target = Substitute.For<IEl<int>>();
-        var inc = Substitute.For<IOp<Empty>>();
-        var dec = Substitute.For<IOp<Empty>>();
+        var inc = Substitute.For<IMultiOp<Empty>>();
+        var dec = Substitute.For<IMultiOp<Empty>>();
 
         target.Read().Returns(0);
         inc.Read().Returns(new List<Empty> { Empty.Instance });

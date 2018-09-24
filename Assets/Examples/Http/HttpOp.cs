@@ -41,13 +41,13 @@ namespace Examples.Http
         private readonly HttpPipe pipe;
         private readonly string url;
 
-        public readonly Op<TReq> Request;
-        public readonly Op<TRes> Response;
-        public readonly Op<HttpError> Error;
+        public readonly MultiOp<TReq> Request;
+        public readonly MultiOp<TRes> Response;
+        public readonly MultiOp<HttpError> Error;
 
         public readonly El<int> Requesting;
 
-        private Op<string> rawResponse;
+        private MultiOp<string> rawResponse;
         private UnityEngine.Coroutine lastExec;
 
         public HttpOp(IEngine engine, string url,
@@ -57,9 +57,9 @@ namespace Examples.Http
             this.pipe = pipe;
             this.url = url;
 
-            Request = engine.Op<TReq>(allowWriters);
-            Response = engine.Op<TRes>();
-            Error = engine.Op<HttpError>();
+            Request = engine.MultiOp<TReq>(allowWriters);
+            Response = engine.MultiOp<TRes>();
+            Error = engine.MultiOp<HttpError>();
             Requesting = engine.El(0);
         }
 
@@ -79,7 +79,7 @@ namespace Examples.Http
         public HttpOp<TReq, TRes> WithWorkerResponseParser(Func<string, TRes> f)
         {
             responseParser = f;
-            rawResponse = engine.Op<string>();
+            rawResponse = engine.MultiOp<string>();
             return this;
         }
 

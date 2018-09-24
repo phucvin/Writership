@@ -3,18 +3,17 @@ using System.Collections.Generic;
 
 namespace Writership
 {
-    public interface IWa
+    public interface IWa : IReadable<int>
     {
-        int Read();
     }
 
     public class Wa : IWa, IHaveCells
     {
-        private readonly Op<Empty> inner;
+        private readonly MultiOp<Empty> inner;
 
         public Wa(IEngine engine)
         {
-            inner = engine.Op<Empty>();
+            inner = engine.MultiOp<Empty>();
         }
 
         internal void Setup<T>(CompositeDisposable cd, IEngine engine, ILi<T> li, Func<T, object> extractor)

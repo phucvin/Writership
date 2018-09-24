@@ -18,9 +18,9 @@ namespace Examples.TodoList
         public static void Items(
             ILi<ITodoItem> target,
             IEl<int> nextId,
-            IOp<string> newItem_,
-            IOp<Empty> deleteCompletedItems_,
-            IOp<string> deleteItem_,
+            IMultiOp<string> newItem_,
+            IMultiOp<Empty> deleteCompletedItems_,
+            IMultiOp<string> deleteItem_,
             ITodoItemFactory factory)
         {
             var newItem = newItem_.Read();
@@ -72,7 +72,7 @@ namespace Examples.TodoList
             }
         }
 
-        public static void EditingItemId(IEl<string> target, IOp<string> edit_, IOp<string> finish)
+        public static void EditingItemId(IEl<string> target, IMultiOp<string> edit_, IMultiOp<string> finish)
         {
             var edit = edit_.Read();
             var editingItemId = target.Read();
@@ -85,7 +85,7 @@ namespace Examples.TodoList
 
         public static class TodoItem
         {
-            public static void IsCompleted(IEl<bool> target, IOp<string> toggle_, string myId)
+            public static void IsCompleted(IEl<bool> target, IMultiOp<string> toggle_, string myId)
             {
                 var toggle = toggle_.Read();
 
@@ -97,7 +97,7 @@ namespace Examples.TodoList
                 if (isCompleted != target.Read()) target.Write(isCompleted);
             }
 
-            public static void Content(IEl<string> target, IEl<string> editingItemId, IOp<string> finishEdit_, string myId)
+            public static void Content(IEl<string> target, IEl<string> editingItemId, IMultiOp<string> finishEdit_, string myId)
             {
                 var finishEdit = finishEdit_.Read();
 

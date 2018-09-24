@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Writership
+﻿namespace Writership
 {
-    public interface ITw<T> : IEl<T>
+    public interface ITw<T> : IReadableWriteable<T>
     {
     }
 
@@ -26,9 +24,6 @@ namespace Writership
                 cells[i] = value;
             }
         }
-
-        [Obsolete]
-        public bool IsChanged { get { throw new NotImplementedException(); } }
 
         public T Read()
         {

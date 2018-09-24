@@ -6,8 +6,8 @@ namespace Examples.Counter
     {
         public static void Value(
             IEl<int> target,
-            IOp<Empty> inc,
-            IOp<Empty> dec
+            IMultiOp<Empty> inc,
+            IMultiOp<Empty> dec
         )
         {
             int delta = inc.Read().Count - dec.Read().Count;

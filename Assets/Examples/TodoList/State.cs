@@ -6,29 +6,29 @@ namespace Examples.TodoList
     public class State
     {
         public readonly IEl<int> NextId;
-        public readonly IOp<string> CreateNewItem;
+        public readonly IMultiOp<string> CreateNewItem;
         public readonly ILi<ITodoItem> Items;
-        public readonly IOp<string> ToggleItemComplete;
+        public readonly IMultiOp<string> ToggleItemComplete;
         public readonly IEl<int> UncompletedCount;
-        public readonly IOp<Empty> DeleteCompletedItems;
-        public readonly IOp<string> DeleteItem;
-        public readonly IOp<string> EditItem;
+        public readonly IMultiOp<Empty> DeleteCompletedItems;
+        public readonly IMultiOp<string> DeleteItem;
+        public readonly IMultiOp<string> EditItem;
         public readonly IEl<string> EditingItemId;
-        public readonly IOp<string> FinishEditItem;
+        public readonly IMultiOp<string> FinishEditItem;
         public readonly ITodoItemFactory ItemFactory;
 
         public State(CompositeDisposable cd, IEngine engine)
         {
             NextId = engine.El(1);
-            CreateNewItem = engine.Op<string>();
+            CreateNewItem = engine.MultiOp<string>();
             Items = engine.Li(new List<ITodoItem>());
-            ToggleItemComplete = engine.Op<string>(needApplied: true);
+            ToggleItemComplete = engine.MultiOp<string>(needApplied: true);
             UncompletedCount = engine.El(0);
-            DeleteCompletedItems = engine.Op<Empty>();
-            DeleteItem = engine.Op<string>();
-            EditItem = engine.Op<string>();
+            DeleteCompletedItems = engine.MultiOp<Empty>();
+            DeleteItem = engine.MultiOp<string>();
+            EditItem = engine.MultiOp<string>();
             EditingItemId = engine.El<string>(null);
-            FinishEditItem = engine.Op<string>();
+            FinishEditItem = engine.MultiOp<string>();
             ItemFactory = new TodoItem.Factory(cd, engine,
                 ToggleItemComplete, EditingItemId, FinishEditItem);
 
@@ -97,9 +97,9 @@ namespace Examples.TodoList
         public TodoItem(
             CompositeDisposable cd,
             IEngine engine,
-            IOp<string> toggleComplete,
+            IMultiOp<string> toggleComplete,
             IEl<string> editingItemId,
-            IOp<string> finishEdit,
+            IMultiOp<string> finishEdit,
             string id,
             string content)
         {
@@ -141,16 +141,16 @@ namespace Examples.TodoList
         public class Factory : CompositeDisposableFactory<ITodoItem>, ITodoItemFactory
         {
             private readonly IEngine engine;
-            private readonly IOp<string> toggleComplete;
+            private readonly IMultiOp<string> toggleComplete;
             private readonly IEl<string> editingItemId;
-            private readonly IOp<string> finishEdit;
+            private readonly IMultiOp<string> finishEdit;
 
             public Factory(
                 CompositeDisposable cd,
                 IEngine engine,
-                IOp<string> toggleComplete,
+                IMultiOp<string> toggleComplete,
                 IEl<string> editingItemId,
-                IOp<string> finishEdit
+                IMultiOp<string> finishEdit
             )
             {
                 this.engine = engine;

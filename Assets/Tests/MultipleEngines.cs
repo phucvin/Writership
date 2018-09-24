@@ -86,8 +86,8 @@ public class MultipleEngines
             public readonly ILi<int> Ys;
             public readonly ILi<int> Vxs;
             public readonly ILi<int> Vys;
-            public readonly IOp<int> Tick;
-            public readonly IOp<Rigidbody> Add;
+            public readonly IMultiOp<int> Tick;
+            public readonly IMultiOp<Rigidbody> Add;
 
             private readonly CompositeDisposable cd = new CompositeDisposable();
 
@@ -98,8 +98,8 @@ public class MultipleEngines
                 Ys = engine.Li(new List<int>());
                 Vxs = engine.Li(new List<int>());
                 Vys = engine.Li(new List<int>());
-                Tick = engine.Op<int>();
-                Add = engine.Op<Rigidbody>();
+                Tick = engine.MultiOp<int>();
+                Add = engine.MultiOp<Rigidbody>();
 
                 engine.Computer(cd,
                     new object[] { Tick, Add },
@@ -252,8 +252,8 @@ public class MultipleEngines
             public readonly ILi<int> CurrentFrameIndexes;
             public readonly ILi<int> TotalFrames;
             public readonly ILi<int> Speeds;
-            public readonly IOp<int> Tick;
-            public readonly IOp<Sprite> Add;
+            public readonly IMultiOp<int> Tick;
+            public readonly IMultiOp<Sprite> Add;
 
             private readonly CompositeDisposable cd = new CompositeDisposable();
 
@@ -264,8 +264,8 @@ public class MultipleEngines
                 CurrentFrameIndexes = engine.Li(new List<int>());
                 TotalFrames = engine.Li(new List<int>());
                 Speeds = engine.Li(new List<int>());
-                Tick = engine.Op<int>();
-                Add = engine.Op<Sprite>();
+                Tick = engine.MultiOp<int>();
+                Add = engine.MultiOp<Sprite>();
 
                 engine.Computer(cd,
                     new object[] { Tick, Add },
