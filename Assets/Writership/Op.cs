@@ -88,12 +88,5 @@ namespace Writership
             T tmp;
             return op.TryRead(out tmp);
         }
-
-        public static implicit operator T(Op<T> op)
-        {
-            T value;
-            if (op.TryRead(out value)) return value;
-            else throw new InvalidOperationException();
-        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Writership
 {
-    public interface ITw<T> : IReadableWriteable<T>
+    public interface ITw<T> : IReadable<T>, IWriteable<T>
     {
     }
 

@@ -44,8 +44,9 @@ namespace Examples.TwoWay
             });
 
             Common.Binders.InputFieldTwoWay(cd, engine,
-                map.GetComponent<InputField>("input"), input,
-                s => s, s => s
+                map.GetComponent<InputField>("input"),
+                input, s => s,
+                input, s => s
             );
             Common.Binders.ButtonClick(cd, engine,
                 map.GetComponent<Button>("randomize"), randomize,

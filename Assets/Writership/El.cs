@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Writership
+﻿namespace Writership
 {
-    public interface IEl<T> : IReadableWriteable<T>
+    public interface IEl<T> : IReadable<T>, IWriteable<T>
     {
     }
 

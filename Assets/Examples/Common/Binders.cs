@@ -69,24 +69,25 @@ namespace Examples.Common
         }
 
         public static bool InputFieldTwoWay<T>(CompositeDisposable cd, IEngine engine,
-            InputField dst, IReadableWriteable<T> src,
-            Func<T, string> converter1, Func<string, T> converter2)
+            InputField mid,
+            IReadable<T> src, Func<T, string> srcConverter,
+            IWriteable<T> dst, Func<string, T> dstConverter)
         {
-            if (!dst) return NotBinded();
+            if (!mid) return NotBinded();
 
             engine.Reader(cd, new object[] { src }, () =>
             {
-                if (Equals(converter2(dst.text), src.Read())) return;
-                dst.text = converter1(src.Read());
+                if (Equals(dstConverter(mid.text), src.Read())) return;
+                mid.text = srcConverter(src.Read());
             });
 
             UnityAction<string> action = text =>
             {
-                if (converter1(src.Read()) == text) return;
-                src.Write(converter2(text));
+                if (srcConverter(src.Read()) == text) return;
+                dst.Write(dstConverter(text));
             };
-            dst.onValueChanged.AddListener(action);
-            cd.Add(new DisposableAction(() => dst.onValueChanged.RemoveListener(action)));
+            mid.onValueChanged.AddListener(action);
+            cd.Add(new DisposableAction(() => mid.onValueChanged.RemoveListener(action)));
 
             return true;
         }
