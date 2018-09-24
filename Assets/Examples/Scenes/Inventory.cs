@@ -129,7 +129,8 @@ namespace Examples.Scenes
                         );
                         Common.Binders.Click(icd, engine,
                             imap.GetComponent<Common.Clickable>("select"),
-                            () => SelectedItem.Write(item)
+                            () => SelectedItem.Write(
+                                SelectedItem.Read() == item ? null : item)
                         );
                         Common.Binders.Enabled(icd, engine,
                             imap.Get("is_selected"), SelectedItem,
