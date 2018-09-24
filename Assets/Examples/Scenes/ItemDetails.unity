@@ -237,8 +237,6 @@ MonoBehaviour:
   list:
   - Name: name
     GameObject: {fileID: 1168079061}
-  - Name: back
-    GameObject: {fileID: 1770418017}
   - Name: level
     GameObject: {fileID: 1093467236}
   - Name: sell
@@ -576,14 +574,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1770418017}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b32785f1adf166040877ce730614437a, type: 3}
+  m_Script: {fileID: 11500000, guid: 773e3825f50cb9245af22b0ba2bd84a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onClick:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!1 &1785028501
 GameObject:
   m_ObjectHideFlags: 0

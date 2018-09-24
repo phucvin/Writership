@@ -9,6 +9,8 @@ namespace Examples.Scenes
 {
     public class ScenesMain : MonoBehaviour, IDisposable
     {
+        public static ScenesMain Instance { get; private set; }
+
         [SerializeField]
         private Common.Map map = null;
 
@@ -19,6 +21,7 @@ namespace Examples.Scenes
 
         public void Awake()
         {
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
 
@@ -45,18 +48,6 @@ namespace Examples.Scenes
 
             // Test
             state.Home.Scene.Open.Fire(Empty.Instance);
-            engine.Mainer(cd, Dep.On(state.Inventory.UpgradeItem.Yes), () =>
-            {
-                if (!state.Inventory.UpgradeItem.Yes) return;
-                Debug.LogFormat("UpgradeItem {0}, Yes",
-                    state.Inventory.UpgradeItem.Yes.First);
-            });
-            engine.Mainer(cd, Dep.On(state.Inventory.UpgradeItem.Rejected), () =>
-            {
-                if (!state.Inventory.UpgradeItem.Rejected) return;
-                Debug.LogFormat("UpgradeItem {0}, Rejected",
-                    state.Inventory.UpgradeItem.Rejected.First);
-            });
         }
 
         public void Dispose()
@@ -83,6 +74,11 @@ namespace Examples.Scenes
                 engine.Update();
                 yield return null;
             }
+        }
+
+        public void Back(bool isSystem)
+        {
+            state.SceneStack.Back.Fire(isSystem);
         }
     }
 }

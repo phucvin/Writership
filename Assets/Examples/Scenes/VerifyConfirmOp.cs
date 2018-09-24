@@ -95,10 +95,6 @@ namespace Examples.Scenes
                     map.GetComponent<Button>("no"), No,
                     () => Current
                 );
-                Common.Binders.Click(scd, engine,
-                    map.GetComponent<Common.Clickable>("back"), Dialog.Back,
-                    () => false
-                );
             });
         }
     }

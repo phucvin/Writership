@@ -70,10 +70,6 @@ namespace Examples.Scenes
                     map.GetComponent<Text>("level"), item.Level,
                     i => string.Format("Level {0}", i)
                 );
-                Common.Binders.Click(scd, engine,
-                    map.GetComponent<Common.Clickable>("back"), Scene.Back,
-                    () => false
-                );
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("sell"), state.Inventory.SellItem.Trigger,
                     () => item

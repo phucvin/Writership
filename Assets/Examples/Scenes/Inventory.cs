@@ -114,10 +114,6 @@ namespace Examples.Scenes
                     i => string.Format("Gold: {0}", i)
                 );
                 Common.Binders.Click(scd, engine,
-                    map.GetComponent<Common.Clickable>("back"), Scene.Back,
-                    () => false
-                );
-                Common.Binders.Click(scd, engine,
                     map.GetComponent<Common.Clickable>("upgrade"), UpgradeItem.Trigger,
                     () => SelectedItem.Read()
                 );
