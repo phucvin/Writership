@@ -52,6 +52,7 @@ namespace Examples.Scenes
                 }
                 if (SellItem.Yes)
                 {
+                    ItemFactory.Dispose(SellItem.Yes.First);
                     // TODO Should be remove exact
                     items.Remove(SellItem.Yes.First);
                 }
