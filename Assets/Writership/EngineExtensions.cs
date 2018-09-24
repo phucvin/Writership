@@ -10,11 +10,6 @@ namespace Writership
             return new El<T>(engine, value);
         }
 
-        public static Tw<T> Tw<T>(this IEngine engine, T value)
-        {
-            return new Tw<T>(engine, value);
-        }
-
         public static Li<T> Li<T>(this IEngine engine, IList<T> list)
         {
             return new Li<T>(engine, list);

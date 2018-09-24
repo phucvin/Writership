@@ -11,7 +11,8 @@ namespace Examples.Scenes
         public readonly Scene<Empty> Scene;
         public readonly Li<Item> Items;
         public readonly Item.Factory ItemFactory;
-        public readonly Tw<Item> SelectedItem;
+        public readonly El<Item> RawSelectedItem;
+        public readonly El<Item> SelectedItem;
         public readonly VerifyConfirmOp<Item> UpgradeItem;
         public readonly VerifyConfirmOp<Item> SellItem;
 
@@ -20,7 +21,8 @@ namespace Examples.Scenes
             Scene = new MyScene(engine, this);
             Items = engine.Li(new List<Item>());
             ItemFactory = new Item.Factory();
-            SelectedItem = engine.Tw<Item>(null);
+            RawSelectedItem = engine.El<Item>(null);
+            SelectedItem = engine.El<Item>(null);
             UpgradeItem = new VerifyConfirmOp<Item>(engine,
                 item => string.Format("Do you want to upgrade {0}?", item.Name)
             );
@@ -66,11 +68,16 @@ namespace Examples.Scenes
                 }
                 items.Commit();
             });
-            engine.Worker(cd, Dep.On(Items), () =>
+            engine.Worker(cd, Dep.On(RawSelectedItem, Items), () =>
             {
-                if (!Items.Read().Contains(SelectedItem))
+                var items = Items.Read();
+                if (!items.Contains(SelectedItem))
                 {
                     SelectedItem.Write(null);
+                }
+                else if (Items.Read().Contains(RawSelectedItem))
+                {
+                    SelectedItem.Write(RawSelectedItem);
                 }
             });
             engine.Worker(cd, Dep.On(UpgradeItem.Dialog.Back), () =>
@@ -141,8 +148,8 @@ namespace Examples.Scenes
                         );
                         Common.Binders.Click(icd, engine,
                             imap.GetComponent<Common.Clickable>("select"),
-                            () => SelectedItem.Write(
-                                SelectedItem.Read() == item ? null : item)
+                            () => RawSelectedItem.Write(
+                                RawSelectedItem.Read() == item ? null : item)
                         );
                         Common.Binders.Enabled(icd, engine,
                             imap.Get("is_selected"), SelectedItem,

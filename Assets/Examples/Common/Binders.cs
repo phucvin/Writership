@@ -70,8 +70,8 @@ namespace Examples.Common
 
         public static bool InputFieldTwoWay<T>(CompositeDisposable cd, IEngine engine,
             InputField mid,
-            IReadable<T> src, Func<T, string> srcConverter,
-            IWriteable<T> dst, Func<string, T> dstConverter)
+            IWriteable<T> dst, Func<string, T> dstConverter,
+            IReadable<T> src, Func<T, string> srcConverter)
         {
             if (!mid) return NotBinded();
 
