@@ -48,24 +48,26 @@ namespace Examples.Http
 
             engine.Worker(cd, Dep.On(UserName, HttpUserId.Request, HttpUserId.Error, HttpUserId.Response), () =>
             {
+                int resUserId;
                 if (string.IsNullOrEmpty(UserName) || HttpUserId.Request || HttpUserId.Error)
                 {
                     UserId.Write(null);
                 }
-                else if (HttpUserId.Response)
+                else if (HttpUserId.Response.TryRead(out resUserId))
                 {
-                    UserId.Write(HttpUserId.Response.First);
+                    UserId.Write(resUserId);
                 }
             });
             engine.Worker(cd, Dep.On(UserName, HttpRepoCount.Request, HttpRepoCount.Error, HttpRepoCount.Response), () =>
             {
+                int? resRepoCount;
                 if (string.IsNullOrEmpty(UserName) || HttpRepoCount.Request || HttpRepoCount.Error)
                 {
                     RepoCount.Write(null);
                 }
-                else if (HttpRepoCount.Response)
+                else if (HttpRepoCount.Response.TryRead(out resRepoCount))
                 {
-                    RepoCount.Write(HttpRepoCount.Response.First);
+                    RepoCount.Write(resRepoCount);
                 }
             });
             engine.Worker(cd, Dep.On(UserName), () =>

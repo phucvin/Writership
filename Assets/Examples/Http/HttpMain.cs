@@ -47,7 +47,11 @@ namespace Examples.Http
 
             engine.Mainer(cd, Dep.On(state.HttpUserId.Error), () =>
             {
-                if (state.HttpUserId.Error) Debug.Log(state.HttpUserId.Error.First);
+                HttpError error;
+                if (state.HttpUserId.Error.TryRead(out error))
+                {
+                    Debug.Log(error);
+                }
             });
         }
 

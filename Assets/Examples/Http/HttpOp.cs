@@ -41,13 +41,13 @@ namespace Examples.Http
         private readonly HttpPipe pipe;
         private readonly string url;
 
-        public readonly MultiOp<TReq> Request;
-        public readonly MultiOp<TRes> Response;
-        public readonly MultiOp<HttpError> Error;
+        public readonly Op<TReq> Request;
+        public readonly Op<TRes> Response;
+        public readonly Op<HttpError> Error;
 
         public readonly El<int> Requesting;
 
-        private MultiOp<string> rawResponse;
+        private Op<string> rawResponse;
         private UnityEngine.Coroutine lastExec;
 
         public HttpOp(IEngine engine, string url,
@@ -57,9 +57,9 @@ namespace Examples.Http
             this.pipe = pipe;
             this.url = url;
 
-            Request = engine.MultiOp<TReq>(allowWriters);
-            Response = engine.MultiOp<TRes>();
-            Error = engine.MultiOp<HttpError>();
+            Request = engine.Op<TReq>(allowWriters);
+            Response = engine.Op<TRes>();
+            Error = engine.Op<HttpError>();
             Requesting = engine.El(0);
         }
 
@@ -79,7 +79,7 @@ namespace Examples.Http
         public HttpOp<TReq, TRes> WithWorkerResponseParser(Func<string, TRes> f)
         {
             responseParser = f;
-            rawResponse = engine.MultiOp<string>();
+            rawResponse = engine.Op<string>();
             return this;
         }
 
@@ -89,26 +89,27 @@ namespace Examples.Http
             {
                 engine.Worker(cd, Dep.On(rawResponse), () =>
                 {
-                    for (int i = 0, n = rawResponse.Count; i < n; ++i)
+                    string raw;
+                    if (rawResponse.TryRead(out raw))
                     {
                         var res = default(TRes);
-                        if (responseParser != null) res = responseParser(rawResponse[i]);
+                        if (responseParser != null) res = responseParser(raw);
                         Response.Fire(res);
                     }
                 });
             }
             engine.Worker(cd, Dep.On(Request, Response, Error), () =>
             {
-                int result = Requesting - Response.Count - Error.Count;
+                int result = Requesting - (Response ? 1 : 0) - (Error ? 1 : 0);
                 switch (pipe)
                 {
                     case HttpPipe.Multiple:
-                        result += Request.Count;
+                        result += Request ? 1 : 0;
                         break;
 
                     case HttpPipe.SingleFirst:
                     case HttpPipe.SingleLast:
-                        result += Requesting > 0 ? 0 : Math.Min(1, Request.Count);
+                        result += Requesting > 0 ? 0 : Math.Min(1, Request ? 1 : 0);
                         break;
                 }
                 if (result < 0) throw new NotImplementedException();
@@ -118,24 +119,23 @@ namespace Examples.Http
 
             engine.Mainer(cd, Dep.On(Request), () =>
             {
-                for (int i = 0, n = Request.Count; i < n; ++i)
+                TReq req;
+                if (Request.TryRead(out req))
                 {
-                    if (pipe.IsSingle() && (
-                        (pipe == HttpPipe.SingleFirst && (i > 0 || Requesting > 0)) ||
-                        (pipe == HttpPipe.SingleLast && i < n - 1)))
+                    if (pipe == HttpPipe.SingleFirst && Requesting > 0)
                     {
                         UnityEngine.Debug.LogWarning("Skip a HTTP request, because of single on: " + url);
-                        UnityEngine.Debug.LogWarning("Request: " + Request[i]);
+                        UnityEngine.Debug.LogWarning("Request: " + req);
                     }
                     else
                     {
                         if (pipe == HttpPipe.SingleLast && Requesting > 0)
                         {
                             UnityEngine.Debug.LogWarning("Stop previous HTTP request, because of single on: " + url);
-                            UnityEngine.Debug.LogWarning("New request: " + Request[i]);
+                            UnityEngine.Debug.LogWarning("New request: " + req);
                             HttpMain.Instance.StopCoroutine(lastExec);
                         }
-                        lastExec = HttpMain.Instance.StartCoroutine(Exec(Request[i]));
+                        lastExec = HttpMain.Instance.StartCoroutine(Exec(req));
                     }
                 }
             });
