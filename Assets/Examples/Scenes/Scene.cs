@@ -104,6 +104,18 @@ namespace Examples.Scenes
             });
         }
 
+        public void SetupDisposeOnClose(CompositeDisposable cd, IEngine engine)
+        {
+            engine.Mainer(cd, Dep.On(Root), () =>
+            {
+                if (!Root.Read() &&
+                    (State == SceneState.Closing || State == SceneState.Opened))
+                {
+                    cd.Dispose();
+                }
+            });
+        }
+
         protected virtual IEnumerator<float> Preload()
         {
             return null;

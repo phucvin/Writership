@@ -107,6 +107,16 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool ButtonClick(CompositeDisposable cd, IEngine engine,
+            Button src, UnityAction action)
+        {
+            if (!src) return NotBinded();
+
+            src.onClick.AddListener(action);
+            cd.Add(new DisposableAction(() => src.onClick.RemoveListener(action)));
+            return true;
+        }
+
         public static bool Click<T>(CompositeDisposable cd, IEngine engine,
             Clickable src, IOp<T> dst,
             Func<T> valueGetter, Func<bool> checker = null)
