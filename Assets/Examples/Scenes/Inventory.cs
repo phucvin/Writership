@@ -57,11 +57,12 @@ namespace Examples.Scenes
                     ));
                     ++nextId;
                 }
-                if (SellItem.Yes)
+                Item item;
+                if (SellItem.Yes.TryRead(out item))
                 {
-                    ItemFactory.Dispose(SellItem.Yes.First);
+                    ItemFactory.Dispose(item);
                     // TODO Should be remove exact
-                    items.Remove(SellItem.Yes.First);
+                    items.Remove(item);
                 }
                 items.Commit();
             });
@@ -75,21 +76,21 @@ namespace Examples.Scenes
             engine.Worker(cd, Dep.On(UpgradeItem.Dialog.Back), () =>
             {
                 var back = UpgradeItem.Dialog.Back;
-                if (!back || !back.First) return;
+                if (!back || !back.Unwrap) return;
                 UpgradeItem.Dialog.Close.Fire(Empty.Instance);
             });
 
 #if DEBUG
             engine.OpWorker(cd, Dep.On(UpgradeItem.Trigger), () =>
             {
-                if (!Items.Read().Contains(UpgradeItem.Trigger.First))
+                if (!Items.Read().Contains(UpgradeItem.Trigger.Unwrap))
                 {
                     throw new NotImplementedException();
                 }
             });
             engine.OpWorker(cd, Dep.On(SellItem.Trigger), () =>
             {
-                if (!Items.Read().Contains(SellItem.Trigger.First))
+                if (!Items.Read().Contains(SellItem.Trigger.Unwrap))
                 {
                     throw new NotImplementedException();
                 }

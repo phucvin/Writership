@@ -33,9 +33,9 @@ namespace Examples.Scenes
                 var item = Item.Read();
                 var items = state.Inventory.Items.Read();
 
-                if (Scene.Open)
+                if (Scene.Open.TryRead(out item))
                 {
-                    Item.Write(Scene.Open.First);
+                    Item.Write(item);
                 }
                 else if (item != null && !items.Contains(item))
                 {

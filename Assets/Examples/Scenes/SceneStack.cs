@@ -11,7 +11,7 @@ namespace Examples.Scenes
         public readonly MultiOp<Scene> Register;
         public readonly MultiOp<Scene> Unregister;
         public readonly Li<Scene> ActiveScenes;
-        public readonly MultiOp<bool> Back;
+        public readonly Op<bool> Back;
 
         private readonly Li<Scene> registeredScenes;
 
@@ -20,7 +20,7 @@ namespace Examples.Scenes
             Register = engine.MultiOp<Scene>(allowWriters: true);
             Unregister = engine.MultiOp<Scene>(allowWriters: true);
             ActiveScenes = engine.Li(new List<Scene>());
-            Back = engine.MultiOp<bool>(allowWriters: true);
+            Back = engine.Op<bool>(allowWriters: true);
 
             registeredScenes = engine.Li(new List<Scene>());
         }
@@ -69,8 +69,9 @@ namespace Examples.Scenes
 
             engine.Worker(cd, Dep.On(Back), () =>
             {
-                if (!Back || ActiveScenes.Count <= 1) return;
-                ActiveScenes[ActiveScenes.Count - 1].Back.Fire(Back.First);
+                bool isSystem;
+                if (!Back.TryRead(out isSystem) || ActiveScenes.Count <= 1) return;
+                ActiveScenes[ActiveScenes.Count - 1].Back.Fire(isSystem);
             });
         }
 
@@ -78,7 +79,8 @@ namespace Examples.Scenes
         {
             engine.Mainer(cd, Dep.On(Back), () =>
             {
-                if (!Back || !Back.First || ActiveScenes.Count > 1) return;
+                bool isSystem;
+                if (!Back.TryRead(out isSystem) || !isSystem || ActiveScenes.Count > 1) return;
 
 #if UNITY_EDITOR
                 EditorApplication.isPlaying = false;

@@ -11,10 +11,10 @@ namespace Examples.Scenes
         public readonly El<bool> Status;
         public readonly El<T> Current;
         public readonly Scene<Empty> Dialog;
-        public readonly MultiOp<T> Trigger;
-        public readonly MultiOp<T> Yes;
-        public readonly MultiOp<T> No;
-        public readonly MultiOp<T> Rejected;
+        public readonly Op<T> Trigger;
+        public readonly Op<T> Yes;
+        public readonly Op<T> No;
+        public readonly Op<T> Rejected;
 
         public VerifyConfirmOp(IEngine engine, Func<T, string> messageFormatter, bool allowWriters = false)
         {
@@ -23,10 +23,10 @@ namespace Examples.Scenes
             Status = engine.El(false);
             Current = engine.El(default(T));
             Dialog = new Scene<Empty>(engine, "YesNoDialog", backAutoClose: false);
-            Trigger = engine.MultiOp<T>(allowWriters);
-            Yes = engine.MultiOp<T>();
-            No = engine.MultiOp<T>();
-            Rejected = engine.MultiOp<T>();
+            Trigger = engine.Op<T>(allowWriters);
+            Yes = engine.Op<T>();
+            No = engine.Op<T>();
+            Rejected = engine.Op<T>();
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine, SceneStack sceneStack)
@@ -42,14 +42,16 @@ namespace Examples.Scenes
             });
             engine.Worker(cd, Dep.On(Status, Trigger, Yes, No), () =>
             {
+                T value;
                 if (!Status || Yes || No) Current.Write(default(T));
-                else if (Trigger) Current.Write(Trigger.First);
+                else if (Trigger.TryRead(out value)) Current.Write(value);
             });
             engine.Worker(cd, Dep.On(Status, Trigger), () =>
             {
-                if (Trigger && !Status)
+                T value;
+                if (Trigger.TryRead(out value) && !Status)
                 {
-                    Rejected.Fire(Trigger.First);
+                    Rejected.Fire(value);
                 }
             });
             engine.Worker(cd, Dep.On(Status, Dialog.State, Yes, No), () =>

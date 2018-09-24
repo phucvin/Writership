@@ -35,8 +35,8 @@ namespace Examples.Scenes
             engine.Worker(cd, Dep.On(Inventory.UpgradeItem.Yes, Inventory.SellItem.Yes), () =>
             {
                 Gold.Write(Gold
-                    - 10 * Inventory.UpgradeItem.Yes.Count
-                    + 5 * Inventory.SellItem.Yes.Count
+                    - 10 * (Inventory.UpgradeItem.Yes ? 1 : 0)
+                    + 5 * (Inventory.SellItem.Yes ? 1 : 0)
                 );
             });
             engine.Worker(cd, Dep.On(SimpleLoading.State,

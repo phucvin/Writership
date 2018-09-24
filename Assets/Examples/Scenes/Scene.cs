@@ -23,8 +23,8 @@ namespace Examples.Scenes
         public readonly El<SceneState> State;
         public readonly El<GameObject> Root;
         public readonly El<float> LoadingProgress;
-        public readonly MultiOp<Empty> Close;
-        public readonly MultiOp<bool> Back;
+        public readonly Op<Empty> Close;
+        public readonly Op<bool> Back;
 
         protected Scene(IEngine engine, string name, LoadSceneMode mode, bool backAutoClose)
         {
@@ -34,20 +34,20 @@ namespace Examples.Scenes
             State = engine.El(SceneState.Closed);
             Root = engine.El<GameObject>(null);
             LoadingProgress = engine.El(1f);
-            Close = engine.MultiOp<Empty>(allowWriters: true);
-            Back = engine.MultiOp<bool>(allowWriters: true);
+            Close = engine.Op<Empty>(allowWriters: true);
+            Back = engine.Op<bool>(allowWriters: true);
         }
     }
 
     public class Scene<T> : Scene
     {
-        public readonly MultiOp<T> Open;
+        public readonly Op<T> Open;
 
         public Scene(IEngine engine, string name, LoadSceneMode mode = LoadSceneMode.Additive,
             bool backAutoClose = true)
             : base(engine, name, mode, backAutoClose)
         {
-            Open = engine.MultiOp<T>(allowWriters: true);
+            Open = engine.Op<T>(allowWriters: true);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine, SceneStack stack)
