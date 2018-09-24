@@ -64,6 +64,10 @@ namespace Examples.Scenes
                     map.GetComponent<Text>("name"), Item,
                     item => item.Name
                 );
+                Common.Binders.Click(scd, engine,
+                    map.GetComponent<Common.Clickable>("back"), Scene.Back,
+                    () => false
+                );
             });
         }
     }

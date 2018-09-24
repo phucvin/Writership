@@ -91,6 +91,11 @@ namespace Examples.Scenes
                             imap.GetComponent<Text>("level"), item.Level,
                             i => string.Format("Lv.{0}", i)
                         );
+                        Common.Binders.ButtonClick(icd, engine,
+                            imap.GetComponent<Button>("view_details"),
+                            state.ItemDetails.Scene.Open,
+                            () => item.Id
+                        );
                     }
                 );
             });

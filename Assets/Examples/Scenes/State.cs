@@ -36,6 +36,7 @@ namespace Examples.Scenes
             SceneStack.Register(Home.Scene);
             SceneStack.Register(Inventory.Scene);
             SceneStack.Register(Inventory.UpgradeItem.Dialog);
+            SceneStack.Register(ItemDetails.Scene);
             SceneStack.Setup(cd, engine);
 
             engine.OpWorker(cd, Dep.On(Inventory.UpgradeItem.Yes), () =>
