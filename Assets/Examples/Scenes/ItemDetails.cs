@@ -53,16 +53,21 @@ namespace Examples.Scenes
         {
             Scene.SetupUnity(cd, engine);
 
-            engine.Mainer(cd, Dep.On(Scene.Root), () =>
+            engine.Mainer(cd, Dep.On(Scene.Root, Item), () =>
             {
                 var root = Scene.Root.Read();
                 if (!root) return;
                 var map = root.GetComponent<Common.Map>();
                 var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
+                var item = Item.Read();
 
+                scd.Dispose();
                 Common.Binders.Label(scd, engine,
-                    map.GetComponent<Text>("name"), Item,
-                    item => item.Name
+                    map.GetComponent<Text>("name"), item.Name
+                );
+                Common.Binders.Label(scd, engine,
+                    map.GetComponent<Text>("level"), item.Level,
+                    i => string.Format("Level {0}", i)
                 );
                 Common.Binders.Click(scd, engine,
                     map.GetComponent<Common.Clickable>("back"), Scene.Back,
