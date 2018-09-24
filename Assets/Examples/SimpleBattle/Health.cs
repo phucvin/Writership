@@ -34,7 +34,7 @@ namespace Examples.SimpleBattle
                 },
                 () => ComputeCurrent(Current, Max.Read(), RegenSpeed.Read(),
                     entity, entity.Armor.Value.Read(),
-                    world.Ops.Tick.Read(), world.Ops.Hit.Read(),
+                    world.Ops.Tick, world.Ops.Hit.Read(),
                     world.StickHits.Items.Read(),
                     world.RandomSeed.Value.Read())
             );
@@ -42,7 +42,7 @@ namespace Examples.SimpleBattle
 
         public static void ComputeCurrent(IEl<int> target,
             int max, int regenSpeed, IEntity entity, int armorValue,
-            IList<Ops.Tick> tick, IList<Ops.Hit> hit, IList<IStickHitItem> stickHits,
+            IOp<Ops.Tick> tick, IList<Ops.Hit> hit, IList<IStickHitItem> stickHits,
             int randomSeed)
         {
             if (target.Read() <= 0) return;
@@ -51,10 +51,8 @@ namespace Examples.SimpleBattle
             int sub = 0;
 
             int ticks = 0;
-            for (int i = 0, n = tick.Count; i < n; ++i)
-            {
-                ticks += tick[i].Dt;
-            }
+            Ops.Tick t;
+            if (tick.TryRead(out t)) ticks = t.Dt;
 
             add += ticks * regenSpeed;
 

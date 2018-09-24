@@ -30,19 +30,17 @@ namespace Examples.SimpleBattle
         {
             engine.Computer(cd,
                 new object[] { world.Ops.Tick },
-                () => ComputeElapsed(Elapsed, world.Ops.Tick.Read())
+                () => ComputeElapsed(Elapsed, world.Ops.Tick)
             );
         }
 
         public static void ComputeElapsed(IEl<int> target,
-            IList<Ops.Tick> tick)
+            IOp<Ops.Tick> tick)
         {
             int elapsed = target.Read();
 
-            for (int i = 0, n = tick.Count; i < n; ++i)
-            {
-                elapsed += tick[i].Dt;
-            }
+            Ops.Tick t;
+            if (tick.TryRead(out t)) elapsed += t.Dt;
 
             if (elapsed != target.Read()) target.Write(elapsed);
         }

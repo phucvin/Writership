@@ -32,20 +32,20 @@ namespace Examples.SimpleBattle
 
     public interface IOps
     {
-        IMultiOp<Ops.Tick> Tick { get; }
+        IOp<Ops.Tick> Tick { get; }
         IMultiOp<Ops.Hit> Hit { get; }
         IMultiOp<Ops.EndHit> EndHit { get; }
     }
 
     public class Ops_ : IOps
     {
-        public IMultiOp<Ops.Tick> Tick { get; private set; }
+        public IOp<Ops.Tick> Tick { get; private set; }
         public IMultiOp<Ops.Hit> Hit { get; private set; }
         public IMultiOp<Ops.EndHit> EndHit { get; private set; }
 
         public Ops_(IEngine engine)
         {
-            Tick = engine.MultiOp<Ops.Tick>();
+            Tick = engine.Op<Ops.Tick>();
             Hit = engine.MultiOp<Ops.Hit>();
             EndHit = engine.MultiOp<Ops.EndHit>();
         }

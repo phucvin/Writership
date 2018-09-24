@@ -27,16 +27,17 @@ namespace Examples.SimpleBattle
             engine.Computer(cd,
                 new object[] { world.Ops.Tick, world.Ops.Hit },
                 () => ComputeList(Items, entity,
-                    world.Ops.Tick.Read(), world.Ops.Hit.Read(),
+                    world.Ops.Tick, world.Ops.Hit.Read(),
                     world.ModifierItemFactory)
             );
         }
 
         public static void ComputeList(ILi<IModifierItem> target,
-            IEntity entity, IList<Ops.Tick> tick, IList<Ops.Hit> hit,
+            IEntity entity, IOp<Ops.Tick> tick, IList<Ops.Hit> hit,
             IModifierItemFactory itemFactory)
         {
-            if (tick.Count <= 0) return;
+            Ops.Tick t;
+            if (!tick.TryRead(out t) && hit.Count <= 0) return;
 
             var items = target.AsWrite();
 
@@ -54,7 +55,7 @@ namespace Examples.SimpleBattle
                 }
             }
 
-            if (tick.Count > 0)
+            if (tick.TryRead(out t))
             {
                 items.RemoveAll(it =>
                 {

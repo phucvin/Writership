@@ -30,20 +30,18 @@ namespace Examples.SimpleBattle
         {
             engine.Computer(cd,
                 new object[] { world.Ops.Tick },
-                () => ComputeRemain(Remain, world.Ops.Tick.Read())
+                () => ComputeRemain(Remain, world.Ops.Tick)
             );
         }
 
         public static void ComputeRemain(IEl<int> target,
-            IList<Ops.Tick> tick)
+            IOp<Ops.Tick> tick)
         {
             int remain = target.Read();
             if (remain == 0) return;
 
-            for (int i = 0, n = tick.Count; i < n; ++i)
-            {
-                remain -= tick[i].Dt;
-            }
+            Ops.Tick t;
+            if (tick.TryRead(out t)) remain -= t.Dt;
 
             if (remain < 0) remain = 0;
 

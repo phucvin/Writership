@@ -27,7 +27,8 @@ namespace Examples.SimpleBattle
                 new object[] { world.Ops.Tick },
                 () =>
                 {
-                    if (world.Ops.Tick.Read().Count > 0)
+                    Ops.Tick tmp;
+                    if (world.Ops.Tick.TryRead(out tmp))
                     {
                         Value.Write(rand.Next());
                     }
