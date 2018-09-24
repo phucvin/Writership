@@ -30,16 +30,19 @@ namespace Examples.Scenes
 
             engine.Worker(cd, Dep.On(Scene.Open, state.Inventory.Items), () =>
             {
-                var item = Item.Read();
-                var items = state.Inventory.Items.Read();
-
-                if (Scene.Open.TryRead(out item))
+                Item openItem;
+                if (Scene.Open.TryRead(out openItem))
                 {
-                    Item.Write(item);
+                    Item.Write(openItem);
                 }
-                else if (item != null && !items.Contains(item))
+                else
                 {
-                    Item.Write(null);
+                    var item = Item.Read();
+                    var items = state.Inventory.Items.Read();
+                    if (item != null && !items.Contains(item))
+                    {
+                        Item.Write(null);
+                    }
                 }
             });
             engine.Worker(cd, Dep.On(Scene.State, Item), () =>
