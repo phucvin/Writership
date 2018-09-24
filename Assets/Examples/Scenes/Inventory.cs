@@ -40,6 +40,11 @@ namespace Examples.Scenes
             {
                 UpgradeItem.Status.Write(state.Gold >= 10 && SelectedItem.Read() != null);
             });
+            engine.Worker(cd, Dep.On(SellItem.Current, Items), () =>
+            {
+                var current = SellItem.Current.Read();
+                SellItem.Status.Write(current == null || Items.Read().Contains(current));
+            });
             int nextId = 1;
             engine.Worker(cd, Dep.On(Scene.Open, SellItem.Yes), () =>
             {
@@ -77,6 +82,13 @@ namespace Examples.Scenes
             engine.OpWorker(cd, Dep.On(UpgradeItem.Trigger), () =>
             {
                 if (!Items.Read().Contains(UpgradeItem.Trigger.First))
+                {
+                    throw new NotImplementedException();
+                }
+            });
+            engine.OpWorker(cd, Dep.On(SellItem.Trigger), () =>
+            {
+                if (!Items.Read().Contains(SellItem.Trigger.First))
                 {
                     throw new NotImplementedException();
                 }

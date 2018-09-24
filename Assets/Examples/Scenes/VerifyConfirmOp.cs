@@ -9,26 +9,24 @@ namespace Examples.Scenes
         private readonly Func<T, string> messageFormatter;
 
         public readonly El<bool> Status;
+        public readonly El<T> Current;
+        public readonly Scene<Empty> Dialog;
         public readonly Op<T> Trigger;
         public readonly Op<T> Yes;
         public readonly Op<T> No;
         public readonly Op<T> Rejected;
 
-        public readonly Scene<Empty> Dialog;
-        private readonly El<T> current;
-
         public VerifyConfirmOp(IEngine engine, Func<T, string> messageFormatter, bool allowWriters = false)
         {
             this.messageFormatter = messageFormatter;
 
-            Status = engine.El(true);
+            Status = engine.El(false);
+            Current = engine.El(default(T));
+            Dialog = new Scene<Empty>(engine, "YesNoDialog", backAutoClose: false);
             Trigger = engine.Op<T>(allowWriters);
             Yes = engine.Op<T>();
             No = engine.Op<T>();
             Rejected = engine.Op<T>();
-
-            Dialog = new Scene<Empty>(engine, "YesNoDialog", backAutoClose: false);
-            current = engine.El(default(T));
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
@@ -44,8 +42,8 @@ namespace Examples.Scenes
             });
             engine.Worker(cd, Dep.On(Status, Trigger, Yes, No), () =>
             {
-                if (!Status || Yes || No) current.Write(default(T));
-                else if (Trigger) current.Write(Trigger.First);
+                if (!Status || Yes || No) Current.Write(default(T));
+                else if (Trigger) Current.Write(Trigger.First);
             });
             engine.Worker(cd, Dep.On(Status, Trigger), () =>
             {
@@ -83,11 +81,11 @@ namespace Examples.Scenes
                 var map = root.GetComponent<Common.Map>();
                 var scd = root.GetComponent<Common.DisposeOnDestroy>().cd;
                 
-                map.GetComponent<Text>("message").text = messageFormatter(current);
+                map.GetComponent<Text>("message").text = messageFormatter(Current);
 
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("yes"), Yes,
-                    () => current
+                    () => Current
                 );
                 Common.Binders.ButtonInteractable(scd, engine,
                     map.GetComponent<Button>("yes"), Status,
@@ -95,7 +93,7 @@ namespace Examples.Scenes
                 );
                 Common.Binders.ButtonClick(scd, engine,
                     map.GetComponent<Button>("no"), No,
-                    () => current
+                    () => Current
                 );
                 Common.Binders.Click(scd, engine,
                     map.GetComponent<Common.Clickable>("back"), Dialog.Back,
