@@ -136,8 +136,15 @@ namespace Examples.Scenes
                         );
                         Common.Binders.ButtonClick(icd, engine,
                             imap.GetComponent<Button>("view_details"),
-                            state.ItemDetails.Scene.Open,
-                            () => item
+                            () =>
+                            {
+                                var details = new ItemDetails(engine);
+                                var dcd = new CompositeDisposable();
+                                details.Setup(dcd, engine, state);
+                                details.SetupUnity(dcd, engine, state);
+                                details.Scene.SetupDisposeOnClose(dcd, engine);
+                                details.Scene.Open.Fire(item);
+                            }
                         );
                         Common.Binders.Click(icd, engine,
                             imap.GetComponent<Common.Clickable>("select"),
