@@ -61,7 +61,7 @@ namespace Examples.Scenes
             });
             engine.Worker(cd, Dep.On(Items), () =>
             {
-                if (Items.Read().Contains(SelectedItem))
+                if (!Items.Read().Contains(SelectedItem))
                 {
                     SelectedItem.Write(null);
                 }
