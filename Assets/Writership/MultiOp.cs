@@ -6,7 +6,6 @@ namespace Writership
     public interface IMultiOp<T> : IFireable<T>
     {
         IList<T> Read();
-        IMultiOp<Empty> Applied { get; }
     }
 
     public class MultiOp<T> : IMultiOp<T>, IHaveCells
@@ -36,7 +35,7 @@ namespace Writership
         private int lastCellIndex;
 
         public MultiOp(IEngine engine, bool allowWriters = false,
-            bool needApplied = false, Func<T, T, T> reducer = null)
+            Func<T, T, T> reducer = null)
         {
             this.engine = engine;
             this.allowWriters = allowWriters;
@@ -54,34 +53,7 @@ namespace Writership
             }
             writeCell = new List<WithFlag>();
 
-            if (needApplied)
-            {
-                applied = new MultiOp<Empty>(engine);
-
-                engine.Computer(null, new object[] { this }, () =>
-                {
-                    if (Read().Count > 0)
-                    {
-                        applied.Fire(Empty.Instance);
-                    }
-                });
-            }
-            else
-            {
-                applied = null;
-            }
-
             lastCellIndex = allowWriters ? engine.MainCellIndex : -1;
-        }
-
-        [Obsolete]
-        public IMultiOp<Empty> Applied
-        {
-            get
-            {
-                if (applied == null) throw new InvalidOperationException("No Applied on create");
-                else return applied;
-            }
         }
 
         public int Count { get { return Read().Count; } }

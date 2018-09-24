@@ -22,7 +22,7 @@ namespace Examples.TodoList
             NextId = engine.El(1);
             CreateNewItem = engine.MultiOp<string>();
             Items = engine.Li(new List<ITodoItem>());
-            ToggleItemComplete = engine.MultiOp<string>(needApplied: true);
+            ToggleItemComplete = engine.MultiOp<string>();
             UncompletedCount = engine.El(0);
             DeleteCompletedItems = engine.MultiOp<Empty>();
             DeleteItem = engine.MultiOp<string>();
@@ -35,7 +35,7 @@ namespace Examples.TodoList
             engine.Computer(cd,
                 new object[] {
                     Items,
-                    ToggleItemComplete.Applied,
+                    ToggleItemComplete,
                 },
                 () => Computers.UncompletedCount(
                     UncompletedCount,
