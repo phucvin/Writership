@@ -12,8 +12,7 @@ namespace Examples.TwoWay
         private Common.Map map = null;
 
         private IEngine engine;
-        private El<string> rawInput;
-        private El<string> input;
+        private ElWithRaw<string, string> input;
         private Op<Empty> randomize;
 
         private readonly CompositeDisposable cd = new CompositeDisposable();
@@ -21,16 +20,15 @@ namespace Examples.TwoWay
         public void Setup()
         {
             engine = new SinglethreadEngine();
-            rawInput = engine.El(string.Empty);
-            input = engine.El(string.Empty);
+            input = engine.ElWithRaw(string.Empty);
             randomize = engine.Op<Empty>();
 
             var sb = new StringBuilder();
             var rand = new System.Random();
-            engine.Worker(cd, Dep.On(rawInput, randomize), () =>
+            engine.Worker(cd, Dep.On(input.Raw, randomize), () =>
             {
                 sb.Length = 0;
-                sb.Append(rawInput.Read());
+                sb.Append(input.Raw.Read());
                 sb.Replace("hello", "HELLO");
                 sb.Replace("bye", "");
 
@@ -47,7 +45,7 @@ namespace Examples.TwoWay
 
             Common.Binders.InputFieldTwoWay(cd, engine,
                 map.GetComponent<InputField>("input"),
-                rawInput, s => s,
+                input.Raw, s => s,
                 input, s => s
             );
             Common.Binders.ButtonClick(cd, engine,

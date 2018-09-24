@@ -11,8 +11,7 @@ namespace Examples.Scenes
         public readonly Scene<Empty> Scene;
         public readonly Li<Item> Items;
         public readonly Item.Factory ItemFactory;
-        public readonly El<Item> RawSelectedItem;
-        public readonly El<Item> SelectedItem;
+        public readonly ElWithRaw<Item, string> SelectedItem;
         public readonly VerifyConfirmOp<Item> UpgradeItem;
         public readonly VerifyConfirmOp<Item> SellItem;
 
@@ -21,8 +20,7 @@ namespace Examples.Scenes
             Scene = new MyScene(engine, this);
             Items = engine.Li(new List<Item>());
             ItemFactory = new Item.Factory();
-            RawSelectedItem = engine.El<Item>(null);
-            SelectedItem = engine.El<Item>(null);
+            SelectedItem = engine.ElWithRaw<Item, string>(null);
             UpgradeItem = new VerifyConfirmOp<Item>(engine,
                 item => string.Format("Do you want to upgrade {0}?", item.Name)
             );
@@ -68,16 +66,24 @@ namespace Examples.Scenes
                 }
                 items.Commit();
             });
-            engine.Worker(cd, Dep.On(RawSelectedItem, Items), () =>
+            engine.Worker(cd, Dep.On(SelectedItem.Raw, Items), () =>
             {
                 var items = Items.Read();
-                if (!items.Contains(SelectedItem))
+                var itemId = SelectedItem.Raw.Read();
+                if (SelectedItem.Read() != null && !items.Contains(SelectedItem))
                 {
                     SelectedItem.Write(null);
                 }
-                else if (Items.Read().Contains(RawSelectedItem))
+                else if (!string.IsNullOrEmpty(itemId))
                 {
-                    SelectedItem.Write(RawSelectedItem);
+                    for (int i = 0, n = items.Count; i < n; ++i)
+                    {
+                        if (items[i].Id == itemId)
+                        {
+                            SelectedItem.Write(items[i]);
+                            break;
+                        }
+                    }
                 }
             });
             engine.Worker(cd, Dep.On(UpgradeItem.Dialog.Back), () =>
@@ -148,8 +154,8 @@ namespace Examples.Scenes
                         );
                         Common.Binders.Click(icd, engine,
                             imap.GetComponent<Common.Clickable>("select"),
-                            () => RawSelectedItem.Write(
-                                RawSelectedItem.Read() == item ? null : item)
+                            () => SelectedItem.Raw.Write(
+                                SelectedItem.Raw == item.Id ? null : item.Id)
                         );
                         Common.Binders.Enabled(icd, engine,
                             imap.Get("is_selected"), SelectedItem,

@@ -10,6 +10,16 @@ namespace Writership
             return new El<T>(engine, value);
         }
 
+        public static ElWithRaw<T, TRaw> ElWithRaw<T, TRaw>(this IEngine engine, T value, TRaw rawValue = default(TRaw))
+        {
+            return new ElWithRaw<T, TRaw>(engine, value, rawValue);
+        }
+
+        public static ElWithRaw<T, T> ElWithRaw<T>(this IEngine engine, T value)
+        {
+            return new ElWithRaw<T, T>(engine, value, value);
+        }
+
         public static Li<T> Li<T>(this IEngine engine, IList<T> list)
         {
             return new Li<T>(engine, list);
