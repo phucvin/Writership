@@ -21,6 +21,19 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool Enabled<T>(CompositeDisposable cd, IEngine engine,
+            GameObject dst, IEl<T> src,
+            Func<T, bool> converter)
+        {
+            if (!dst) return NotBinded();
+
+            engine.Reader(cd,
+                new object[] { src },
+                () => dst.SetActive(converter(src.Read()))
+            );
+            return true;
+        }
+
         public static bool Label<T>(CompositeDisposable cd, IEngine engine,
             Text dst, IEl<T> src,
             Func<T, string> converter)
@@ -105,6 +118,16 @@ namespace Examples.Common
                 if (checker != null && !checker()) return;
                 dst.Fire(valueGetter());
             };
+            src.onClick.AddListener(action);
+            cd.Add(new DisposableAction(() => src.onClick.RemoveListener(action)));
+            return true;
+        }
+
+        public static bool Click(CompositeDisposable cd, IEngine engine,
+            Clickable src, UnityAction action)
+        {
+            if (!src) return NotBinded();
+            
             src.onClick.AddListener(action);
             cd.Add(new DisposableAction(() => src.onClick.RemoveListener(action)));
             return true;

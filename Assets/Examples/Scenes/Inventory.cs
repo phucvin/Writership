@@ -10,6 +10,7 @@ namespace Examples.Scenes
         public readonly Scene<Empty> Scene;
         public readonly Li<Item> Items;
         public readonly Item.Factory ItemFactory;
+        public readonly El<Item> SelectedItem;
         public readonly VerifyConfirmOp<string> UpgradeItem;
 
         public Inventory(IEngine engine)
@@ -17,6 +18,7 @@ namespace Examples.Scenes
             Scene = new MyScene(engine);
             Items = engine.Li(new List<Item>());
             ItemFactory = new Item.Factory();
+            SelectedItem = engine.El<Item>(null);
             UpgradeItem = new VerifyConfirmOp<string>(engine,
                 s => string.Format("Do you want to upgrade {0}?", s)
             );
@@ -28,9 +30,9 @@ namespace Examples.Scenes
             UpgradeItem.Setup(cd, engine);
             ItemFactory.Setup(cd, engine, state);
 
-            engine.Worker(cd, Dep.On(state.Gold), () =>
+            engine.Worker(cd, Dep.On(state.Gold, SelectedItem), () =>
             {
-                UpgradeItem.Status.Write(state.Gold >= 10);
+                UpgradeItem.Status.Write(state.Gold >= 10 && SelectedItem.Read() != null);
             });
             engine.Worker(cd, Dep.On(Scene.Open), () =>
             {
@@ -76,7 +78,7 @@ namespace Examples.Scenes
                 );
                 Common.Binders.Click(scd, engine,
                     map.GetComponent<Common.Clickable>("upgrade"), UpgradeItem.Trigger,
-                    () => "Sword"
+                    () => SelectedItem.Read().Id
                 );
                 Common.Binders.ButtonInteractable(scd, engine,
                     map.GetComponent<Button>("upgrade"), UpgradeItem.Status,
@@ -95,6 +97,14 @@ namespace Examples.Scenes
                             imap.GetComponent<Button>("view_details"),
                             state.ItemDetails.Scene.Open,
                             () => item.Id
+                        );
+                        Common.Binders.Click(icd, engine,
+                            imap.GetComponent<Common.Clickable>("select"),
+                            () => SelectedItem.Write(item)
+                        );
+                        Common.Binders.Enabled(icd, engine,
+                            imap.Get("is_selected"), SelectedItem,
+                            it => it == item
                         );
                     }
                 );
