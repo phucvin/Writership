@@ -29,9 +29,9 @@ namespace Examples.Scenes
             Rejected = engine.Op<T>();
         }
 
-        public void Setup(CompositeDisposable cd, IEngine engine)
+        public void Setup(CompositeDisposable cd, IEngine engine, SceneStack sceneStack)
         {
-            Dialog.Setup(cd, engine);
+            Dialog.Setup(cd, engine, sceneStack);
 
             engine.Worker(cd, Dep.On(Status, Trigger), () =>
             {

@@ -16,7 +16,7 @@ namespace Examples.Scenes
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
         {
-            Scene.Setup(cd, engine);
+            Scene.Setup(cd, engine, state.SceneStack);
 
             engine.Worker(cd, Dep.On(Scene.Open, state.Inventory.Items), () =>
             {

@@ -8,35 +8,49 @@ namespace Examples.Scenes
 {
     public class SceneStack
     {
+        public readonly Op<Scene> Register;
+        public readonly Op<Scene> Unregister;
         public readonly Li<Scene> ActiveScenes;
         public readonly Op<bool> Back;
 
-        private readonly List<Scene> registeredScenes;
+        private readonly Li<Scene> registeredScenes;
 
         public SceneStack(IEngine engine)
         {
+            Register = engine.Op<Scene>(allowWriters: true, allowMulticast: true);
+            Unregister = engine.Op<Scene>(allowWriters: true, allowMulticast: true);
             ActiveScenes = engine.Li(new List<Scene>());
             Back = engine.Op<bool>(allowWriters: true);
 
-            registeredScenes = new List<Scene>();
-        }
-
-        public void Register(Scene scene)
-        {
-            registeredScenes.Add(scene);
+            registeredScenes = engine.Li(new List<Scene>());
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine)
         {
-            var states = new object[registeredScenes.Count];
-            for (int i = 0, n = registeredScenes.Count; i < n; ++i)
+            engine.Worker(cd, Dep.On(Register, Unregister), () =>
             {
-                states[i] = registeredScenes[i].State;
-            }
-            engine.Worker(cd, states, () =>
+                var registered = registeredScenes.AsWriteProxy();
+                for (int i = 0, n = Register.Count; i < n; ++i)
+                {
+                    registered.Add(Register[i]);
+                }
+                for (int i = 0, n = Unregister.Count; i < n; ++i)
+                {
+                    // TODO Should be RemoveExact
+                    registered.Remove(Unregister[i]);
+                }
+                registered.Commit();
+            });
+
+            var watcher = engine.Wa(cd, registeredScenes, scene => scene.State);
+            engine.Worker(cd, Dep.On(watcher, Unregister), () =>
             {
                 var active = ActiveScenes.AsWriteProxy();
-                for (int i = 0, n = states.Length; i < n; ++i)
+                for (int i = 0, n = Unregister.Count; i < n; ++i)
+                {
+                    active.Remove(Unregister[i]);
+                }
+                for (int i = 0, n = registeredScenes.Count; i < n; ++i)
                 {
                     var scene = registeredScenes[i];
                     var state = scene.State.Read();

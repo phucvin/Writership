@@ -50,8 +50,13 @@ namespace Examples.Scenes
             Open = engine.Op<T>(allowWriters: true);
         }
 
-        public void Setup(CompositeDisposable cd, IEngine engine)
+        public void Setup(CompositeDisposable cd, IEngine engine, SceneStack stack)
         {
+            if (stack != null)
+            {
+                stack.Register.Fire(this);
+                cd.Add(new DisposableAction(() => stack.Unregister.Fire(this)));
+            }
             if (BackAutoClose)
             {
                 engine.Worker(cd, Dep.On(Back), () =>

@@ -19,7 +19,7 @@ namespace Examples.Scenes
             Home = new Home(engine);
             Inventory = new Inventory(engine);
             ItemDetails = new ItemDetails(engine);
-            SimpleLoading = new Scene<Empty>(engine, "SimpleLoading", LoadSceneMode.Additive);
+            SimpleLoading = new Scene<Empty>(engine, "SimpleLoading", backAutoClose: false);
             SceneStack = new SceneStack(engine);
             ShouldShowBack = engine.El(false);
         }
@@ -31,13 +31,8 @@ namespace Examples.Scenes
             Home.Setup(cd, engine, state);
             Inventory.Setup(cd, engine, state);
             ItemDetails.Setup(cd, engine, state);
-            SimpleLoading.Setup(cd, engine);
+            SimpleLoading.Setup(cd, engine, state.SceneStack);
 
-            SceneStack.Register(Home.Scene);
-            SceneStack.Register(Inventory.Scene);
-            SceneStack.Register(Inventory.UpgradeItem.Dialog);
-            SceneStack.Register(Inventory.SellItem.Dialog);
-            SceneStack.Register(ItemDetails.Scene);
             SceneStack.Setup(cd, engine);
 
             engine.Worker(cd, Dep.On(Inventory.UpgradeItem.Yes, Inventory.SellItem.Yes), () =>

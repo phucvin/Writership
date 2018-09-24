@@ -31,10 +31,10 @@ namespace Examples.Scenes
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
         {
-            Scene.Setup(cd, engine);
+            Scene.Setup(cd, engine, state.SceneStack);
             ItemFactory.Setup(cd, engine, state);
-            UpgradeItem.Setup(cd, engine);
-            SellItem.Setup(cd, engine);
+            UpgradeItem.Setup(cd, engine, state.SceneStack);
+            SellItem.Setup(cd, engine, state.SceneStack);
 
             engine.Worker(cd, Dep.On(state.Gold, SelectedItem), () =>
             {

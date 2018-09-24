@@ -15,7 +15,7 @@ namespace Examples.Scenes
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
         {
-            Scene.Setup(cd, engine);
+            Scene.Setup(cd, engine, state.SceneStack);
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine, State state)
