@@ -65,6 +65,8 @@ namespace Examples.Scenes
                 if (!back || !back.First) return;
                 UpgradeItem.Dialog.Close.Fire(Empty.Instance);
             });
+
+#if DEBUG
             engine.OpWorker(cd, Dep.On(UpgradeItem.Trigger), () =>
             {
                 if (!Items.Read().Contains(UpgradeItem.Trigger.First))
@@ -72,6 +74,7 @@ namespace Examples.Scenes
                     throw new NotImplementedException();
                 }
             });
+#endif
         }
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine, State state)
