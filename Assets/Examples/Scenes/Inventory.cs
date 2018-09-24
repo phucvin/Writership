@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Writership;
@@ -63,6 +64,13 @@ namespace Examples.Scenes
                 var back = UpgradeItem.Dialog.Back;
                 if (!back || !back.First) return;
                 UpgradeItem.Dialog.Close.Fire(Empty.Instance);
+            });
+            engine.OpWorker(cd, Dep.On(UpgradeItem.Trigger), () =>
+            {
+                if (!Items.Read().Contains(UpgradeItem.Trigger.First))
+                {
+                    throw new NotImplementedException();
+                }
             });
         }
 
