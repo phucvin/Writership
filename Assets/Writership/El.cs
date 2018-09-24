@@ -4,15 +4,12 @@ namespace Writership
 {
     public interface IEl<T> : IReadableWriteable<T>
     {
-        [Obsolete]
-        bool IsChanged { get; }
     }
 
     public class El<T> : IEl<T>, IHaveCells
     {
         private readonly IEngine engine;
         private readonly T[] cells;
-        private readonly bool[] isChangeds;
 
 #if DEBUG
         private readonly Writership writership = new Writership();
@@ -23,16 +20,11 @@ namespace Writership
             this.engine = engine;
 
             cells = new T[engine.TotalCells];
-            isChangeds = new bool[engine.TotalCells - 1];
             for (int i = 0, n = cells.Length; i < n; ++i)
             {
                 cells[i] = value;
-                if (i < n - 1) isChangeds[i] = false;
             }
         }
-
-        [Obsolete]
-        public bool IsChanged { get { return isChangeds[engine.CurrentCellIndex]; } }
 
         public T Read()
         {
@@ -52,12 +44,10 @@ namespace Writership
         public void CopyCell(int from, int to)
         {
             cells[to] = cells[from];
-            isChangeds[to] = true;
         }
 
         public void ClearCell(int at)
         {
-            isChangeds[at] = false;
         }
 
         private void MarkSelfDirty()
