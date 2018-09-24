@@ -21,7 +21,7 @@ namespace Examples.Scenes
         {
             engine.OpWorker(cd, Dep.On(state.Inventory.UpgradeItem.Yes), () =>
             {
-                if (state.Inventory.UpgradeItem.Yes.First == Id)
+                if (state.Inventory.UpgradeItem.Yes.First == this)
                 {
                     Level.Write(Level + 1);
                 }

@@ -11,7 +11,7 @@ namespace Examples.Scenes
         public readonly Li<Item> Items;
         public readonly Item.Factory ItemFactory;
         public readonly El<Item> SelectedItem;
-        public readonly VerifyConfirmOp<string> UpgradeItem;
+        public readonly VerifyConfirmOp<Item> UpgradeItem;
 
         public Inventory(IEngine engine)
         {
@@ -19,8 +19,8 @@ namespace Examples.Scenes
             Items = engine.Li(new List<Item>());
             ItemFactory = new Item.Factory();
             SelectedItem = engine.El<Item>(null);
-            UpgradeItem = new VerifyConfirmOp<string>(engine,
-                s => string.Format("Do you want to upgrade {0}?", s)
+            UpgradeItem = new VerifyConfirmOp<Item>(engine,
+                item => string.Format("Do you want to upgrade {0}?", item.Name)
             );
         }
 
@@ -78,7 +78,7 @@ namespace Examples.Scenes
                 );
                 Common.Binders.Click(scd, engine,
                     map.GetComponent<Common.Clickable>("upgrade"), UpgradeItem.Trigger,
-                    () => SelectedItem.Read().Id
+                    () => SelectedItem.Read()
                 );
                 Common.Binders.ButtonInteractable(scd, engine,
                     map.GetComponent<Button>("upgrade"), UpgradeItem.Status,
