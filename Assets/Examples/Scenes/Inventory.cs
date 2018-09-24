@@ -137,7 +137,7 @@ namespace Examples.Scenes
                         Common.Binders.ButtonClick(icd, engine,
                             imap.GetComponent<Button>("view_details"),
                             state.ItemDetails.Scene.Open,
-                            () => item.Id
+                            () => item
                         );
                         Common.Binders.Click(icd, engine,
                             imap.GetComponent<Common.Clickable>("select"),

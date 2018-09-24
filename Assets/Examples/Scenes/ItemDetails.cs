@@ -5,12 +5,12 @@ namespace Examples.Scenes
 {
     public class ItemDetails
     {
-        public readonly Scene<string> Scene;
+        public readonly Scene<Item> Scene;
         public readonly El<Item> Item;
         
         public ItemDetails(IEngine engine)
         {
-            Scene = new Scene<string>(engine, "ItemDetails");
+            Scene = new Scene<Item>(engine, "ItemDetails");
             Item = engine.El<Item>(null);
         }
 
@@ -25,17 +25,9 @@ namespace Examples.Scenes
 
                 if (Scene.Open)
                 {
-                    var id = Scene.Open.First;
-                    for (int i = 0, n = items.Count; i < n; ++i)
-                    {
-                        if (items[i].Id == id)
-                        {
-                            Item.Write(items[i]);
-                            return;
-                        }
-                    }
+                    Item.Write(Scene.Open.First);
                 }
-                if (item != null && !items.Contains(Item))
+                else if (item != null && !items.Contains(item))
                 {
                     Item.Write(null);
                 }
