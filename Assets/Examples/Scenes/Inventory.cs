@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using Writership;
 
@@ -7,11 +8,15 @@ namespace Examples.Scenes
     public class Inventory
     {
         public readonly Scene<Empty> Scene;
+        public readonly Li<Item> Items;
+        public readonly Item.Factory ItemFactory;
         public readonly VerifyConfirmOp<string> UpgradeItem;
 
         public Inventory(IEngine engine)
         {
             Scene = new MyScene(engine);
+            Items = engine.Li(new List<Item>());
+            ItemFactory = new Item.Factory();
             UpgradeItem = new VerifyConfirmOp<string>(engine,
                 s => string.Format("Do you want to upgrade {0}?", s)
             );
@@ -21,10 +26,25 @@ namespace Examples.Scenes
         {
             Scene.Setup(cd, engine);
             UpgradeItem.Setup(cd, engine);
+            ItemFactory.Setup(cd, engine, state);
 
             engine.Worker(cd, Dep.On(state.Gold), () =>
             {
                 UpgradeItem.Status.Write(state.Gold >= 10);
+            });
+            engine.Worker(cd, Dep.On(Scene.Open), () =>
+            {
+                var items = Items.AsWriteProxy();
+                if (Scene.Open)
+                {
+                    items.Add(ItemFactory.Create(
+                        items.Count.ToString(),
+                        "Sword " + items.Count,
+                        "item_" + items.Count,
+                        1
+                    ));
+                }
+                items.Commit();
             });
             engine.Worker(cd, Dep.On(UpgradeItem.Dialog.Back), () =>
             {
@@ -62,6 +82,17 @@ namespace Examples.Scenes
                     map.GetComponent<Button>("upgrade"), UpgradeItem.Status,
                     b => b
                 );
+                Common.Binders.List(scd, engine,
+                    map.GetComponent<Transform>("items"),
+                    map.GetComponent<Common.Map>("item"),
+                    Items, (icd, imap, item) =>
+                    {
+                        Common.Binders.Label(icd, engine,
+                            imap.GetComponent<Text>("level"), item.Level,
+                            i => string.Format("Lv.{0}", i)
+                        );
+                    }
+                );
             });
         }
 
@@ -73,7 +104,7 @@ namespace Examples.Scenes
 
             protected override IEnumerator<float> Preload()
             {
-                for (int i = 0, n = 100; i < n; ++i)
+                for (int i = 0, n = 20; i < n; ++i)
                 {
                     yield return i * 1f / n;
                 }
