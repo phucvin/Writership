@@ -12,6 +12,7 @@ namespace Examples.Scenes
         public readonly Item.Factory ItemFactory;
         public readonly El<Item> SelectedItem;
         public readonly VerifyConfirmOp<Item> UpgradeItem;
+        public readonly VerifyConfirmOp<Item> SellItem;
 
         public Inventory(IEngine engine)
         {
@@ -22,29 +23,37 @@ namespace Examples.Scenes
             UpgradeItem = new VerifyConfirmOp<Item>(engine,
                 item => string.Format("Do you want to upgrade {0}?", item.Name)
             );
+            SellItem = new VerifyConfirmOp<Item>(engine,
+                item => string.Format("Do you want to sell {0}?", item.Name)
+            );
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
         {
             Scene.Setup(cd, engine);
-            UpgradeItem.Setup(cd, engine);
             ItemFactory.Setup(cd, engine, state);
+            UpgradeItem.Setup(cd, engine);
+            SellItem.Setup(cd, engine);
 
             engine.Worker(cd, Dep.On(state.Gold, SelectedItem), () =>
             {
                 UpgradeItem.Status.Write(state.Gold >= 10 && SelectedItem.Read() != null);
             });
-            engine.Worker(cd, Dep.On(Scene.Open), () =>
+            int nextId = 1;
+            engine.Worker(cd, Dep.On(Scene.Open, SellItem.Yes), () =>
             {
                 var items = Items.AsWriteProxy();
                 if (Scene.Open)
                 {
                     items.Add(ItemFactory.Create(
-                        items.Count.ToString(),
-                        "Sword " + items.Count,
-                        "item_" + items.Count,
-                        1
+                        nextId.ToString(), "Sword " + nextId, "item_sword", 1
                     ));
+                    ++nextId;
+                }
+                if (SellItem.Yes)
+                {
+                    // TODO Should be remove exact
+                    items.Remove(SellItem.Yes.First);
                 }
                 items.Commit();
             });
@@ -60,6 +69,7 @@ namespace Examples.Scenes
         {
             Scene.SetupUnity(cd, engine);
             UpgradeItem.SetupUnity(cd, engine);
+            SellItem.SetupUnity(cd, engine);
 
             engine.Mainer(cd, Dep.On(Scene.Root), () =>
             {

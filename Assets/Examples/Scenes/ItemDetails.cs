@@ -72,6 +72,10 @@ namespace Examples.Scenes
                     map.GetComponent<Common.Clickable>("back"), Scene.Back,
                     () => false
                 );
+                Common.Binders.ButtonClick(scd, engine,
+                    map.GetComponent<Button>("sell"), state.Inventory.SellItem.Trigger,
+                    () => item
+                );
             });
         }
     }

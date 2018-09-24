@@ -21,7 +21,7 @@ namespace Examples.Scenes
         {
             this.messageFormatter = messageFormatter;
 
-            Status = engine.El(false);
+            Status = engine.El(true);
             Trigger = engine.Op<T>(allowWriters);
             Yes = engine.Op<T>();
             No = engine.Op<T>();
