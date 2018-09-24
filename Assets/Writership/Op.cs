@@ -39,6 +39,16 @@ namespace Writership
             lastCellIndex = allowWriters ? engine.MainCellIndex : -1;
         }
 
+        public T Unwrap
+        {
+            get
+            {
+                T value;
+                if (TryRead(out value)) return value;
+                else throw new InvalidOperationException("Unwrap empty");
+            }
+        }
+
         public bool TryRead(out T value)
         {
             var cell = cells[engine.CurrentCellIndex];
