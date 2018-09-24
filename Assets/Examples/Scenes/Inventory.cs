@@ -17,7 +17,7 @@ namespace Examples.Scenes
 
         public Inventory(IEngine engine)
         {
-            Scene = new MyScene(engine);
+            Scene = new MyScene(engine, this);
             Items = engine.Li(new List<Item>());
             ItemFactory = new Item.Factory();
             SelectedItem = engine.Tw<Item>(null);
@@ -52,7 +52,8 @@ namespace Examples.Scenes
                 if (Scene.Open)
                 {
                     items.Add(ItemFactory.Create(
-                        nextId.ToString(), "Sword " + nextId, "item_sword", 1
+                        nextId.ToString(), "Sword " + nextId,
+                        "item_" + ((nextId - 1) % 3 + 1), 1
                     ));
                     ++nextId;
                 }
@@ -130,6 +131,9 @@ namespace Examples.Scenes
                             imap.GetComponent<Text>("level"), item.Level,
                             i => string.Format("Lv.{0}", i)
                         );
+                        Common.Binders.Image(icd, engine,
+                            imap.GetComponent<Image>("image"), item.Image
+                        );
                         Common.Binders.ButtonClick(icd, engine,
                             imap.GetComponent<Button>("view_details"),
                             () => ItemDetails.CreateAndShow(engine, state, item)
@@ -150,16 +154,41 @@ namespace Examples.Scenes
 
         private class MyScene : Scene<Empty>
         {
-            public MyScene(IEngine engine) : base(engine, "Inventory")
+            private readonly Inventory inventory;
+
+            public MyScene(IEngine engine, Inventory inventory)
+                : base(engine, "Inventory")
             {
+                this.inventory = inventory;
             }
 
             protected override IEnumerator<float> Preload()
             {
-                for (int i = 0, n = 20; i < n; ++i)
+                var items = inventory.Items.Read();
+                var requests = new List<AsyncOperation>();
+                for (int i = 0, n = items.Count; i < n; ++i)
                 {
-                    yield return i * 1f / n;
+                    requests.Add(Resources.LoadAsync(items[i].Image));
                 }
+                return Preload(requests);
+            }
+
+            private static IEnumerator<float> Preload(IList<AsyncOperation> requests)
+            {
+                while (true)
+                {
+                    bool done = true;
+                    float progress = 0f;
+                    for (int i = 0, n = requests.Count; i < n; ++i)
+                    {
+                        var r = requests[i];
+                        done &= r.isDone;
+                        progress += r.progress;
+                    }
+                    if (done) break;
+                    else yield return progress / requests.Count;
+                }
+                yield return 1f;
             }
         }
     }

@@ -169,6 +169,15 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool Image(CompositeDisposable cd, IEngine engine,
+            Image dst, string resourcePath)
+        {
+            if (!dst) return NotBinded();
+
+            dst.sprite = Resources.Load<Sprite>(resourcePath);
+            return true;
+        }
+
         public static bool List<T>(CompositeDisposable cd, IEngine engine,
             Transform dst, Map prefab, ILi<T> src,
             Action<CompositeDisposable, Map, T> itemBinder)

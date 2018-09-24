@@ -66,6 +66,9 @@ namespace Examples.Scenes
                 Common.Binders.Label(scd, engine,
                     map.GetComponent<Text>("name"), item.Name
                 );
+                Common.Binders.Image(scd, engine,
+                    map.GetComponent<Image>("image"), item.Image
+                );
                 Common.Binders.Label(scd, engine,
                     map.GetComponent<Text>("level"), item.Level,
                     i => string.Format("Level {0}", i)
