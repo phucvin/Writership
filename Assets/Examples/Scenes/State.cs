@@ -39,9 +39,12 @@ namespace Examples.Scenes
             SceneStack.Register(ItemDetails.Scene);
             SceneStack.Setup(cd, engine);
 
-            engine.OpWorker(cd, Dep.On(Inventory.UpgradeItem.Yes), () =>
+            engine.Worker(cd, Dep.On(Inventory.UpgradeItem.Yes, Inventory.SellItem.Yes), () =>
             {
-                Gold.Write(Gold - 10);
+                Gold.Write(Gold
+                    - 10 * Inventory.UpgradeItem.Yes.Count
+                    + 5 * Inventory.SellItem.Yes.Count
+                );
             });
             engine.Worker(cd, Dep.On(SimpleLoading.State,
                 Home.Scene.State, Inventory.Scene.State,
