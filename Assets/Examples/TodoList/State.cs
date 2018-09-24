@@ -10,11 +10,11 @@ namespace Examples.TodoList
         public readonly ILi<ITodoItem> Items;
         public readonly IMultiOp<string> ToggleItemComplete;
         public readonly IEl<int> UncompletedCount;
-        public readonly IMultiOp<Empty> DeleteCompletedItems;
+        public readonly IOp<Empty> DeleteCompletedItems;
         public readonly IMultiOp<string> DeleteItem;
-        public readonly IMultiOp<string> EditItem;
+        public readonly IOp<string> EditItem;
         public readonly IEl<string> EditingItemId;
-        public readonly IMultiOp<string> FinishEditItem;
+        public readonly IOp<string> FinishEditItem;
         public readonly ITodoItemFactory ItemFactory;
 
         public State(CompositeDisposable cd, IEngine engine)
@@ -24,11 +24,11 @@ namespace Examples.TodoList
             Items = engine.Li(new List<ITodoItem>());
             ToggleItemComplete = engine.MultiOp<string>();
             UncompletedCount = engine.El(0);
-            DeleteCompletedItems = engine.MultiOp<Empty>();
+            DeleteCompletedItems = engine.Op<Empty>();
             DeleteItem = engine.MultiOp<string>();
-            EditItem = engine.MultiOp<string>();
+            EditItem = engine.Op<string>();
             EditingItemId = engine.El<string>(null);
-            FinishEditItem = engine.MultiOp<string>();
+            FinishEditItem = engine.Op<string>();
             ItemFactory = new TodoItem.Factory(cd, engine,
                 ToggleItemComplete, EditingItemId, FinishEditItem);
 
@@ -99,7 +99,7 @@ namespace Examples.TodoList
             IEngine engine,
             IMultiOp<string> toggleComplete,
             IEl<string> editingItemId,
-            IMultiOp<string> finishEdit,
+            IOp<string> finishEdit,
             string id,
             string content)
         {
@@ -143,14 +143,14 @@ namespace Examples.TodoList
             private readonly IEngine engine;
             private readonly IMultiOp<string> toggleComplete;
             private readonly IEl<string> editingItemId;
-            private readonly IMultiOp<string> finishEdit;
+            private readonly IOp<string> finishEdit;
 
             public Factory(
                 CompositeDisposable cd,
                 IEngine engine,
                 IMultiOp<string> toggleComplete,
                 IEl<string> editingItemId,
-                IMultiOp<string> finishEdit
+                IOp<string> finishEdit
             )
             {
                 this.engine = engine;

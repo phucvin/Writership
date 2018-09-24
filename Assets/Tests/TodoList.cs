@@ -33,7 +33,7 @@ public class TodoList
         var targetAsWrite = new List<ITodoItem>();
         var nextId = Substitute.For<IEl<int>>();
         var newItem = Substitute.For<IMultiOp<string>>();
-        var deleteCompletedItems = Substitute.For<IMultiOp<Empty>>();
+        var deleteCompletedItems = Substitute.For<IOp<Empty>>();
         var deleteItem = Substitute.For<IMultiOp<string>>();
         var itemFactory = Substitute.For<ITodoItemFactory>();
         var newItem1 = Substitute.For<ITodoItem>();
@@ -45,7 +45,8 @@ public class TodoList
         {
             "hello", "bye"
         });
-        deleteCompletedItems.Read().Returns(new List<Empty>());
+        Empty tmp;
+        deleteCompletedItems.TryRead(out tmp).Returns(true);
         deleteItem.Read().Returns(new List<string>());
         itemFactory.Create("2", "hello").Returns(newItem1);
         itemFactory.Create("3", "bye").Returns(newItem2);
@@ -62,7 +63,7 @@ public class TodoList
         var targetAsWrite = new List<ITodoItem>();
         var nextId = Substitute.For<IEl<int>>();
         var newItem = Substitute.For<IMultiOp<string>>();
-        var deleteCompletedItems = Substitute.For<IMultiOp<Empty>>();
+        var deleteCompletedItems = Substitute.For<IOp<Empty>>();
         var deleteItem = Substitute.For<IMultiOp<string>>();
         var itemFactory = Substitute.For<ITodoItemFactory>();
         var newItem1 = Substitute.For<ITodoItem>();
@@ -74,7 +75,8 @@ public class TodoList
         {
             "hello", "bye"
         });
-        deleteCompletedItems.Read().Returns(new List<Empty>());
+        Empty tmp;
+        deleteCompletedItems.TryRead(out tmp).Returns(false);
         deleteItem.Read().Returns(new List<string>
         {
             "2"

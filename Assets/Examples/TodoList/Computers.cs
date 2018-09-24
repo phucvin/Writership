@@ -19,16 +19,17 @@ namespace Examples.TodoList
             ILi<ITodoItem> target,
             IEl<int> nextId,
             IMultiOp<string> newItem_,
-            IMultiOp<Empty> deleteCompletedItems_,
+            IOp<Empty> deleteCompletedItems_,
             IMultiOp<string> deleteItem_,
             ITodoItemFactory factory)
         {
             var newItem = newItem_.Read();
-            var deleteCompletedItems = deleteCompletedItems_.Read();
+            Empty tmp;
+            bool deleteCompletedItems = deleteCompletedItems_.TryRead(out tmp);
             var deleteItem = deleteItem_.Read();
 
             if (newItem.Count <= 0 &&
-                deleteCompletedItems.Count <= 0 &&
+                !deleteCompletedItems &&
                 deleteItem.Count <= 0)
             {
                 return;
@@ -45,7 +46,7 @@ namespace Examples.TodoList
                 nextId.Write(nextId.Read() + newItem.Count);
             }
 
-            if (deleteCompletedItems.Count > 0)
+            if (deleteCompletedItems)
             {
                 items.RemoveAll(it =>
                 {
@@ -72,13 +73,14 @@ namespace Examples.TodoList
             }
         }
 
-        public static void EditingItemId(IEl<string> target, IMultiOp<string> edit_, IMultiOp<string> finish)
+        public static void EditingItemId(IEl<string> target, IOp<string> edit_, IOp<string> finish)
         {
-            var edit = edit_.Read();
+            string edit;
+            string tmp;
             var editingItemId = target.Read();
 
-            if (finish.Read().Count > 0) editingItemId = null;
-            else if (edit.Count > 0) editingItemId = edit[edit.Count - 1];
+            if (finish.TryRead(out tmp)) editingItemId = null;
+            else if (edit_.TryRead(out edit)) editingItemId = edit;
 
             if (editingItemId != target.Read()) target.Write(editingItemId);
         }
@@ -97,13 +99,12 @@ namespace Examples.TodoList
                 if (isCompleted != target.Read()) target.Write(isCompleted);
             }
 
-            public static void Content(IEl<string> target, IEl<string> editingItemId, IMultiOp<string> finishEdit_, string myId)
+            public static void Content(IEl<string> target, IEl<string> editingItemId, IOp<string> finishEdit_, string myId)
             {
-                var finishEdit = finishEdit_.Read();
-
-                if (editingItemId.Read() == myId && finishEdit.Count > 0)
+                string finishEdit;
+                if (editingItemId.Read() == myId && finishEdit_.TryRead(out finishEdit))
                 {
-                    string newContent = finishEdit[finishEdit.Count - 1];
+                    string newContent = finishEdit;
                     if (!string.IsNullOrEmpty(newContent)) target.Write(newContent);
                 }
             }
