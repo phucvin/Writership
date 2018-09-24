@@ -4,7 +4,6 @@ namespace Writership
 {
     public interface IOp<T> : IFireable<T>
     {
-        bool Has();
         bool TryRead(out T value);
     }
 
@@ -38,11 +37,6 @@ namespace Writership
             }
 
             lastCellIndex = allowWriters ? engine.MainCellIndex : -1;
-        }
-
-        public bool Has()
-        {
-            return cells[engine.CurrentCellIndex].Has;
         }
 
         public bool TryRead(out T value)
@@ -91,7 +85,8 @@ namespace Writership
 
         public static implicit operator bool(Op<T> op)
         {
-            return op.Has();
+            T tmp;
+            return op.TryRead(out tmp);
         }
 
         public static implicit operator T(Op<T> op)
