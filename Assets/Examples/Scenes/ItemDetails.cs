@@ -5,6 +5,16 @@ namespace Examples.Scenes
 {
     public class ItemDetails
     {
+        public static void CreateAndShow(IEngine engine, State state, Item item)
+        {
+            var details = new ItemDetails(engine);
+            var cd = new CompositeDisposable();
+            details.Setup(cd, engine, state);
+            details.SetupUnity(cd, engine, state);
+            details.Scene.SetupDisposeOnClose(cd, engine);
+            details.Scene.Open.Fire(item);
+        }
+
         public readonly Scene<Item> Scene;
         public readonly El<Item> Item;
         

@@ -8,7 +8,6 @@ namespace Examples.Scenes
         public readonly El<int> Gold;
         public readonly Home Home;
         public readonly Inventory Inventory;
-        public readonly ItemDetails ItemDetails;
         public readonly Scene<Empty> SimpleLoading;
         public readonly SceneStack SceneStack;
         public readonly El<bool> ShouldShowBack;
@@ -18,7 +17,6 @@ namespace Examples.Scenes
             Gold = engine.El(50);
             Home = new Home(engine);
             Inventory = new Inventory(engine);
-            ItemDetails = new ItemDetails(engine);
             SimpleLoading = new Scene<Empty>(engine, "SimpleLoading", backAutoClose: false);
             SceneStack = new SceneStack(engine);
             ShouldShowBack = engine.El(false);
@@ -30,7 +28,6 @@ namespace Examples.Scenes
 
             Home.Setup(cd, engine, state);
             Inventory.Setup(cd, engine, state);
-            ItemDetails.Setup(cd, engine, state);
             SimpleLoading.Setup(cd, engine, state.SceneStack);
 
             SceneStack.Setup(cd, engine);
@@ -72,7 +69,6 @@ namespace Examples.Scenes
 
             Home.SetupUnity(cd, engine, state);
             Inventory.SetupUnity(cd, engine, state);
-            ItemDetails.SetupUnity(cd, engine, state);
             SimpleLoading.SetupUnity(cd, engine);
             SceneStack.SetupUnity(cd, engine);
         }
