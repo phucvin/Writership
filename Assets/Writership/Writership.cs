@@ -42,13 +42,18 @@ namespace Writership
                 var bf = b.GetFrame(i);
                 if (af.GetMethod() != bf.GetMethod())
                 {
-                    string assemblyName = af.GetMethod().DeclaringType.Assembly.GetName().Name;
-                    // Exeception
-                    switch (assemblyName)
+                    string assemblyNameA = af.GetMethod().DeclaringType.Assembly.GetName().Name;
+                    string assemblyNameB = bf.GetMethod().DeclaringType.Assembly.GetName().Name;
+                    if (assemblyNameA == assemblyNameB)
                     {
-                        case "UnityEngine.UI":
-                            return true;
+                        // Exeception
+                        switch (assemblyNameA)
+                        {
+                            case "UnityEngine.UI":
+                                return true;
+                        }
                     }
+                    else return true;
 
                     return false;
                 }

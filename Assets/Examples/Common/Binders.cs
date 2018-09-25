@@ -144,6 +144,29 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool ToggleIsOn<T>(CompositeDisposable cd, IEngine engine,
+            Toggle dst, IReadable<T> src,
+            Func<T, bool> converter)
+        {
+            if (!dst) return NotBinded();
+
+            engine.Reader(cd,
+                new object[] { src },
+                () => dst.isOn = converter(src.Read())
+            );
+            return true;
+        }
+
+        public static bool ToggleChange(CompositeDisposable cd, IEngine engine,
+            Toggle src, UnityAction<bool> action)
+        {
+            if (!src) return NotBinded();
+
+            src.onValueChanged.AddListener(action);
+            cd.Add(new DisposableAction(() => src.onValueChanged.RemoveListener(action)));
+            return true;
+        }
+
         public static bool TextColor<T>(CompositeDisposable cd, IEngine engine,
             Text dst, IReadable<T> src,
             Func<T, Color> converter)
