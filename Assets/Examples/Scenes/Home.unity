@@ -122,6 +122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8572913}
   - component: {fileID: 8572914}
+  - component: {fileID: 8572915}
   m_Layer: 5
   m_Name: GameObject
   m_TagString: Untagged
@@ -171,6 +172,18 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &8572915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 8572912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1184210157, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AllowSwitchOff: 0
 --- !u!1 &212378052
 GameObject:
   m_ObjectHideFlags: 0
@@ -998,7 +1011,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1213418184}
   toggleTransition: 1
   graphic: {fileID: 1253395469}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 8572915}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1164,7 +1177,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1472440284}
   toggleTransition: 1
   graphic: {fileID: 413893149}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 8572915}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
