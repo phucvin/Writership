@@ -144,6 +144,32 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool NonInteractableClick<T>(CompositeDisposable cd, IEngine engine,
+            Clickable src, IFireable<T> dst,
+            Func<T> valueGetter, Func<bool> checker = null)
+        {
+            if (!src) return NotBinded();
+
+            UnityAction action = () =>
+            {
+                if (checker != null && !checker()) return;
+                dst.Fire(valueGetter());
+            };
+            src.onNonInteractableClick.AddListener(action);
+            cd.Add(new DisposableAction(() => src.onNonInteractableClick.RemoveListener(action)));
+            return true;
+        }
+
+        public static bool NonInteractableClick(CompositeDisposable cd, IEngine engine,
+            Clickable src, UnityAction action)
+        {
+            if (!src) return NotBinded();
+
+            src.onNonInteractableClick.AddListener(action);
+            cd.Add(new DisposableAction(() => src.onNonInteractableClick.RemoveListener(action)));
+            return true;
+        }
+
         public static bool ToggleIsOn<T>(CompositeDisposable cd, IEngine engine,
             Toggle dst, IReadable<T> src,
             Func<T, bool> converter)

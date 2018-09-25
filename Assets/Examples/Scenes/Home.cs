@@ -67,6 +67,10 @@ namespace Examples.Scenes
                     map.GetComponent<Toggle>("toggle_more"), CanOpenMore,
                     b => b
                 );
+                Common.Binders.NonInteractableClick(scd, engine,
+                    map.GetComponent<Common.Clickable>("toggle_more"),
+                    () => UnityEngine.Debug.Log("Open inventory first, to unlock More")
+                );
             });
         }
     }
