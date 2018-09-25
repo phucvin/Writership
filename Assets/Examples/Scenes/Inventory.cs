@@ -132,7 +132,7 @@ namespace Examples.Scenes
                     map.GetComponent<Common.Clickable>("upgrade"), UpgradeItem.Trigger,
                     () => SelectedItem.Read()
                 );
-                Common.Binders.ButtonInteractable(scd, engine,
+                Common.Binders.Interactable(scd, engine,
                     map.GetComponent<Button>("upgrade"), UpgradeItem.Status,
                     b => b
                 );

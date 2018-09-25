@@ -180,8 +180,8 @@ namespace Examples.Common
             return true;
         }
 
-        public static bool ButtonInteractable<T>(CompositeDisposable cd, IEngine engine,
-            Button dst, IReadable<T> src,
+        public static bool Interactable<T>(CompositeDisposable cd, IEngine engine,
+            Selectable dst, IReadable<T> src,
             Func<T, bool> converter)
         {
             if (!dst) return NotBinded();

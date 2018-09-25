@@ -89,7 +89,7 @@ namespace Examples.Scenes
                     map.GetComponent<Button>("yes"), Yes,
                     () => Current
                 );
-                Common.Binders.ButtonInteractable(scd, engine,
+                Common.Binders.Interactable(scd, engine,
                     map.GetComponent<Button>("yes"), Status,
                     b => b
                 );

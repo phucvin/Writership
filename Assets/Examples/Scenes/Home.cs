@@ -8,11 +8,13 @@ namespace Examples.Scenes
     {
         public readonly Scene<Empty> Scene;
         public readonly ElWithRaw<string, string> SelectedTab;
+        public readonly El<bool> CanOpenMore;
 
         public Home(IEngine engine)
         {
             Scene = new Scene<Empty>(engine, "Home", LoadSceneMode.Single);
             SelectedTab = engine.ElWithRaw("tab_base");
+            CanOpenMore = engine.El(false);
         }
 
         public void Setup(CompositeDisposable cd, IEngine engine, State state)
@@ -21,11 +23,18 @@ namespace Examples.Scenes
 
             engine.Worker(cd, Dep.On(SelectedTab.Raw, state.Inventory.Scene.Open), () =>
             {
-                if (state.Inventory.Scene.Open)
+                if (state.Inventory.Scene.Open && CanOpenMore)
                 {
                     SelectedTab.Write("tab_more");
                 }
                 else SelectedTab.Write(SelectedTab.Raw);
+            });
+            engine.Worker(cd, Dep.On(state.Inventory.Scene.Open), () =>
+            {
+                if (state.Inventory.Scene.Open)
+                {
+                    CanOpenMore.Write(true);
+                }
             });
         }
 
@@ -53,6 +62,10 @@ namespace Examples.Scenes
                     new string[] { "toggle_base", "toggle_more" },
                     SelectedTab.Raw, s => s,
                     SelectedTab, s => s
+                );
+                Common.Binders.Interactable(scd, engine,
+                    map.GetComponent<Toggle>("toggle_more"), CanOpenMore,
+                    b => b
                 );
             });
         }
