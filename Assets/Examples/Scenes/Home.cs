@@ -19,9 +19,13 @@ namespace Examples.Scenes
         {
             Scene.Setup(cd, engine, state.SceneStack);
 
-            engine.Worker(cd, Dep.On(SelectedTab.Raw, Scene.Open), () =>
+            engine.Worker(cd, Dep.On(SelectedTab.Raw, state.Inventory.Scene.Open), () =>
             {
-                SelectedTab.Write(SelectedTab.Raw);
+                if (state.Inventory.Scene.Open)
+                {
+                    SelectedTab.Write("tab_more");
+                }
+                else SelectedTab.Write(SelectedTab.Raw);
             });
         }
 
@@ -44,31 +48,12 @@ namespace Examples.Scenes
                     map.GetComponent<Button>("inventory"), state.Inventory.Scene.Open,
                     () => Empty.Instance
                 );
-
-                string[] tabs = { "tab_base", "tab_more" };
-                string[] toggles = { "toggle_base", "toggle_more" };
-                engine.Reader(cd, Dep.On(SelectedTab), () =>
-                {
-                    string selected = SelectedTab.Read();
-                    for (int i = 0, n = tabs.Length; i < n; ++i)
-                    {
-                        // TODO Fade animation
-                        map.Get(tabs[i]).SetActive(tabs[i] == selected);
-                    }
-                });
-                for (int i = 0, n = toggles.Length; i < n; ++i)
-                {
-                    string tab = tabs[i];
-                    string toggle = toggles[i];
-                    Common.Binders.ToggleIsOn(scd, engine,
-                        map.GetComponent<Toggle>(toggles[i]), SelectedTab,
-                        selected => selected == tab
-                    );
-                    Common.Binders.ToggleChange(scd, engine,
-                        map.GetComponent<Toggle>(toggles[i]),
-                        b => { if (b) SelectedTab.Raw.Write(tab); }
-                    );
-                }
+                Common.Binders.Tabs(scd, engine, map,
+                    new string[] { "tab_base", "tab_more" },
+                    new string[] { "toggle_base", "toggle_more" },
+                    SelectedTab.Raw, s => s,
+                    SelectedTab, s => s
+                );
             });
         }
     }

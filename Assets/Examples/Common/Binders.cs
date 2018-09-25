@@ -202,6 +202,36 @@ namespace Examples.Common
             return true;
         }
 
+        public static bool Tabs<T>(CompositeDisposable cd, IEngine engine,
+            Map map, string[] tabs, string[] toggles,
+            IWriteable<T> dst, Func<string, T> dstConverter,
+            IReadable<T> src, Func<T, string> srcConverter)
+        {
+            engine.Reader(cd, Dep.On(src), () =>
+            {
+                string selected = srcConverter(src.Read());
+                for (int i = 0, n = tabs.Length; i < n; ++i)
+                {
+                    // TODO Fade animation
+                    map.Get(tabs[i]).SetActive(tabs[i] == selected);
+                }
+            });
+            for (int i = 0, n = toggles.Length; i < n; ++i)
+            {
+                string tab = tabs[i];
+                string toggle = toggles[i];
+                ToggleIsOn(cd, engine,
+                    map.GetComponent<Toggle>(toggles[i]), src,
+                    t => srcConverter(t) == tab
+                );
+                ToggleChange(cd, engine,
+                    map.GetComponent<Toggle>(toggles[i]),
+                    b => { if (b) dst.Write(dstConverter(tab)); }
+                );
+            }
+            return true;
+        }
+
         public static bool List<T>(CompositeDisposable cd, IEngine engine,
             Transform dst, Map prefab, IReadable<IList<T>> src,
             Action<CompositeDisposable, Map, T> itemBinder)
