@@ -31,12 +31,12 @@ namespace Examples.Multiplayer
         {
             engine = new SinglethreadEngine();
 
-            networker1 = new Networker(engine, 1, 1);
+            networker1 = new Networker(engine, 0, 0);
             var tank1 = new Tank(engine, 1);
             tank1.Setup(cd, engine, networker1);
             tank1.SetupUnity(cd, engine, networker1, "plane1");
 
-            networker2 = new Networker(engine, 2, 1);
+            networker2 = new Networker(engine, 1, 0);
             var tank2 = new Tank(engine, 1);
             tank2.Setup(cd, engine, networker2);
             tank2.SetupUnity(cd, engine, networker2, "plane2");
@@ -61,6 +61,7 @@ namespace Examples.Multiplayer
         public void Update()
         {
             networker1.TransferTo(networker2);
+            networker2.TransferTo(networker1);
             engine.Update();
         }
     }
