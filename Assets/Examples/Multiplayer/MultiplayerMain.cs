@@ -13,6 +13,12 @@ namespace Examples.Multiplayer
         public void Setup()
         {
             engine = new SinglethreadEngine();
+
+            var networker = new Networker(engine, 0, 0);
+            var tank = new Tank(engine, 0);
+
+            tank.Setup(cd, engine, networker);
+            tank.SetupTest(cd, engine, networker);
         }
 
         public void Dispose()

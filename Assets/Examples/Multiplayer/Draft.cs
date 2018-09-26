@@ -14,10 +14,17 @@ namespace Examples.Multiplayer
     public class SyncMultiOp<T> : ISyncFireable, IMultiOp<T>, IHaveCells
     {
         public int Code { get; private set; }
-
         private readonly IEngine engine;
         private readonly Networker networker;
         private readonly MultiOp<T> inner;
+
+        public SyncMultiOp(IEngine engine, Networker networker, int code, bool allowWriters = false)
+        {
+            Code = code;
+            this.engine = engine;
+            this.networker = networker;
+            inner = engine.MultiOp<T>(allowWriters);
+        }
 
         public int Count { get { return Read().Count; } }
         public T First { get { return this[0]; } }
@@ -76,10 +83,35 @@ namespace Examples.Multiplayer
 
     public class SyncOps_
     {
+        private readonly IEngine engine;
+        private readonly Networker networker;
+
         public readonly SyncMultiOp<SyncOps.TankPosition> TankPosition;
         public readonly SyncMultiOp<SyncOps.TankMovement> TankMovement;
         public readonly SyncMultiOp<SyncOps.TankTeleport> TankTeleport;
         public readonly IList<ISyncFireable> All;
+
+        private readonly List<ISyncFireable> all;
+
+        public SyncOps_(IEngine engine, Networker networker)
+        {
+            this.engine = engine;
+            this.networker = networker;
+
+            all = new List<ISyncFireable>();
+            All = all.AsReadOnly();
+
+            TankPosition = Create<SyncOps.TankPosition>(1);
+            TankMovement = Create<SyncOps.TankMovement>(2);
+            TankTeleport = Create<SyncOps.TankTeleport>(3);
+        }
+
+        private SyncMultiOp<T> Create<T>(int code, bool allowWriters = false)
+        {
+            var op = new SyncMultiOp<T>(engine, networker, code, allowWriters);
+            all.Add(op);
+            return op;
+        }
     }
 
     public class Networker
@@ -87,6 +119,13 @@ namespace Examples.Multiplayer
         public readonly int Nid;
         public readonly El<int> ServerNid;
         public readonly SyncOps_ SyncOps;
+
+        public Networker(IEngine engine, int nid, int serverNid)
+        {
+            Nid = nid;
+            ServerNid = engine.El(serverNid);
+            SyncOps = new SyncOps_(engine, this);
+        }
 
         public bool IsServer { get { return Nid == ServerNid; } }
         public bool IsClient { get { return Nid != ServerNid; } }
@@ -96,6 +135,7 @@ namespace Examples.Multiplayer
 
         public void Send(int code, object obj)
         {
+            Debug.Log("Send " + code);
             // TODO
         }
 
@@ -120,6 +160,15 @@ namespace Examples.Multiplayer
         public readonly El<Quaternion> Rotation;
         public readonly El<Vector2> Movement;
         public readonly Op<Empty> Teleport;
+
+        public Tank(IEngine engine, int nid)
+        {
+            Nid = nid;
+            Position = engine.ElWithRaw(Vector3.zero);
+            Rotation = engine.El(Quaternion.identity);
+            Movement = engine.El(Vector2.zero);
+            Teleport = engine.Op<Empty>();
+        }
 
         public void Setup(CompositeDisposable cd, IEngine engine, Networker networker)
         {
@@ -160,7 +209,7 @@ namespace Examples.Multiplayer
             });
 
             var syncTeleport = networker.SyncOps.TankTeleport;
-            engine.Worker(cd, Dep.On(Teleport), () =>
+            engine.OpWorker(cd, Dep.On(Teleport), () =>
             {
                 if (!networker.IsMe(Nid)) return;
 
@@ -214,6 +263,12 @@ namespace Examples.Multiplayer
             });
         }
 
+        public void SetupTest(CompositeDisposable cd, IEngine engine, Networker networker)
+        {
+            Position.Raw.Write(Vector3.forward * 5);
+            Teleport.Fire(Empty.Instance);
+        }
+
         public void SetupUnity(CompositeDisposable cd, IEngine engine, Networker networker)
         {
             // TODO Create game object
@@ -232,6 +287,10 @@ namespace Examples.Multiplayer
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, FixedUpdate(rb));
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
             }
+            if (networker.IsMe(Nid))
+            {
+                Common.CoroutineExecutor.Instance.StartCoroutine(cd, Input());
+            }
         }
 
         private IEnumerator FixedUpdate(Rigidbody rb)
@@ -239,7 +298,7 @@ namespace Examples.Multiplayer
             while (true)
             {
                 yield return new WaitForFixedUpdate();
-                rb.velocity = Movement.Read();
+                rb.AddForce(Movement.Read());
             }
         }
 
@@ -249,6 +308,18 @@ namespace Examples.Multiplayer
             {
                 yield return null;
                 Position.Raw.Write(transform.position);
+            }
+        }
+
+        private IEnumerator Input()
+        {
+            while (true)
+            {
+                yield return null;
+                Movement.Write(new Vector2(
+                    UnityEngine.Input.GetAxis("Horizontal"),
+                    UnityEngine.Input.GetAxis("Vertical")
+                ));
             }
         }
     }
