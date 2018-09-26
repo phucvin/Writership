@@ -31,12 +31,23 @@ namespace Examples.Multiplayer
         {
             engine = new SinglethreadEngine();
 
-            networker1 = new Networker(engine, 0, 0);
+            int server = 0;
+            int view1 = 0;
+            int view2 = 1;
+            bool isDedicatedServer = false;
+            if (!isDedicatedServer)
+            {
+                server = 1;
+                view1 = 1;
+                view2 = 2;
+            }
+
+            networker1 = new Networker(engine, view1, server);
             var tank1 = new Tank(engine, 1);
             tank1.Setup(cd, engine, networker1);
             tank1.SetupUnity(cd, engine, networker1, "plane1");
 
-            networker2 = new Networker(engine, 1, 0);
+            networker2 = new Networker(engine, view2, server);
             var tank2 = new Tank(engine, 1);
             tank2.Setup(cd, engine, networker2);
             tank2.SetupUnity(cd, engine, networker2, "plane2");
@@ -58,10 +69,16 @@ namespace Examples.Multiplayer
             Dispose();
         }
 
+        float simulateLag = 0;
         public void Update()
         {
-            networker1.TransferTo(networker2);
-            networker2.TransferTo(networker1);
+            simulateLag += Time.deltaTime;
+            if (simulateLag >= 0.1f)
+            {
+                networker1.TransferTo(networker2);
+                networker2.TransferTo(networker1);
+                simulateLag = 0f;
+            }
             engine.Update();
         }
     }
