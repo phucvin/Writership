@@ -120,11 +120,14 @@ namespace Examples.Multiplayer
         public readonly El<int> ServerNid;
         public readonly SyncOps_ SyncOps;
 
+        private List<WithCode> Buffer;
+
         public Networker(IEngine engine, int nid, int serverNid)
         {
             Nid = nid;
             ServerNid = engine.El(serverNid);
             SyncOps = new SyncOps_(engine, this);
+            Buffer = new List<WithCode>();
         }
 
         public bool IsServer { get { return Nid == ServerNid; } }
@@ -135,8 +138,23 @@ namespace Examples.Multiplayer
 
         public void Send(int code, object obj)
         {
-            Debug.Log("Send " + code);
-            // TODO
+            lock (Buffer)
+            {
+                Buffer.Add(new WithCode { Code = code, Obj = obj });
+            }
+        }
+
+        public void TransferTo(Networker other)
+        {
+            lock (Buffer)
+            {
+                for (int i = 0, n = Buffer.Count; i < n; ++i)
+                {
+                    var it = Buffer[i];
+                    other.Receive(it.Code, it.Obj);
+                }
+                Buffer.Clear();
+            }
         }
 
         public void Receive(int code, object obj)
@@ -150,6 +168,12 @@ namespace Examples.Multiplayer
                     break;
                 }
             }
+        }
+
+        private struct WithCode
+        {
+            public int Code;
+            public object Obj;
         }
     }
 
@@ -189,7 +213,7 @@ namespace Examples.Multiplayer
                 }
                 if (Teleport)
                 {
-                    newPosition += Vector3.forward * 10;
+                    newPosition += Vector3.forward * 3;
                 }
                 Position.Write(newPosition);
             });
@@ -269,17 +293,21 @@ namespace Examples.Multiplayer
             Teleport.Fire(Empty.Instance);
         }
 
-        public void SetupUnity(CompositeDisposable cd, IEngine engine, Networker networker)
+        public void SetupUnity(CompositeDisposable cd, IEngine engine, Networker networker, string planeName)
         {
-            // TODO Create game object
-            Transform transform = null;
-            Rigidbody rb = null;
+            var tank = Object.Instantiate(
+                MultiplayerMain.Instance.Get("tank"),
+                MultiplayerMain.Instance.Get(planeName).transform
+            );
+            tank.SetActive(true);
+            Transform transform = tank.transform;
+            Rigidbody rb = tank.GetComponent<Rigidbody>();
 
             engine.Mainer(cd, Dep.On(Position), () =>
             {
                 // TODO Interpolate and/or extrapolate
                 // but only if not server
-                transform.position = Position;
+                transform.localPosition = Position;
             });
 
             if (networker.IsMe(Nid) || networker.IsServer)
@@ -298,7 +326,8 @@ namespace Examples.Multiplayer
             while (true)
             {
                 yield return new WaitForFixedUpdate();
-                rb.AddForce(Movement.Read());
+                var f = Movement.Read() * 20;
+                rb.AddForce(-f.x, 0, -f.y);
             }
         }
 
@@ -307,7 +336,7 @@ namespace Examples.Multiplayer
             while (true)
             {
                 yield return null;
-                Position.Raw.Write(transform.position);
+                Position.Raw.Write(transform.localPosition);
             }
         }
 
@@ -320,6 +349,10 @@ namespace Examples.Multiplayer
                     UnityEngine.Input.GetAxis("Horizontal"),
                     UnityEngine.Input.GetAxis("Vertical")
                 ));
+                if (UnityEngine.Input.GetKeyUp(KeyCode.Space))
+                {
+                    Teleport.Fire(Empty.Instance);
+                }
             }
         }
     }
