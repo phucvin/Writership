@@ -310,15 +310,17 @@ namespace Examples.Multiplayer
                 transform.localPosition = Position;
             });
 
+            if (networker.IsMe(Nid))
+            {
+                Common.CoroutineExecutor.Instance.StartCoroutine(cd, Input());
+            }
+
             if (networker.IsMe(Nid) || networker.IsServer)
             {
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, FixedUpdate(rb));
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
             }
-            if (networker.IsMe(Nid))
-            {
-                Common.CoroutineExecutor.Instance.StartCoroutine(cd, Input());
-            }
+            else Object.Destroy(rb);
         }
 
         private IEnumerator FixedUpdate(Rigidbody rb)
