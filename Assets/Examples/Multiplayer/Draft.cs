@@ -1,10 +1,62 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Writership;
 
 namespace Examples.Multiplayer
 {
-    public static class Sync
+    public interface ISyncFireable
+    {
+        int Code { get; }
+        void SyncFire(object obj);
+    }
+
+    public class SyncMultiOp<T> : ISyncFireable, IMultiOp<T>, IHaveCells
+    {
+        public int Code { get; private set; }
+
+        private readonly IEngine engine;
+        private readonly Networker networker;
+        private readonly MultiOp<T> inner;
+
+        public int Count { get { return Read().Count; } }
+        public T First { get { return this[0]; } }
+        public T Last { get { return this[Count - 1]; } }
+
+        public T this[int i]
+        {
+            get { return Read()[i]; }
+        }
+
+        public void Fire(T value)
+        {
+            networker.Send(Code, value);
+        }
+
+        public void SyncFire(object obj)
+        {
+            var value = (T)obj;
+            engine.MarkDirty(this, allowMultiple: true);
+            inner.Fire(value);
+        }
+
+        public IList<T> Read()
+        {
+            return inner.Read();
+        }
+
+        public void ClearCell(int at)
+        {
+            // Ignore
+        }
+
+        public void CopyCell(int from, int to)
+        {
+            // Ignore
+        }
+    }
+
+    public static class SyncOps
     {
         public struct TankPosition
         {
@@ -22,25 +74,43 @@ namespace Examples.Multiplayer
         }
     }
 
-    public class Sync_
+    public class SyncOps_
     {
-        // TODO Custom multi op, fire to & read from separated buffers
-        public readonly MultiOp<Sync.TankPosition> TankPosition;
-        public readonly MultiOp<Sync.TankMovement> TankMovement;
-        public readonly MultiOp<Sync.TankTeleport> TankTeleport;
+        public readonly SyncMultiOp<SyncOps.TankPosition> TankPosition;
+        public readonly SyncMultiOp<SyncOps.TankMovement> TankMovement;
+        public readonly SyncMultiOp<SyncOps.TankTeleport> TankTeleport;
+        public readonly IList<ISyncFireable> All;
     }
 
     public class Networker
     {
         public readonly int Nid;
         public readonly El<int> ServerNid;
-        public readonly Sync_ Sync;
+        public readonly SyncOps_ SyncOps;
 
         public bool IsServer { get { return Nid == ServerNid; } }
         public bool IsClient { get { return Nid != ServerNid; } }
 
         public bool IsMe(int nid) { return Nid == nid; }
         public bool IsPeer(int nid) { return Nid != nid; }
+
+        public void Send(int code, object obj)
+        {
+            // TODO
+        }
+
+        public void Receive(int code, object obj)
+        {
+            for (int i = 0, n = SyncOps.All.Count; i < n; ++i)
+            {
+                var it = SyncOps.All[i];
+                if (it.Code == code)
+                {
+                    it.SyncFire(obj);
+                    break;
+                }
+            }
+        }
     }
 
     public class Tank
@@ -53,7 +123,7 @@ namespace Examples.Multiplayer
 
         public void Setup(CompositeDisposable cd, IEngine engine, Networker networker)
         {
-            var syncPostion = networker.Sync.TankPosition;
+            var syncPostion = networker.SyncOps.TankPosition;
             engine.Worker(cd, Dep.On(syncPostion, Position.Raw, Teleport), () =>
             {
                 Vector3 newPosition = Position.Raw;
@@ -75,14 +145,13 @@ namespace Examples.Multiplayer
                 Position.Write(newPosition);
             });
 
-            // TODO El.IsChanged can be useful here
             var lastPosition = Position.Read();
             engine.Worker(cd, Dep.On(Position), () =>
             {
                 if (!networker.IsServer) return;
                 if (Position == lastPosition) return;
 
-                networker.Sync.TankPosition.Fire(new Sync.TankPosition
+                networker.SyncOps.TankPosition.Fire(new SyncOps.TankPosition
                 {
                     Nid = Nid,
                     Position = Position
@@ -90,12 +159,12 @@ namespace Examples.Multiplayer
                 lastPosition = Position;
             });
 
-            var syncTeleport = networker.Sync.TankTeleport;
+            var syncTeleport = networker.SyncOps.TankTeleport;
             engine.Worker(cd, Dep.On(Teleport), () =>
             {
                 if (!networker.IsMe(Nid)) return;
 
-                networker.Sync.TankTeleport.Fire(new Sync.TankTeleport
+                networker.SyncOps.TankTeleport.Fire(new SyncOps.TankTeleport
                 {
                     Nid = Nid
                 });
@@ -115,15 +184,14 @@ namespace Examples.Multiplayer
                 }
             });
 
-            // TODO El.IsChanged can be useful here
-            var syncMovement = networker.Sync.TankMovement;
+            var syncMovement = networker.SyncOps.TankMovement;
             var lastMovement = Movement.Read();
             engine.Worker(cd, Dep.On(Movement), () =>
             {
                 if (!networker.IsMe(Nid)) return;
                 if (Movement == lastMovement) return;
 
-                syncMovement.Fire(new Sync.TankMovement
+                syncMovement.Fire(new SyncOps.TankMovement
                 {
                     Nid = Nid,
                     Movement = Movement
@@ -148,12 +216,14 @@ namespace Examples.Multiplayer
 
         public void SetupUnity(CompositeDisposable cd, IEngine engine, Networker networker)
         {
+            // TODO Create game object
             Transform transform = null;
             Rigidbody rb = null;
 
             engine.Mainer(cd, Dep.On(Position), () =>
             {
                 // TODO Interpolate and/or extrapolate
+                // but only if not server
                 transform.position = Position;
             });
 
