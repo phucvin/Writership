@@ -144,14 +144,17 @@ namespace Examples.Multiplayer
             }
         }
 
-        public void TransferTo(Networker other)
+        public void TransferTo(params Networker[] others)
         {
             lock (Buffer)
             {
                 for (int i = 0, n = Buffer.Count; i < n; ++i)
                 {
                     var it = Buffer[i];
-                    other.Receive(it.Code, it.Obj);
+                    for (int j = 0, m = others.Length; j < m; ++j)
+                    {
+                        others[j].Receive(it.Code, it.Obj);
+                    }
                 }
                 Buffer.Clear();
             }
@@ -188,7 +191,7 @@ namespace Examples.Multiplayer
         public Tank(IEngine engine, int nid)
         {
             Nid = nid;
-            Position = engine.ElWithRaw(Vector3.zero);
+            Position = engine.ElWithRaw(new Vector3(nid == 1 ? 1 : -1, 0.5f, 0));
             Rotation = engine.El(Quaternion.identity);
             Movement = engine.El(Vector2.zero);
             Teleport = engine.Op<Empty>();
@@ -296,7 +299,7 @@ namespace Examples.Multiplayer
         public void SetupUnity(CompositeDisposable cd, IEngine engine, Networker networker, string planeName)
         {
             var tank = Object.Instantiate(
-                MultiplayerMain.Instance.Get("tank"),
+                MultiplayerMain.Instance.Get("tank" + Nid),
                 MultiplayerMain.Instance.Get(planeName).transform
             );
             tank.SetActive(true);
@@ -320,7 +323,11 @@ namespace Examples.Multiplayer
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, FixedUpdate(rb));
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
             }
-            else Object.Destroy(rb);
+            else
+            {
+                Object.Destroy(rb);
+                Object.Destroy(tank.GetComponent<Collider>());
+            }
         }
 
         private IEnumerator FixedUpdate(Rigidbody rb)
@@ -348,10 +355,10 @@ namespace Examples.Multiplayer
             {
                 yield return null;
                 Movement.Write(new Vector2(
-                    UnityEngine.Input.GetAxis("Horizontal"),
-                    UnityEngine.Input.GetAxis("Vertical")
+                    UnityEngine.Input.GetAxis(Nid == 1 ? "Horizontal" : "Horizontal2"),
+                    UnityEngine.Input.GetAxis(Nid == 1 ? "Vertical" : "Vertical2")
                 ));
-                if (UnityEngine.Input.GetKeyUp(KeyCode.Space))
+                if (UnityEngine.Input.GetKeyUp(Nid == 1 ? KeyCode.RightControl : KeyCode.LeftControl))
                 {
                     Teleport.Fire(Empty.Instance);
                 }
