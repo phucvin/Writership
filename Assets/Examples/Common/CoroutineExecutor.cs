@@ -2,7 +2,7 @@
 using UnityEngine;
 using Writership;
 
-namespace Examples.Scenes
+namespace Examples.Common
 {
     public class CoroutineExecutor : MonoBehaviour
     {

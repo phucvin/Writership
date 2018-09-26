@@ -100,11 +100,11 @@ namespace Examples.Scenes
             {
                 if (State == SceneState.Opening)
                 {
-                    CoroutineExecutor.Instance.StartCoroutine(cd, Exec(true));
+                    Common.CoroutineExecutor.Instance.StartCoroutine(cd, Exec(true));
                 }
                 else if (State == SceneState.Closing)
                 {
-                    CoroutineExecutor.Instance.StartCoroutine(cd, Exec(false));
+                    Common.CoroutineExecutor.Instance.StartCoroutine(cd, Exec(false));
                 }
             });
         }
