@@ -24,6 +24,7 @@ namespace Examples.Multiplayer
 
     public class Sync_
     {
+        // TODO Custom multi op, fire to & read from separated buffers
         public readonly MultiOp<Sync.TankPosition> TankPosition;
         public readonly MultiOp<Sync.TankMovement> TankMovement;
         public readonly MultiOp<Sync.TankTeleport> TankTeleport;
@@ -55,19 +56,18 @@ namespace Examples.Multiplayer
             var syncPostion = networker.Sync.TankPosition;
             engine.Worker(cd, Dep.On(syncPostion, Position.Raw, Teleport), () =>
             {
+                Vector3 newPosition = Position.Raw;
                 if (networker.IsClient)
                 {
                     for (int i = syncPostion.Count - 1; i >= 0; --i)
                     {
                         if (syncPostion[i].Nid == Nid)
                         {
-                            Position.Write(syncPostion[i].Position);
-                            return;
+                            newPosition = syncPostion[i].Position;
+                            break;
                         }
                     }
                 }
-
-                Vector3 newPosition = Position.Raw;
                 if (Teleport)
                 {
                     newPosition += Vector3.forward * 10;
@@ -103,6 +103,7 @@ namespace Examples.Multiplayer
             engine.Worker(cd, Dep.On(syncTeleport), () =>
             {
                 if (!networker.IsServer) return;
+                if (networker.IsMe(Nid)) return;
 
                 for (int i = syncTeleport.Count - 1; i >= 0; --i)
                 {
@@ -132,6 +133,7 @@ namespace Examples.Multiplayer
             engine.Worker(cd, Dep.On(syncMovement), () =>
             {
                 if (!networker.IsServer) return;
+                if (networker.IsMe(Nid)) return;
 
                 for (int i = syncMovement.Count - 1; i >= 0; --i)
                 {
@@ -151,10 +153,11 @@ namespace Examples.Multiplayer
 
             engine.Mainer(cd, Dep.On(Position), () =>
             {
+                // TODO Interpolate and/or extrapolate
                 transform.position = Position;
             });
 
-            if (Nid == networker.Nid || networker.Nid == networker.ServerNid)
+            if (networker.IsMe(Nid) || networker.IsServer)
             {
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, FixedUpdate(rb));
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
