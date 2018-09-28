@@ -326,6 +326,8 @@ namespace Examples.Multiplayer
                 transform.localPosition = Position;
             });
 
+            Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
+
             if (networker.IsMe(Nid))
             {
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, Input());
@@ -334,7 +336,6 @@ namespace Examples.Multiplayer
             if (networker.IsMe(Nid) || networker.IsServer)
             {
                 Common.CoroutineExecutor.Instance.StartCoroutine(cd, FixedUpdate(rb));
-                Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
             }
             else
             {
