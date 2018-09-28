@@ -36,10 +36,6 @@ namespace Examples.Multiplayer
 
             Steps = engine.El(0L);
             Tick = engine.Op<float>();
-            engine.OpWorker(cd, Dep.On(Tick), () =>
-            {
-                Steps.Write(Steps + 1);
-            });
 
             int server = 0;
             int view1 = 0;
@@ -110,6 +106,7 @@ namespace Examples.Multiplayer
                 simulateLag = 0f;
             }
             Tick.Fire(Time.deltaTime);
+            Steps.Write(Steps + 1);
             engine.Update();
         }
     }

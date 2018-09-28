@@ -68,6 +68,7 @@ namespace Examples.Multiplayer
         public struct TankPosition
         {
             public int Nid;
+            public long Steps;
             public Vector3 Position;
         }
         public struct TankMovement
@@ -202,6 +203,7 @@ namespace Examples.Multiplayer
             var syncPosition = networker.SyncOps.TankPosition;
             Vector3? lastSyncPosition = null;
             long? lastSyncAtSteps = null;
+            var oldPositions = networker.IsMe(Nid) ? new List<Vector3>() : null;
             engine.Worker(cd, Dep.On(MultiplayerMain.Instance.Tick, syncPosition, Position.Raw, Teleport), () =>
             {
                 Vector3 newPosition = Position.Raw;
@@ -216,7 +218,22 @@ namespace Examples.Multiplayer
                             lastSyncAtSteps = MultiplayerMain.Instance.Steps.Read();
                             synced = true;
 
-                            newPosition = lastSyncPosition.Value;
+                            if (networker.IsMe(Nid))
+                            {
+                                int steps = (int)(MultiplayerMain.Instance.Steps - syncPosition[i].Steps);
+                                var oldPosition = oldPositions[oldPositions.Count - steps];
+                                var adjust = lastSyncPosition.Value - oldPosition;
+                                newPosition += adjust;
+                                if (adjust.magnitude > 0.5f)
+                                {
+                                    Debug.Log("position adjust: " + adjust);
+                                    Debug.Log("steps: " + steps);
+                                }
+                            }
+                            else
+                            {
+                                newPosition = lastSyncPosition.Value;
+                            }
                             break;
                         }
                     }
@@ -231,6 +248,14 @@ namespace Examples.Multiplayer
                 {
                     newPosition += Vector3.forward * 3;
                 }
+                if (oldPositions != null)
+                {
+                    oldPositions.Add(newPosition);
+                    if (oldPositions.Count > 100)
+                    {
+                        oldPositions.RemoveRange(0, oldPositions.Count - 100);
+                    }
+                }
                 Position.Write(newPosition);
             });
 
@@ -243,6 +268,7 @@ namespace Examples.Multiplayer
                 networker.SyncOps.TankPosition.Fire(new SyncOps.TankPosition
                 {
                     Nid = Nid,
+                    Steps = MultiplayerMain.Instance.Steps,
                     Position = Position
                 });
                 lastPosition = Position;
@@ -318,15 +344,22 @@ namespace Examples.Multiplayer
             tank.SetActive(true);
             Transform transform = tank.transform;
             Rigidbody rb = tank.GetComponent<Rigidbody>();
-
+            
             engine.Mainer(cd, Dep.On(Position), () =>
             {
                 // TODO Interpolate and/or extrapolate
                 // but only if not server
                 transform.localPosition = Position;
+                if (networker.IsMe(Nid))
+                {
+                    Position.Raw.Write(transform.localPosition);
+                }
             });
 
-            Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
+            if (networker.IsPeer(Nid))
+            {
+                Common.CoroutineExecutor.Instance.StartCoroutine(cd, Update(transform));
+            }
 
             if (networker.IsMe(Nid))
             {
