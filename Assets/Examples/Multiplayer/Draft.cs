@@ -199,19 +199,32 @@ namespace Examples.Multiplayer
 
         public void Setup(CompositeDisposable cd, IEngine engine, Networker networker)
         {
-            var syncPostion = networker.SyncOps.TankPosition;
-            engine.Worker(cd, Dep.On(syncPostion, Position.Raw, Teleport), () =>
+            var syncPosition = networker.SyncOps.TankPosition;
+            Vector3? lastSyncPosition = null;
+            long? lastSyncAtSteps = null;
+            engine.Worker(cd, Dep.On(MultiplayerMain.Instance.Tick, syncPosition, Position.Raw, Teleport), () =>
             {
                 Vector3 newPosition = Position.Raw;
                 if (networker.IsClient)
                 {
-                    for (int i = syncPostion.Count - 1; i >= 0; --i)
+                    bool synced = false;
+                    for (int i = syncPosition.Count - 1; i >= 0; --i)
                     {
-                        if (syncPostion[i].Nid == Nid)
+                        if (syncPosition[i].Nid == Nid)
                         {
-                            newPosition = syncPostion[i].Position;
+                            lastSyncPosition = syncPosition[i].Position;
+                            lastSyncAtSteps = MultiplayerMain.Instance.Steps.Read();
+                            synced = true;
+
+                            newPosition = lastSyncPosition.Value;
                             break;
                         }
+                    }
+                    if (!synced && lastSyncAtSteps.HasValue &&
+                        MultiplayerMain.Instance.Steps.Read() - lastSyncAtSteps.Value >= 60)
+                    {
+                        newPosition = lastSyncPosition.Value;
+                        lastSyncAtSteps = MultiplayerMain.Instance.Steps.Read();
                     }
                 }
                 if (Teleport)

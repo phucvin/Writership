@@ -7,6 +7,8 @@ namespace Examples.Multiplayer
     public class MultiplayerMain : MonoBehaviour, IDisposable
     {
         public static MultiplayerMain Instance { get; private set; }
+        public El<long> Steps { get; private set; }
+        public Op<float> Tick { get; private set; }
 
         [SerializeField]
         private Common.Map map = null;
@@ -31,6 +33,13 @@ namespace Examples.Multiplayer
         public void Setup()
         {
             engine = new SinglethreadEngine();
+
+            Steps = engine.El(0L);
+            Tick = engine.Op<float>();
+            engine.OpWorker(cd, Dep.On(Tick), () =>
+            {
+                Steps.Write(Steps + 1);
+            });
 
             int server = 0;
             int view1 = 0;
@@ -90,7 +99,7 @@ namespace Examples.Multiplayer
         }
 
         float simulateLag = 0;
-        public void Update()
+        public void LateUpdate()
         {
             simulateLag += Time.deltaTime;
             if (simulateLag >= 0.1f)
@@ -100,6 +109,7 @@ namespace Examples.Multiplayer
                 networker3.TransferTo(networker1);
                 simulateLag = 0f;
             }
+            Tick.Fire(Time.deltaTime);
             engine.Update();
         }
     }
